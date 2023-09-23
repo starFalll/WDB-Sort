@@ -1,0 +1,15 @@
+Trace existing code
+Disable (not remove!) excessive tracing output
+Define class for data records
+Add data records (incl mem mgmt) to iterators
+Add data generation (random values) in ScanIterator
+Test with simple plan -- scan only
+Add predicate evaluation to FilterIterator
+Test with moderate plan -- scan & filter
+Add in-memory sorting -- eg 10, 100, 1000 rows
+Test with moderate plan -- scan & sort
+Add Plan & Iterator that verify a sort order
+Test with 0 rows and with 1 row, also 2, 3, 7 rows
+Add Plan & Iterator that verify a set of rows
+Test with 0, 1, 2, 3, 10, 29, 100, 576, 1000 rows
+...
