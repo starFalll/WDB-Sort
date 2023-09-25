@@ -3,14 +3,28 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <cstdio>
+#include <string>
 
 typedef uint8_t byte;
+
+#define TRACE_SWITCH false
 
 #define slotsof(a)	(sizeof (a) / sizeof (a[0]))
 
 #define nullptr	((void *) NULL)
 
 #define yesno(b)	((b) ? "yes" : "no")
+
+#define INT_MAX 2147483647
+
+// CPU cache 1 MB
+#define MAX_CPU_CACHE 1024 * 1024
+
+// DRAM 100 MB
+#define MAX_DRAM 100 * 1024 * 1024
+
+// SSD 10 GB
+#define MAX_SSD 10 * 1024 * 1024 * 1024
 
 // call-through to assert() from <assert.h>
 //
@@ -40,11 +54,14 @@ public :
 
 	Trace (bool const trace, char const * const function,
 			char const * const file, int const line);
+	Trace (bool const trace, char const * const function,
+			char const * const file, int const line, 
+			int const first, int const second, int const third);
 	~Trace ();
 
 private :
 
-	void _trace (char const lead []);
+	void _trace (std::string lead);
 
 	bool const _output;
 	char const * const _function;
@@ -52,7 +69,8 @@ private :
 	int const _line;
 }; // class Trace
 
-#define TRACE(trace)	Trace __trace (trace, __FUNCTION__, __FILE__, __LINE__)
+#define TRACE(trace)	{Trace __trace (trace, __FUNCTION__, __FILE__, __LINE__);}
+#define TRACE_ITEM(trace, first, second, third)	{Trace __trace (trace, __FUNCTION__, __FILE__, __LINE__, first, second, third);}
 
 // -----------------------------------------------------------------
 

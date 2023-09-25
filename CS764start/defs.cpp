@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <stdio.h>
-
 #include "defs.h"
 
 // -----------------------------------------------------------------
@@ -12,15 +11,23 @@ Trace::Trace (bool const trace, char const * const function,
 	_trace (">>>>>");
 } // Trace::Trace
 
+Trace::Trace (bool const trace, char const * const function,
+			char const * const file, int const line, 
+			int const first, int const second, int const third)
+	: _output (trace), _function (function), _file (file), _line (line)
+{
+	_trace (">>>>> first:" + std::to_string(first) + " second:" + std::to_string(second) + " third:" + std::to_string(third));
+}
+
 Trace::~Trace ()
 {
 	_trace ("<<<<<");
 } // Trace::~Trace
 
-void Trace::_trace (char const lead [])
+void Trace::_trace (std::string lead)
 {
 	if (_output)
-		printf ("%s %s (%s:%d)\n", lead, _function, _file, _line);
+		printf ("%s %s (%s:%d)\n", lead.c_str(), _function, _file, _line);
 } // Trace::_trace
 
 // -----------------------------------------------------------------

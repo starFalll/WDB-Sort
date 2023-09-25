@@ -18,6 +18,9 @@ public:
 	~ScanIterator ();
 	bool next ();
 private:
+	Item GenerateOneRecord ();
+
+private:
 	ScanPlan const * const _plan;
 	RowCount _count;
 }; // class ScanIterator
