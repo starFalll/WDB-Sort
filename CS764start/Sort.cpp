@@ -60,16 +60,16 @@ bool SortIterator::next ()
 	}
 
 	// _sort_records is fulled
-	if (!ret || 0 == _sort_index) {
+	if ((!ret && _consumed > 0) || 0 == _sort_index) {
 		// because quicksort's sequential and localized memory references work well with a cache
 		std::sort(_sort_records.begin(), _sort_records.end(), [] (const Item & a, const Item & b) {
 			// TODO supporting group by
 			// temporarily sorting by first field
 			return a.fields[INCL] < b.fields[INCL];
 		});
-		_produced += _sort_index == 0 ? _sort_records.size() : _sort_index;
+		_produced += _sort_index == 0 ? (RowCount)_sort_records.size() : _sort_index;
 		TRACE (TRACE_SWITCH);
-		for (int i = 1; i <= _sort_index; i++) {
+		for (int i = 0; i < _sort_index; i++) {
 			const auto& item = _sort_records[i];
 			traceprintf ("test %d\n",item.fields[INCL]);
 		}
