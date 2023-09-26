@@ -7,7 +7,6 @@
 int main (int argc, char * argv [])
 {
 	TRACE (TRACE_SWITCH);
-
 	// Plan * const plan = new ScanPlan (7);
 	Plan * scan_plan = new ScanPlan(10000000);
 	FilterPlan * filter_plan = new FilterPlan ( scan_plan );

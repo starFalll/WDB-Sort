@@ -19,13 +19,14 @@ static const ItemField COMPARE_FIELD = INCL;
 static const std::vector<ItemField> ITEM_FIELDS = {INCL, MEM, MGMT};
 
 // Define class for data records
+// 24 bytes
 struct Item
 {
 	std::vector<FieldType> fields; 
 	Item (FieldType incl, FieldType mem, FieldType mgmt);
 	Item ();
 	bool operator < (const Item & other) const;
-	virtual ~Item() = default;
+	~Item() = default;
 };
 
 class Plan
