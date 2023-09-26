@@ -18,6 +18,7 @@ Iterator * SortPlan::init () const
 	return new SortIterator (this);
 } // SortPlan::init
 
+
 SortIterator::SortIterator (SortPlan const * const plan) :
 	_plan (plan), _input (plan->_input->init ()),
 	_consumed (0), _produced (0)
@@ -27,11 +28,6 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 	// allocate 90MB to sort
 	_sort_records.resize (MAX_DRAM * 9 / 10 / sizeof(Item));
 	_sort_index = 0;
-	// while (_input->next ())  ++ _consumed;
-	// delete _input;
-
-	// traceprintf ("consumed %lu rows\n",
-	// 		(unsigned long) (_consumed));
 } // SortIterator::SortIterator
 
 SortIterator::~SortIterator ()
@@ -58,21 +54,24 @@ bool SortIterator::next ()
 		TRACE_ITEM (TRACE_SWITCH, _sort_records [_sort_index].fields[INCL], _sort_records [_sort_index].fields[MEM], _sort_records [_sort_index].fields[MGMT]);
 		++ _consumed;
 	}
-
+	TRACE (TRACE_SWITCH);
 	// _sort_records is fulled
 	if ((!ret && _consumed > 0) || 0 == _sort_index) {
+		uint32_t add_num = _sort_index == 0 ? (RowCount)_sort_records.size() : _sort_index;
 		// because quicksort's sequential and localized memory references work well with a cache
-		std::sort(_sort_records.begin(), _sort_records.end(), [] (const Item & a, const Item & b) {
+		QuickSort(_sort_records.begin(), _sort_records.begin() + add_num, [] (const Item & a, const Item & b) {
 			// TODO supporting group by
 			// temporarily sorting by first field
-			return a.fields[INCL] < b.fields[INCL];
+			return a.fields[COMPARE_FIELD] < b.fields[COMPARE_FIELD];
 		});
-		_produced += _sort_index == 0 ? (RowCount)_sort_records.size() : _sort_index;
+		
+		_produced += add_num;
 		TRACE (TRACE_SWITCH);
-		for (int i = 0; i < _sort_index; i++) {
-			const auto& item = _sort_records[i];
-			traceprintf ("test %d\n",item.fields[INCL]);
-		}
+		// printf("test index:%u\n", _sort_index);
+		// for (int i = 0; i < add_num; i++) {
+		// 	const auto& item = _sort_records[i];
+		// 	traceprintf ("test result: %d\n",item.fields[INCL]);
+		// }
 		// TODO asynchronously writing buffer into SSD or HDD
 
 	}
@@ -85,4 +84,31 @@ void SortIterator::GetRecords(std::vector<Item> ** records, uint32_t ** index)
 {
 	*records = &_sort_records;
 	*index = &_sort_index;
+}
+
+template <typename RandomIt, typename Compare>
+void SortIterator::QuickSort (RandomIt start, RandomIt end, Compare comp)
+{
+	if (start >= end - 1) return;
+	RandomIt pivot = getmid (start, end - 1, start + (end - start) / 2);
+	swap (* pivot, * (end-1));
+	pivot = end - 1;
+	auto left = start, right = end - 2;
+	while (left < right) {
+		while (left < right && (comp ( * pivot, * right) || (!comp ( * right, * pivot)))) { // * right >= * pivot
+			right--;
+		}
+		while (left < right && comp ( * left, * pivot)) {
+			left++;
+		}
+		swap( * left, * right);
+	}
+	if (comp( * left, * pivot)) {
+		swap(*left, *pivot);
+	}
+	else left++;
+	
+	uint32_t index = 0;
+	QuickSort (start, left, comp);
+	QuickSort (left+1, end, comp);
 }

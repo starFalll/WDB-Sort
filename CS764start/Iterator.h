@@ -14,7 +14,9 @@ enum ItemField
 	MAX_ITEM,
 };
 
-static const std::vector<ItemField> ItemFields = {INCL, MEM, MGMT};
+static const ItemField COMPARE_FIELD = INCL;
+
+static const std::vector<ItemField> ITEM_FIELDS = {INCL, MEM, MGMT};
 
 // Define class for data records
 struct Item
@@ -22,6 +24,7 @@ struct Item
 	std::vector<FieldType> fields; 
 	Item (FieldType incl, FieldType mem, FieldType mgmt);
 	Item ();
+	bool operator < (const Item & other) const;
 	virtual ~Item() = default;
 };
 

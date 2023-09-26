@@ -30,7 +30,7 @@ bool FilterPlan::ApplyPredicate (Item & item) const
 	// if do not have conditions, don't do filter
 	if (_predicates.empty()) return true;
 
-	for (const auto & field : ItemFields) {
+	for (const auto & field : ITEM_FIELDS) {
 		auto it = _predicates.find (field);
 		if (it != _predicates.end ()) {
 			for (const auto & predicate : it->second) {

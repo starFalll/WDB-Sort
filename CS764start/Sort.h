@@ -7,6 +7,7 @@ public:
 	SortPlan (Plan * const input);
 	~SortPlan ();
 	Iterator * init () const;
+	
 private:
 	Plan * const _input;
 }; // class SortPlan
@@ -18,6 +19,9 @@ public:
 	~SortIterator ();
 	bool next () override;
 	void GetRecords(std::vector<Item> ** records, uint32_t ** index) override;
+	
+	template <typename RandomIt, typename Compare>
+	void QuickSort (RandomIt start, RandomIt end, Compare comp);
 private:
 	uint32_t _sort_index;
 	std::vector<Item> _sort_records;

@@ -15,8 +15,6 @@ typedef uint8_t byte;
 
 #define yesno(b)	((b) ? "yes" : "no")
 
-#define INT_MAX 2147483647
-
 // CPU cache 1 MB
 #define MAX_CPU_CACHE 1024 * 1024
 
@@ -130,6 +128,24 @@ template <class Val> inline void exchange (Val & a, Val & b)
 	a = b;
 	b = c;
 } // exchange
+
+template <class Iter> inline Iter getmid (Iter a, Iter b, Iter c)
+{
+	if ( * b < * a) {
+		if ( * c < * b) return b;
+		return * a < * c ? a : c;
+	}
+	else {
+		if ( * c < * a) return a;
+		return * b < * c ? b : c;
+	}
+} // getmid
+
+template <class Val> inline void swap (Val & a, Val & b) {
+	Val tmp = a;
+	a = b;
+	b = tmp;
+}
 
 // -----------------------------------------------------------------
 

@@ -16,6 +16,11 @@ Item::Item ()
 	fields [MGMT] = INT_MAX;
 }
 
+bool Item::operator < (const Item & other) const
+{
+	return fields[COMPARE_FIELD] < other.fields[COMPARE_FIELD];
+}
+
 Plan::Plan ()
 {
 	TRACE (TRACE_SWITCH);
