@@ -2,7 +2,7 @@
 
 Item::Item (FieldType incl, FieldType mem, FieldType mgmt)
 {
-	fields.resize(MAX_ITEM - 1);
+	fields.resize(MAX_ITEM);
 	fields [INCL] = incl;
 	fields [MEM] = mem;
 	fields [MGMT] = mgmt;
@@ -10,7 +10,7 @@ Item::Item (FieldType incl, FieldType mem, FieldType mgmt)
 
 Item::Item ()
 {
-	fields.resize(MAX_ITEM - 1);
+	fields.resize(MAX_ITEM);
 	fields [INCL] = INT_MAX;
 	fields [MEM] = INT_MAX;
 	fields [MGMT] = INT_MAX;

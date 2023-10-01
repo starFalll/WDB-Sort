@@ -1,6 +1,23 @@
 #include "Sort.h"
 #include <algorithm>
 
+TreeNode::TreeNode (Item item, uint32_t run_index, uint32_t element_index){
+	_value = &item;
+	_run_index = run_index;
+	_element_index = element_index;
+}
+
+TreeNode::TreeNode (){
+	_value = new Item();
+	_run_index = -1;
+	_element_index = -1;
+}
+
+bool TreeNode::operator < (const TreeNode & other) const {
+	// '>' means minHeap
+	return _value->fields[COMPARE_FIELD] > other._value->fields[COMPARE_FIELD];
+}
+
 SortPlan::SortPlan (Plan * const input) : _input (input)
 {
 	TRACE (TRACE_SWITCH);
@@ -26,7 +43,14 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 	TRACE (TRACE_SWITCH);
 
 	// allocate 90MB to sort
-	_sort_records.resize (MAX_DRAM * 9 / 10 / sizeof(Item));
+	// _sort_records.resize (MAX_DRAM * 9 / 10 / sizeof(Item));
+	// allocate 0.5MB to sort (use CPU Cache)
+	_sort_records.resize (MAX_CPU_CACHE * 5 / 10 / sizeof(Item));
+
+	// set dram limit
+	_cache_run_limit = (MAX_DRAM * 9 / 10) / (MAX_CPU_CACHE * 5 / 10);
+	_cache_run_list.clear();
+
 	_sort_index = 0;
 } // SortIterator::SortIterator
 
@@ -65,6 +89,7 @@ bool SortIterator::next ()
 			return a.fields[COMPARE_FIELD] < b.fields[COMPARE_FIELD];
 		});
 		
+		_cache_run_list.push_back(_sort_records);
 		_produced += add_num;
 		TRACE (TRACE_SWITCH);
 		// printf("test index:%u\n", _sort_index);
@@ -75,6 +100,13 @@ bool SortIterator::next ()
 		// TODO asynchronously writing buffer into SSD or HDD
 
 	}
+
+	// run list is full or finish, start to merge
+	if((_cache_run_list.size() >= _cache_run_limit) || (!ret && _consumed > 0)){
+		MultiwayMerge();
+		_cache_run_list.clear();
+	}
+
 	// ++ _produced;
 	return ret;
 } // SortIterator::next
@@ -112,3 +144,39 @@ void SortIterator::QuickSort (RandomIt start, RandomIt end, Compare comp)
 	QuickSort (start, left, comp);
 	QuickSort (left+1, end, comp);
 }
+
+void SortIterator::MultiwayMerge (){
+	// Replace with tree-of-loser
+	std::priority_queue<TreeNode*> pq;
+
+	// Add the first element of each sorted sequence to the priority queue
+	for (uint32_t i = 0; i < _cache_run_list.size(); i++) {	
+		if(!_cache_run_list[i].empty()){
+			TreeNode* node = new TreeNode(_cache_run_list[i][0], i, 0);
+			pq.push(node);
+		}
+	}
+
+	std::vector<Item*> result;
+
+	while (!pq.empty()) {
+		TreeNode* cur = pq.top();
+		pq.pop();
+
+		result.push_back(cur->_value);
+
+		uint32_t _run_index = cur->_run_index;
+		uint32_t _element_index = cur->_element_index + 1;
+
+		
+		if (_element_index < _cache_run_list[_run_index].size()) {
+			TreeNode* node = new TreeNode(_cache_run_list[_run_index][_element_index], _run_index, _element_index);
+			pq.push(node);
+		}
+	}
+
+	// return result;
+}
+
+
+
