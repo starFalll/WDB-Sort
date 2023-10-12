@@ -8,22 +8,24 @@ struct TreeNode{
 	TreeNode();
 	bool operator < (const TreeNode & other) const;
     bool operator > (const TreeNode & other) const;
-	virtual ~TreeNode() = default;
+	~TreeNode();
 };
 
 class LoserTree {
 private:
-    int _run_num;
+    uint32_t _run_num;
     std::vector<TreeNode*> tree;
 
 public:
-    LoserTree(int leaf_num);
+    LoserTree(uint32_t leaf_num);
+
+    ~LoserTree();
 
     bool empty();
 
     TreeNode* top();
 
-    void push(Item item, int run_index, int element_index);
+    void push(Item item, uint32_t run_index, uint32_t element_index);
 
-    void adjust(int run_index);
+    void adjust(uint32_t run_index);
 };

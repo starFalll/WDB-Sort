@@ -140,7 +140,7 @@ void SortIterator::MultiwayMerge (){
 	}
 
 	std::vector<Item*> result;
-
+	Item* ITEM_MAX = new Item(UINT32_MAX, UINT32_MAX, UINT32_MAX);
 	while (!loser_tree->empty()) {
 		TreeNode* cur = loser_tree->top();
 
@@ -153,12 +153,12 @@ void SortIterator::MultiwayMerge (){
 		if (_element_index < _cache_run_list[_run_index].size()) {
 			loser_tree->push(_cache_run_list[_run_index][_element_index], _run_index, _element_index);
 		}else{
-			Item* ITEM_MAX = new Item(INT_MAX, INT_MAX, INT_MAX);
 			loser_tree->push(*ITEM_MAX, -1, -1);
 		}
 	}
 
-	// return result;
+	delete ITEM_MAX;
+	delete loser_tree;
 }
 
 
