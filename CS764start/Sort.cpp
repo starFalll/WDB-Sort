@@ -1,23 +1,6 @@
 #include "Sort.h"
 #include <algorithm>
 
-TreeNode::TreeNode (Item item, uint32_t run_index, uint32_t element_index){
-	_value = &item;
-	_run_index = run_index;
-	_element_index = element_index;
-}
-
-TreeNode::TreeNode (){
-	_value = new Item();
-	_run_index = -1;
-	_element_index = -1;
-}
-
-bool TreeNode::operator < (const TreeNode & other) const {
-	// '>' means minHeap
-	return _value->fields[COMPARE_FIELD] > other._value->fields[COMPARE_FIELD];
-}
-
 SortPlan::SortPlan (Plan * const input) : _input (input)
 {
 	TRACE (TRACE_SWITCH);
@@ -146,22 +129,20 @@ void SortIterator::QuickSort (RandomIt start, RandomIt end, Compare comp)
 }
 
 void SortIterator::MultiwayMerge (){
-	// Replace with tree-of-loser
-	std::priority_queue<TreeNode*> pq;
+	// Loser of Tree
+	LoserTree* loser_tree = new LoserTree(_cache_run_limit);
 
-	// Add the first element of each sorted sequence to the priority queue
+	// Initialize with the first element of each sorted sequence
 	for (uint32_t i = 0; i < _cache_run_list.size(); i++) {	
 		if(!_cache_run_list[i].empty()){
-			TreeNode* node = new TreeNode(_cache_run_list[i][0], i, 0);
-			pq.push(node);
+			loser_tree->push(_cache_run_list[i][0], i, 0);
 		}
 	}
 
 	std::vector<Item*> result;
 
-	while (!pq.empty()) {
-		TreeNode* cur = pq.top();
-		pq.pop();
+	while (!loser_tree->empty()) {
+		TreeNode* cur = loser_tree->top();
 
 		result.push_back(cur->_value);
 
@@ -170,8 +151,10 @@ void SortIterator::MultiwayMerge (){
 
 		
 		if (_element_index < _cache_run_list[_run_index].size()) {
-			TreeNode* node = new TreeNode(_cache_run_list[_run_index][_element_index], _run_index, _element_index);
-			pq.push(node);
+			loser_tree->push(_cache_run_list[_run_index][_element_index], _run_index, _element_index);
+		}else{
+			Item* ITEM_MAX = new Item(INT_MAX, INT_MAX, INT_MAX);
+			loser_tree->push(*ITEM_MAX, -1, -1);
 		}
 	}
 

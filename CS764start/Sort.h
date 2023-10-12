@@ -1,15 +1,6 @@
 #include "Iterator.h"
+#include "LoserTree.h"
 #include <queue>
-
-struct TreeNode{
-	Item* _value;
-	size_t _run_index;
-	size_t _element_index;
-	TreeNode(Item item, uint32_t run_index, uint32_t element_index);
-	TreeNode();
-	bool operator < (const TreeNode & other) const;
-	virtual ~TreeNode() = default;
-};
 
 class SortPlan : public Plan
 {
