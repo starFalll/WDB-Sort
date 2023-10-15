@@ -14,7 +14,7 @@ struct TreeNode{
 class LoserTree {
 private:
     uint32_t _run_num;
-    std::vector<TreeNode*> tree;
+    TreeNode** tree;
 
 public:
     LoserTree(uint32_t leaf_num);

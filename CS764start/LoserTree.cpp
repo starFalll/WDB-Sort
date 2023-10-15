@@ -23,8 +23,8 @@ bool TreeNode::operator > (const TreeNode & other) const {
 }
 
 LoserTree::LoserTree (uint32_t run_num):_run_num(run_num) {
-    tree.resize(2 * run_num+1);
-    for(uint32_t i=0;i<tree.size();i++){
+    tree = new TreeNode*[2*run_num + 1];
+    for(uint32_t i=0;i<2*run_num+1;i++){
         tree[i] = new TreeNode();
     }
 }

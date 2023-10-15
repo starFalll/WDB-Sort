@@ -33,6 +33,8 @@ private:
 	Iterator * const _input;
 	RowCount _consumed, _produced;
 	// merge cache run
-	uint32_t _cache_run_limit;
-	std::vector<std::vector<Item>> _cache_run_list;
+	uint32_t _cache_run_list_row;
+	uint32_t _cache_run_list_col;
+	uint32_t _current_run_index;
+	Item** _cache_run_list;
 }; // class SortIterator

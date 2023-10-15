@@ -30,9 +30,14 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 	// allocate 0.5MB to sort (use CPU Cache)
 	_sort_records.resize (MAX_CPU_CACHE * 5 / 10 / sizeof(Item));
 
-	// set dram limit
-	_cache_run_limit = (MAX_DRAM * 9 / 10) / (MAX_CPU_CACHE * 5 / 10);
-	_cache_run_list.clear();
+	// set parameter for multiway merge process
+	_cache_run_list_row = (MAX_DRAM * 5 / 10) / (MAX_CPU_CACHE * 5 / 10);
+	_cache_run_list_col = _sort_records.size();
+	_current_run_index = 0;
+	_cache_run_list = new Item*[_cache_run_list_row];
+	for(uint32_t i=0;i<_cache_run_list_row;i++){
+		_cache_run_list[i] = new Item[_cache_run_list_col];
+	}
 
 	_sort_index = 0;
 } // SortIterator::SortIterator
@@ -72,7 +77,12 @@ bool SortIterator::next ()
 			return a.fields[COMPARE_FIELD] < b.fields[COMPARE_FIELD];
 		});
 		
-		_cache_run_list.push_back(_sort_records);
+		// save sorted 0.5M data in memory
+		for(uint32_t i=0;i<add_num;i++){
+			_cache_run_list[_current_run_index][i] = _sort_records[i];
+		}
+		_current_run_index++;
+
 		_produced += add_num;
 		TRACE (TRACE_SWITCH);
 		// printf("test index:%u\n", _sort_index);
@@ -85,9 +95,9 @@ bool SortIterator::next ()
 	}
 
 	// run list is full or finish, start to merge
-	if((_cache_run_list.size() >= _cache_run_limit) || (!ret && _consumed > 0)){
+	if((_current_run_index >= _cache_run_list_row) || (!ret && _consumed > 0)){
 		MultiwayMerge();
-		_cache_run_list.clear();
+		_current_run_index = 0;
 	}
 
 	// ++ _produced;
@@ -123,35 +133,39 @@ void SortIterator::QuickSort (RandomIt start, RandomIt end, Compare comp)
 	}
 	else left++;
 	
-	uint32_t index = 0;
 	QuickSort (start, left, comp);
 	QuickSort (left+1, end, comp);
 }
 
 void SortIterator::MultiwayMerge (){
 	// Loser of Tree
-	LoserTree* loser_tree = new LoserTree(_cache_run_limit);
+	LoserTree* loser_tree = new LoserTree(_current_run_index);
+
+	// check full or finish
+	uint32_t last_row_col = (_sort_index == 0) ? _cache_run_list_col : _sort_index;
 
 	// Initialize with the first element of each sorted sequence
-	for (uint32_t i = 0; i < _cache_run_list.size(); i++) {	
-		if(!_cache_run_list[i].empty()){
-			loser_tree->push(_cache_run_list[i][0], i, 0);
-		}
+	for (uint32_t i = 0; i < _current_run_index; i++) {	
+		loser_tree->push(_cache_run_list[i][0], i, 0);
 	}
 
-	std::vector<Item*> result;
+	Item** result = new Item*[(_current_run_index-1) * _cache_run_list_col + last_row_col];
+	uint32_t res_index = 0;
+
 	Item* ITEM_MAX = new Item(UINT32_MAX, UINT32_MAX, UINT32_MAX);
 	while (!loser_tree->empty()) {
 		TreeNode* cur = loser_tree->top();
 
-		result.push_back(cur->_value);
+		result[res_index] = cur->_value;
+		res_index++;
 
-		uint32_t _run_index = cur->_run_index;
-		uint32_t _element_index = cur->_element_index + 1;
+		uint32_t run_index = cur->_run_index;
+		uint32_t element_index = cur->_element_index + 1;
 
-		
-		if (_element_index < _cache_run_list[_run_index].size()) {
-			loser_tree->push(_cache_run_list[_run_index][_element_index], _run_index, _element_index);
+
+		uint32_t target_element_index = (run_index == _current_run_index-1) ? last_row_col : _cache_run_list_col;
+		if (element_index < target_element_index) {
+			loser_tree->push(_cache_run_list[run_index][element_index], run_index, element_index);
 		}else{
 			loser_tree->push(*ITEM_MAX, -1, -1);
 		}
