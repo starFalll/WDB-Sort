@@ -21,7 +21,9 @@ Iterator * SortPlan::init () const
 
 SortIterator::SortIterator (SortPlan const * const plan) :
 	_plan (plan), _input (plan->_input->init ()),
-	_consumed (0), _produced (0)
+	_consumed (0), _produced (0),
+	_cache_run_list_row((MAX_DRAM * 5 / 10) / (MAX_CPU_CACHE * 5 / 10)),
+	_cache_run_list_col(MAX_CPU_CACHE * 5 / 10 / sizeof(Item))
 {
 	TRACE (TRACE_SWITCH);
 
@@ -30,22 +32,37 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 	// allocate 0.5MB to sort (use CPU Cache)
 	_sort_records.resize (MAX_CPU_CACHE * 5 / 10 / sizeof(Item));
 
-	// set parameter for multiway merge process
-	_cache_run_list_row = (MAX_DRAM * 5 / 10) / (MAX_CPU_CACHE * 5 / 10);
-	_cache_run_list_col = _sort_records.size();
+	// initialize current run index
 	_current_run_index = 0;
-	_cache_run_list = new Item*[_cache_run_list_row];
+	// initialize run list
+	_cache_run_list = new Item**[_cache_run_list_row];
 	for(uint32_t i=0;i<_cache_run_list_row;i++){
-		_cache_run_list[i] = new Item[_cache_run_list_col];
+		_cache_run_list[i] = new Item*[_cache_run_list_col];
 	}
 
+	// initialize result array
+	_result = new const Item*[_cache_run_list_row * _cache_run_list_col];
+
 	_sort_index = 0;
+
+	// initialize loser of tree
+	_loser_tree = new LoserTree(_cache_run_list_row);
 } // SortIterator::SortIterator
 
 SortIterator::~SortIterator ()
 {
 	TRACE (TRACE_SWITCH);
+
+	// release resource
+	for(uint32_t i=0;i<_cache_run_list_row;i++){
+		delete _cache_run_list[i];
+	}
+	delete [] _cache_run_list;
+	delete [] _result;
+
 	delete _input;
+	
+
 	traceprintf ("produced %lu of %lu rows\n",
 			(unsigned long) (_produced),
 			(unsigned long) (_consumed));
@@ -79,8 +96,9 @@ bool SortIterator::next ()
 		
 		// save sorted 0.5M data in memory
 		for(uint32_t i=0;i<add_num;i++){
-			_cache_run_list[_current_run_index][i] = _sort_records[i];
+			_cache_run_list[_current_run_index][i] = &(_sort_records[i]);
 		}
+		// count current run index
 		_current_run_index++;
 
 		_produced += add_num;
@@ -138,41 +156,41 @@ void SortIterator::QuickSort (RandomIt start, RandomIt end, Compare comp)
 }
 
 void SortIterator::MultiwayMerge (){
-	// Loser of Tree
-	LoserTree* loser_tree = new LoserTree(_current_run_index);
-
-	// check full or finish
+	// check full or finish and get the column number in the last row
 	uint32_t last_row_col = (_sort_index == 0) ? _cache_run_list_col : _sort_index;
+
+	// reset loser tree
+	_loser_tree->reset(_current_run_index);
 
 	// Initialize with the first element of each sorted sequence
 	for (uint32_t i = 0; i < _current_run_index; i++) {	
-		loser_tree->push(_cache_run_list[i][0], i, 0);
+		_loser_tree->push(_cache_run_list[i][0], i, 0);
 	}
 
-	Item** result = new Item*[(_current_run_index-1) * _cache_run_list_col + last_row_col];
+	// reset result index
 	uint32_t res_index = 0;
 
-	Item* ITEM_MAX = new Item(UINT32_MAX, UINT32_MAX, UINT32_MAX);
-	while (!loser_tree->empty()) {
-		TreeNode* cur = loser_tree->top();
+	while (!_loser_tree->empty()) {
+		// get smallest element
+		TreeNode* cur = _loser_tree->top();
 
-		result[res_index] = cur->_value;
+		// save in results
+		_result[res_index] = cur->_value;
 		res_index++;
 
+		// calculate the index of next data item 
 		uint32_t run_index = cur->_run_index;
 		uint32_t element_index = cur->_element_index + 1;
 
-
+		// calculate the last index in the target run
 		uint32_t target_element_index = (run_index == _current_run_index-1) ? last_row_col : _cache_run_list_col;
+		// push next data into the tree
 		if (element_index < target_element_index) {
-			loser_tree->push(_cache_run_list[run_index][element_index], run_index, element_index);
+			_loser_tree->push(_cache_run_list[run_index][element_index], run_index, element_index);
 		}else{
-			loser_tree->push(*ITEM_MAX, -1, -1);
+			_loser_tree->push(&ITEM_MAX, -1, -1);
 		}
 	}
-
-	delete ITEM_MAX;
-	delete loser_tree;
 }
 
 

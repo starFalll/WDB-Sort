@@ -1,10 +1,13 @@
 #include "Iterator.h"
 
 struct TreeNode{
-	Item* _value;
-	size_t _run_index;
-	size_t _element_index;
-	TreeNode(Item item, uint32_t run_index, uint32_t element_index);
+    // data record pointer
+	const Item* _value;
+    // index of data's run
+	int32_t _run_index;
+    // index of data in the run
+	int32_t _element_index;
+	TreeNode(Item* item, int32_t run_index, int32_t element_index);
 	TreeNode();
 	bool operator < (const TreeNode & other) const;
     bool operator > (const TreeNode & other) const;
@@ -13,11 +16,13 @@ struct TreeNode{
 
 class LoserTree {
 private:
-    uint32_t _run_num;
-    TreeNode** tree;
+    // number of merge runs
+    int32_t _leaf_num;
+    // loser tree (implemented by array)
+    TreeNode** _tree;
 
 public:
-    LoserTree(uint32_t leaf_num);
+    LoserTree(int32_t leaf_num);
 
     ~LoserTree();
 
@@ -25,7 +30,9 @@ public:
 
     TreeNode* top();
 
-    void push(Item item, uint32_t run_index, uint32_t element_index);
+    void push(const Item* item, int32_t run_index, int32_t element_index);
 
-    void adjust(uint32_t run_index);
+    void adjust(int32_t run_index);
+
+    void reset(int32_t num_of_reset_nodes);
 };

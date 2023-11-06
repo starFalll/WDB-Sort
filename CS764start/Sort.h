@@ -27,14 +27,19 @@ public:
 
 	void MultiwayMerge ();
 private:
+	// loser tree
+	LoserTree* _loser_tree;
+
 	uint32_t _sort_index;
 	std::vector<Item> _sort_records;
 	SortPlan const * const _plan;
 	Iterator * const _input;
 	RowCount _consumed, _produced;
 	// merge cache run
-	uint32_t _cache_run_list_row;
-	uint32_t _cache_run_list_col;
+	const uint32_t _cache_run_list_row;
+	const uint32_t _cache_run_list_col;
 	uint32_t _current_run_index;
-	Item** _cache_run_list;
+	Item*** _cache_run_list;
+	// result array
+	const Item** _result;
 }; // class SortIterator
