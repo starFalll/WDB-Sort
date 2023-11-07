@@ -22,12 +22,18 @@ static const std::vector<ItemField> ITEM_FIELDS = {INCL, MEM, MGMT};
 // 24 bytes
 struct Item
 {
-	std::vector<FieldType> fields; 
+	FieldType fields[3]; 
 	Item (FieldType incl, FieldType mem, FieldType mgmt);
+	Item (const Item& other);
 	Item ();
 	bool operator < (const Item & other) const;
 	~Item() = default;
 };
+
+// the minimal value of object Item
+static const Item ITEM_MIN = Item(0, 0, 0);
+// the maximal value of object Item
+static const Item ITEM_MAX = Item(UINT32_MAX, UINT32_MAX, UINT32_MAX);
 
 class Plan
 {

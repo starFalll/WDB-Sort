@@ -13,7 +13,7 @@ int main (int argc, char * argv [])
 	Plan * plan = new SortPlan ( filter_plan );
 
 	Iterator * it = plan->init ();
-	filter_plan->SetPredicate(INCL, LT, 1000000);
+	// filter_plan->SetPredicate(INCL, GT, 1000000);
 	auto now = std::chrono::high_resolution_clock::now();
     auto timestamp_now = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
     long long milliseconds_now = timestamp_now.time_since_epoch().count();

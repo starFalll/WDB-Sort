@@ -1,23 +1,6 @@
 #include "Sort.h"
 #include <algorithm>
 
-TreeNode::TreeNode (Item item, uint32_t run_index, uint32_t element_index){
-	_value = &item;
-	_run_index = run_index;
-	_element_index = element_index;
-}
-
-TreeNode::TreeNode (){
-	_value = new Item();
-	_run_index = -1;
-	_element_index = -1;
-}
-
-bool TreeNode::operator < (const TreeNode & other) const {
-	// '>' means minHeap
-	return _value->fields[COMPARE_FIELD] > other._value->fields[COMPARE_FIELD];
-}
-
 SortPlan::SortPlan (Plan * const input) : _input (input)
 {
 	TRACE (TRACE_SWITCH);
@@ -38,7 +21,9 @@ Iterator * SortPlan::init () const
 
 SortIterator::SortIterator (SortPlan const * const plan) :
 	_plan (plan), _input (plan->_input->init ()),
-	_consumed (0), _produced (0)
+	_consumed (0), _produced (0),
+	_cache_run_list_row((MAX_DRAM * 5 / 10) / (MAX_CPU_CACHE * 5 / 10)),
+	_cache_run_list_col(MAX_CPU_CACHE * 5 / 10 / sizeof(Item))
 {
 	TRACE (TRACE_SWITCH);
 
@@ -47,17 +32,37 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 	// allocate 0.5MB to sort (use CPU Cache)
 	_sort_records.resize (MAX_CPU_CACHE * 5 / 10 / sizeof(Item));
 
-	// set dram limit
-	_cache_run_limit = (MAX_DRAM * 9 / 10) / (MAX_CPU_CACHE * 5 / 10);
-	_cache_run_list.clear();
+	// initialize current run index
+	_current_run_index = 0;
+	// initialize run list
+	_cache_run_list = new Item**[_cache_run_list_row];
+	for(uint32_t i=0;i<_cache_run_list_row;i++){
+		_cache_run_list[i] = new Item*[_cache_run_list_col];
+	}
+
+	// initialize result array
+	_result = new const Item*[_cache_run_list_row * _cache_run_list_col];
 
 	_sort_index = 0;
+
+	// initialize loser of tree
+	_loser_tree = new LoserTree(_cache_run_list_row);
 } // SortIterator::SortIterator
 
 SortIterator::~SortIterator ()
 {
 	TRACE (TRACE_SWITCH);
+
+	// release resource
+	for(uint32_t i=0;i<_cache_run_list_row;i++){
+		delete _cache_run_list[i];
+	}
+	delete [] _cache_run_list;
+	delete [] _result;
+
 	delete _input;
+	
+
 	traceprintf ("produced %lu of %lu rows\n",
 			(unsigned long) (_produced),
 			(unsigned long) (_consumed));
@@ -89,7 +94,13 @@ bool SortIterator::next ()
 			return a.fields[COMPARE_FIELD] < b.fields[COMPARE_FIELD];
 		});
 		
-		_cache_run_list.push_back(_sort_records);
+		// save sorted 0.5M data in memory
+		for(uint32_t i=0;i<add_num;i++){
+			_cache_run_list[_current_run_index][i] = &(_sort_records[i]);
+		}
+		// count current run index
+		_current_run_index++;
+
 		_produced += add_num;
 		TRACE (TRACE_SWITCH);
 		// printf("test index:%u\n", _sort_index);
@@ -102,9 +113,9 @@ bool SortIterator::next ()
 	}
 
 	// run list is full or finish, start to merge
-	if((_cache_run_list.size() >= _cache_run_limit) || (!ret && _consumed > 0)){
+	if((_current_run_index >= _cache_run_list_row) || (!ret && _consumed > 0)){
 		MultiwayMerge();
-		_cache_run_list.clear();
+		_current_run_index = 0;
 	}
 
 	// ++ _produced;
@@ -140,42 +151,46 @@ void SortIterator::QuickSort (RandomIt start, RandomIt end, Compare comp)
 	}
 	else left++;
 	
-	uint32_t index = 0;
 	QuickSort (start, left, comp);
 	QuickSort (left+1, end, comp);
 }
 
 void SortIterator::MultiwayMerge (){
-	// Replace with tree-of-loser
-	std::priority_queue<TreeNode*> pq;
+	// check full or finish and get the column number in the last row
+	uint32_t last_row_col = (_sort_index == 0) ? _cache_run_list_col : _sort_index;
 
-	// Add the first element of each sorted sequence to the priority queue
-	for (uint32_t i = 0; i < _cache_run_list.size(); i++) {	
-		if(!_cache_run_list[i].empty()){
-			TreeNode* node = new TreeNode(_cache_run_list[i][0], i, 0);
-			pq.push(node);
-		}
+	// reset loser tree
+	_loser_tree->reset(_current_run_index);
+
+	// Initialize with the first element of each sorted sequence
+	for (uint32_t i = 0; i < _current_run_index; i++) {	
+		_loser_tree->push(_cache_run_list[i][0], i, 0);
 	}
 
-	std::vector<Item*> result;
+	// reset result index
+	uint32_t res_index = 0;
 
-	while (!pq.empty()) {
-		TreeNode* cur = pq.top();
-		pq.pop();
+	while (!_loser_tree->empty()) {
+		// get smallest element
+		TreeNode* cur = _loser_tree->top();
 
-		result.push_back(cur->_value);
+		// save in results
+		_result[res_index] = cur->_value;
+		res_index++;
 
-		uint32_t _run_index = cur->_run_index;
-		uint32_t _element_index = cur->_element_index + 1;
+		// calculate the index of next data item 
+		uint32_t run_index = cur->_run_index;
+		uint32_t element_index = cur->_element_index + 1;
 
-		
-		if (_element_index < _cache_run_list[_run_index].size()) {
-			TreeNode* node = new TreeNode(_cache_run_list[_run_index][_element_index], _run_index, _element_index);
-			pq.push(node);
+		// calculate the last index in the target run
+		uint32_t target_element_index = (run_index == _current_run_index-1) ? last_row_col : _cache_run_list_col;
+		// push next data into the tree
+		if (element_index < target_element_index) {
+			_loser_tree->push(_cache_run_list[run_index][element_index], run_index, element_index);
+		}else{
+			_loser_tree->push(&ITEM_MAX, -1, -1);
 		}
 	}
-
-	// return result;
 }
 
 

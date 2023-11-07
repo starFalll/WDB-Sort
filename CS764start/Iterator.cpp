@@ -2,15 +2,22 @@
 
 Item::Item (FieldType incl, FieldType mem, FieldType mgmt)
 {
-	fields.resize(MAX_ITEM);
+	// fields.resize(MAX_ITEM);
 	fields [INCL] = incl;
 	fields [MEM] = mem;
 	fields [MGMT] = mgmt;
 }
 
+Item::Item (const Item& other){
+	// copy constructor
+	for (int32_t i = 0; i < sizeof(other.fields) / sizeof(other.fields[0]); i++){
+		fields[i] = other.fields[i];
+	}
+}
+
 Item::Item ()
 {
-	fields.resize(MAX_ITEM);
+	// fields.resize(MAX_ITEM);
 	fields [INCL] = INT_MAX;
 	fields [MEM] = INT_MAX;
 	fields [MGMT] = INT_MAX;
