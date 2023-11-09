@@ -1,6 +1,16 @@
 #include "Iterator.h"
 
+/*
 Item::Item (FieldType incl, FieldType mem, FieldType mgmt)
+{
+	// fields.resize(MAX_ITEM);
+	fields [INCL] = incl;
+	fields [MEM] = mem;
+	fields [MGMT] = mgmt;
+}
+*/
+
+Item::Item (StringFieldType incl, StringFieldType mem, StringFieldType mgmt)
 {
 	// fields.resize(MAX_ITEM);
 	fields [INCL] = incl;
@@ -15,12 +25,21 @@ Item::Item (const Item& other){
 	}
 }
 
+/*
 Item::Item ()
 {
 	// fields.resize(MAX_ITEM);
 	fields [INCL] = INT_MAX;
 	fields [MEM] = INT_MAX;
 	fields [MGMT] = INT_MAX;
+}
+*/
+Item::Item ()
+{
+	// fields.resize(MAX_ITEM);
+	fields [INCL] = std::to_string(INT_MAX);
+	fields [MEM] = std::to_string(INT_MAX);
+	fields [MGMT] = std::to_string(INT_MAX);
 }
 
 bool Item::operator < (const Item & other) const

@@ -56,8 +56,11 @@ bool ScanIterator::next ()
 
 Item ScanIterator::GenerateOneRecord ()
 {
-	FieldType incl = std::rand();
-	FieldType mem = std::rand();
-	FieldType mgmt = std::rand();
+	//FieldType incl = std::rand();
+	//FieldType mem = std::rand();
+	//FieldType mgmt = std::rand();
+	StringFieldType incl = std::to_string(std::rand());
+	StringFieldType mem = std::to_string(std::rand());
+	StringFieldType mgmt = std::to_string(std::rand());
 	return Item (incl, mem, mgmt);
 }

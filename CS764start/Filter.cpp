@@ -17,7 +17,17 @@ Iterator * FilterPlan::init () const
 	return new FilterIterator (this);
 } // FilterPlan::init
 
+/*
 bool FilterPlan::SetPredicate (ItemField field, PredicateEnum predicate, FieldType value) 
+{
+	TRACE (TRACE_SWITCH);
+	Predicate new_condition (field, predicate, value);
+	_predicates [field].push_back (new_condition);
+	return true;
+}
+*/
+
+bool FilterPlan::SetPredicate (ItemField field, PredicateEnum predicate, StringFieldType value) 
 {
 	TRACE (TRACE_SWITCH);
 	Predicate new_condition (field, predicate, value);
@@ -34,11 +44,11 @@ bool FilterPlan::ApplyPredicate (Item & item) const
 		auto it = _predicates.find (field);
 		if (it != _predicates.end ()) {
 			for (const auto & predicate : it->second) {
-				if ((predicate.predicate == EQ && item.fields [field] == predicate.value)
-					|| (predicate.predicate == GT && item.fields [field] > predicate.value)
-					|| (predicate.predicate == LT && item.fields [field] < predicate.value)
-					|| (predicate.predicate == GE && item.fields [field] >= predicate.value)
-					|| (predicate.predicate == LE && item.fields [field] <= predicate.value)) {
+				if ((predicate.predicate == EQ && stoul(item.fields [field]) == stoul(predicate.value))
+					|| (predicate.predicate == GT && stoul(item.fields [field]) > stoul(predicate.value))
+					|| (predicate.predicate == LT && stoul(item.fields [field]) < stoul(predicate.value))
+					|| (predicate.predicate == GE && stoul(item.fields [field]) >= stoul(predicate.value))
+					|| (predicate.predicate == LE && stoul(item.fields [field]) >= stoul(predicate.value))) {
 					return true;
 				}
 			}
