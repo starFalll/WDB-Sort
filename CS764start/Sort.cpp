@@ -21,7 +21,7 @@ Iterator * SortPlan::init () const
 
 SortIterator::SortIterator (SortPlan const * const plan) :
 	_plan (plan), _input (plan->_input->init ()),
-	_consumed (0), _produced (0),
+	_consumed (0), _produced (0), _eSize(plan->_eSize),
 	_cache_run_list_row((MAX_DRAM * 5 / 10) / (MAX_CPU_CACHE * 5 / 10)),
 	_cache_run_list_col(MAX_CPU_CACHE * 5 / 10 / sizeof(Item))
 {
@@ -188,7 +188,9 @@ void SortIterator::MultiwayMerge (){
 		if (element_index < target_element_index) {
 			_loser_tree->push(_cache_run_list[run_index][element_index], run_index, element_index);
 		}else{
-			_loser_tree->push(&ITEM_MAX, -1, -1);
+			Item temp = Item(_eSize);
+			_loser_tree->push(&temp, -1, -1);
+			//_loser_tree->push(&ITEM_MAX, -1, -1);
 		}
 	}
 }

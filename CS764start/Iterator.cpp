@@ -42,6 +42,39 @@ Item::Item ()
 	fields [MGMT] = std::to_string(INT_MAX);
 }
 
+Item::Item (ElementSize eSize){
+	char inclTemp[eSize] = {0};
+	char memTemp[eSize] = {0};
+	char mgmtTemp[eSize] = {0};
+	StringFieldType incl = std::to_string(INT_MAX);
+	StringFieldType mem = std::to_string(INT_MAX);
+	StringFieldType mgmt = std::to_string(INT_MAX);
+	int index = 0;
+	for(auto s : incl){
+		inclTemp[index++] = s;
+	}
+	while(index < sizeof(inclTemp)){
+		inclTemp[index++] ='0';
+	}
+	index = 0;
+	for(auto s : mem){
+		memTemp[index++] = s;
+	}
+	while(index < sizeof(memTemp)){
+		memTemp[index++] ='0';
+	}
+	index = 0;
+	for(auto s : mgmt){
+		mgmtTemp[index++] = s;
+	}
+	while(index < sizeof(mgmtTemp)){
+		mgmtTemp[index++] ='0';
+	}
+	fields [INCL] = (std::string)inclTemp;
+	fields [MEM] = (std::string)memTemp;
+	fields [MGMT] = (std::string)mgmtTemp;
+}
+
 bool Item::operator < (const Item & other) const
 {
 	return fields[COMPARE_FIELD] < other.fields[COMPARE_FIELD];

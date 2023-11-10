@@ -31,6 +31,7 @@ struct Item
 	StringFieldType fields[3]; 
 	Item (const Item& other);
 	Item ();
+	Item (ElementSize eSize);
 	bool operator < (const Item & other) const;
 	~Item() = default;
 };
@@ -65,4 +66,5 @@ private:
 	std::vector<Item> _records;
 	uint32_t _index;
 	RowCount _count;
+	ElementSize _eSize;
 }; // class Iterator

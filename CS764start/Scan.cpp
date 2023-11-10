@@ -76,14 +76,14 @@ Item ScanIterator::GenerateOneRecord ()
 	for(auto s : mem){
 		memTemp[index++] = s;
 	}
-	while(index < sizeof(inclTemp)){
+	while(index < sizeof(memTemp)){
 		memTemp[index++] ='0';
 	}
 	index = 0;
 	for(auto s : mgmt){
 		mgmtTemp[index++] = s;
 	}
-	while(index < sizeof(inclTemp)){
+	while(index < sizeof(mgmtTemp)){
 		mgmtTemp[index++] ='0';
 	}
 	incl = (std::string)inclTemp;
