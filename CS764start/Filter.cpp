@@ -48,7 +48,7 @@ bool FilterPlan::ApplyPredicate (Item & item) const
 					|| (predicate.predicate == GT && stoull(item.fields [field]) > stoull(predicate.value))
 					|| (predicate.predicate == LT && stoull(item.fields [field]) < stoull(predicate.value))
 					|| (predicate.predicate == GE && stoull(item.fields [field]) >= stoull(predicate.value))
-					|| (predicate.predicate == LE && stoull(item.fields [field]) >= stoull(predicate.value))) {
+					|| (predicate.predicate == LE && stoull(item.fields [field]) <= stoull(predicate.value))) {
 					return true;
 				}
 			}
