@@ -7,9 +7,9 @@
 int main (int argc, char * argv [])
 {
 	TRACE (TRACE_SWITCH);
-	Plan * const scan_plan = new ScanPlan (7,30);//scan的private成员参数_input初始化为7，input就是RowCount
+	Plan * const scan_plan = new ScanPlan (7,30);
 	//Plan * scan_plan = new ScanPlan(10000000);
-	FilterPlan * filter_plan = new FilterPlan ( scan_plan );//上面构造的scan_plan作为filter_plan的private参数_input，类型为plan*
+	FilterPlan * filter_plan = new FilterPlan ( scan_plan );
 	Plan * plan = new SortPlan ( filter_plan );
 
 	Iterator * it = plan->init ();
