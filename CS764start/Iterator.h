@@ -7,10 +7,11 @@
 typedef uint64_t RowCount;
 typedef uint32_t FieldType;
 typedef std::string  StringFieldType;
+typedef uint32_t ElementSize;
 
 enum ItemField
 {
-	INCL = 1,
+	INCL = 0,
 	MEM,
 	MGMT,
 	MAX_ITEM,
