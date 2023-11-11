@@ -15,9 +15,15 @@ struct Predicate
 {
 	ItemField field;
 	PredicateEnum predicate;
+	/*
 	FieldType value;
 	Predicate (ItemField f, PredicateEnum p, FieldType v):
 		field (f), predicate (p), value (v) {}
+	*/
+	StringFieldType value;
+	Predicate (ItemField f, PredicateEnum p, StringFieldType v):
+		field (f), predicate (p), value (v) {}
+
 };
 
 class FilterPlan : public Plan
@@ -31,7 +37,8 @@ public:
 	/**
 	 * set predicate (>=, <=, >, <, ==)
 	*/
-	bool SetPredicate (ItemField field, PredicateEnum predicate, FieldType value) ;
+	//bool SetPredicate (ItemField field, PredicateEnum predicate, FieldType value) ;
+	bool SetPredicate (ItemField field, PredicateEnum predicate, StringFieldType value) ;
 
 	/**
 	 * apply predicate to item

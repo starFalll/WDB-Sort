@@ -2,13 +2,17 @@
 
 #include "defs.h"
 #include <vector>
+#include <string>
+#include <string.h>
 
 typedef uint64_t RowCount;
 typedef uint32_t FieldType;
+typedef std::string  StringFieldType;
+typedef uint32_t ElementSize;
 
 enum ItemField
 {
-	INCL = 1,
+	INCL = 0,
 	MEM,
 	MGMT,
 	MAX_ITEM,
@@ -22,18 +26,23 @@ static const std::vector<ItemField> ITEM_FIELDS = {INCL, MEM, MGMT};
 // 24 bytes
 struct Item
 {
-	FieldType fields[3]; 
-	Item (FieldType incl, FieldType mem, FieldType mgmt);
+	//FieldType fields[3]; 
+	//Item (FieldType incl, FieldType mem, FieldType mgmt);
+	Item (StringFieldType incl, StringFieldType mem, StringFieldType mgmt);
+	StringFieldType fields[3]; 
 	Item (const Item& other);
 	Item ();
+	Item (ElementSize eSize);
 	bool operator < (const Item & other) const;
 	~Item() = default;
 };
 
 // the minimal value of object Item
-static const Item ITEM_MIN = Item(0, 0, 0);
+//static const Item ITEM_MIN = Item(0, 0, 0);
+static const Item ITEM_MIN = Item("0", "0", "0");
 // the maximal value of object Item
-static const Item ITEM_MAX = Item(UINT32_MAX, UINT32_MAX, UINT32_MAX);
+//static const Item ITEM_MAX = Item(UINT32_MAX, UINT32_MAX, UINT32_MAX);
+static const Item ITEM_MAX = Item(std::to_string(UINT32_MAX), std::to_string(UINT32_MAX), std::to_string(UINT32_MAX));
 
 class Plan
 {
@@ -58,4 +67,5 @@ private:
 	std::vector<Item> _records;
 	uint32_t _index;
 	RowCount _count;
+	ElementSize _eSize;
 }; // class Iterator
