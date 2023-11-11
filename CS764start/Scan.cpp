@@ -65,9 +65,9 @@ Item ScanIterator::GenerateOneRecord ()
 	memset(memTemp , '0' , sizeof(memTemp));
 	char mgmtTemp[_eSize] = {0};
 	memset(mgmtTemp , '0' , sizeof(mgmtTemp));
-	StringFieldType incl = std::to_string(std::rand());
-	StringFieldType mem = std::to_string(std::rand());
-	StringFieldType mgmt = std::to_string(std::rand());
+	StringFieldType incl = GeneratRandomStr();
+	StringFieldType mem = GeneratRandomStr();
+	StringFieldType mgmt = GeneratRandomStr();
 	int index = 0;
 	for(auto s : incl){
 		inclTemp[index++] = s;
@@ -85,4 +85,15 @@ Item ScanIterator::GenerateOneRecord ()
 	mgmt = (std::string)mgmtTemp;
 
 	return Item (incl, mem, mgmt);
+}
+
+//generate random string, whose lenth is equal to the column's size
+std::string ScanIterator::GeneratRandomStr(){
+	std::string str;
+	char c;
+	for(int idx = 0; idx < _eSize ; idx++){
+		c = '0' + std::rand()%10;
+		str.push_back(c);
+	}
+	return str;
 }

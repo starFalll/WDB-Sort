@@ -20,6 +20,7 @@ public:
 	bool next ();
 private:
 	Item GenerateOneRecord ();
+	std::string GeneratRandomStr();
 
 private:
 	ScanPlan const * const _plan;
