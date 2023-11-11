@@ -3,6 +3,7 @@
 #include "defs.h"
 #include <vector>
 #include <string>
+#include <string.h>
 
 typedef uint64_t RowCount;
 typedef uint32_t FieldType;

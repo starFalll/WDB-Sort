@@ -1,7 +1,6 @@
 #include "Scan.h"
 #include <cstdlib>
 #include <ctime>
-#include <string.h>
 
 ScanPlan::ScanPlan (RowCount const count,ElementSize const eSize) : _count (count), _eSize(eSize)
 {
@@ -61,11 +60,11 @@ Item ScanIterator::GenerateOneRecord ()
 	//FieldType mem = std::rand();
 	//FieldType mgmt = std::rand();
 	char inclTemp[_eSize] = {0};
-	memset(inclTemp , 0 , sizeof(inclTemp));
+	memset(inclTemp , '0' , sizeof(inclTemp));
 	char memTemp[_eSize] = {0};
-	memset(memTemp , 0 , sizeof(memTemp));
+	memset(memTemp , '0' , sizeof(memTemp));
 	char mgmtTemp[_eSize] = {0};
-	memset(mgmtTemp , 0 , sizeof(mgmtTemp));
+	memset(mgmtTemp , '0' , sizeof(mgmtTemp));
 	StringFieldType incl = std::to_string(std::rand());
 	StringFieldType mem = std::to_string(std::rand());
 	StringFieldType mgmt = std::to_string(std::rand());

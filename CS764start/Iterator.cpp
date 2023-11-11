@@ -43,9 +43,12 @@ Item::Item ()
 }
 
 Item::Item (ElementSize eSize){
-	char inclTemp[eSize] = {0};
-	char memTemp[eSize] = {0};
-	char mgmtTemp[eSize] = {0};
+	char inclTemp[eSize];
+	memset(inclTemp , '0' , sizeof(inclTemp));
+	char memTemp[eSize];
+	memset(memTemp , '0' , sizeof(memTemp));
+	char mgmtTemp[eSize];
+	memset(mgmtTemp , '0' , sizeof(mgmtTemp));
 	StringFieldType incl = std::to_string(INT_MAX);
 	StringFieldType mem = std::to_string(INT_MAX);
 	StringFieldType mgmt = std::to_string(INT_MAX);
@@ -53,22 +56,13 @@ Item::Item (ElementSize eSize){
 	for(auto s : incl){
 		inclTemp[index++] = s;
 	}
-	while(index < sizeof(inclTemp)){
-		inclTemp[index++] ='0';
-	}
 	index = 0;
 	for(auto s : mem){
 		memTemp[index++] = s;
 	}
-	while(index < sizeof(memTemp)){
-		memTemp[index++] ='0';
-	}
 	index = 0;
 	for(auto s : mgmt){
 		mgmtTemp[index++] = s;
-	}
-	while(index < sizeof(mgmtTemp)){
-		mgmtTemp[index++] ='0';
 	}
 	fields [INCL] = (std::string)inclTemp;
 	fields [MEM] = (std::string)memTemp;
