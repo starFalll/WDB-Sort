@@ -162,9 +162,12 @@ void SortIterator::MultiwayMerge (){
 	// reset loser tree
 	_loser_tree->reset(_current_run_index);
 
+	// 初始基准字符串为空
+	std::string baseStr = ""; 
+
 	// Initialize with the first element of each sorted sequence
 	for (uint32_t i = 0; i < _current_run_index; i++) {	
-		_loser_tree->push(_cache_run_list[i][0], i, 0);
+		_loser_tree->push(_cache_run_list[i][0], i, 0, baseStr);
 	}
 
 	// reset result index
@@ -173,6 +176,9 @@ void SortIterator::MultiwayMerge (){
 	while (!_loser_tree->empty()) {
 		// get smallest element
 		TreeNode* cur = _loser_tree->top();
+
+		// get the string of current data
+		baseStr = getItemString(cur->_value);
 
 		// save in results
 		_result[res_index] = cur->_value;
@@ -186,9 +192,9 @@ void SortIterator::MultiwayMerge (){
 		uint32_t target_element_index = (run_index == _current_run_index-1) ? last_row_col : _cache_run_list_col;
 		// push next data into the tree
 		if (element_index < target_element_index) {
-			_loser_tree->push(_cache_run_list[run_index][element_index], run_index, element_index);
+			_loser_tree->push(_cache_run_list[run_index][element_index], run_index, element_index, baseStr);
 		}else{
-			_loser_tree->push(&ITEM_MAX, -1, -1);
+			_loser_tree->push(&ITEM_MAX, -1, -1, baseStr);
 		}
 	}
 }

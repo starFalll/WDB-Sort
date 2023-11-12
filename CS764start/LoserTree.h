@@ -7,6 +7,8 @@ struct TreeNode{
 	int32_t _run_index;
     // index of data in the run
 	int32_t _element_index;
+    // offset value code
+    uint32_t _offset_value_code; 
 	TreeNode(Item* item, int32_t run_index, int32_t element_index);
 	TreeNode();
 	bool operator < (const TreeNode & other) const;
@@ -30,7 +32,7 @@ public:
 
     TreeNode* top();
 
-    void push(const Item* item, int32_t run_index, int32_t element_index);
+    void push(const Item* item, int32_t run_index, int32_t element_index, const std::string& baseStr);
 
     void adjust(int32_t run_index);
 
