@@ -53,12 +53,17 @@ bool TreeNode::operator > (const TreeNode & other) const {
         return this_offset < other_offset;
     } else {
         // if offset is same，extract offset_Data to compare
-        int this_offset_Data = _offset_value_code % 100;
-        int other_offset_Data = other._offset_value_code % 100;
+        int this_offset = _offset_value_code % 100;
+        int other_offset = other._offset_value_code % 100;
                 
-        if (this_offset_Data != other_offset_Data) {
-            return this_offset_Data > other_offset_Data;
+        if (this_offset != other_offset) {
+            return this_offset > other_offset;
         } else {
+            int this_offsert_data = _offset_value_code % 10;
+            int other_offsert_data = other._offset_value_code % 10;
+            if (this_offsert_data != other_offsert_data) {
+                return this_offsert_data > other_offsert_data;
+            }
             // if OVC is same，then compare the whole string
             return _value->fields[COMPARE_FIELD] > other._value->fields[COMPARE_FIELD];
         }
@@ -93,11 +98,11 @@ TreeNode* LoserTree::top(){
 
 // push new value into the tree
 void LoserTree::push(const Item* item, int32_t run_index, int32_t element_index, const StringFieldType* base_str_ptr){
-    // 从Item中获取字符串表示
+    // Get the string representation from Item
     const StringFieldType *item_ptr = item->GetItemString(); 
 
     uint32_t offsetValueCode = 0; 
-    // 每一次push都需要计算偏移值代码，以刚刚top出去的节点为基准
+    // Every push needs to calculate the offset value code, based on the node that was just topped.
     if (base_str_ptr)
         offsetValueCode = CalculateOffsetValueCode(base_str_ptr, item_ptr);
 
@@ -123,7 +128,7 @@ void LoserTree::adjust(int32_t run_index, const StringFieldType* base_str_ptr) {
                 // _tree[node_index] is loser，update its ovc
                 auto winner_str = _tree[cmp_node_index]->_value->GetItemString();
                 auto loser_str = _tree[node_index]->_value->GetItemString();
-                // 更新失败者的偏移值代码
+                // Update the offset value code of the loser
                 _tree[node_index]->_offset_value_code = CalculateOffsetValueCode(winner_str, loser_str);
             }
             swap(_tree[node_index], _tree[cmp_node_index]);
@@ -133,33 +138,6 @@ void LoserTree::adjust(int32_t run_index, const StringFieldType* base_str_ptr) {
 
     // replace the top element with the smallest one
     _tree[0] = _tree[node_index];
-
-    // uint32_t node_index = run_index + _leaf_num;
-
-    // while (node_index > 1) {
-    //     uint32_t parent_index = node_index / 2;
-
-    //     // 使用重构的比较函数
-    //     if (*_tree[node_index] < *_tree[parent_index]) {
-    //         // if OVC is same, then adjust offset value code
-    //         if (_tree[node_index]->_offset_value_code == _tree[parent_index]->_offset_value_code) {
-    //             // _tree[node_index] is loser，update its ovc
-    //             std::string winner_str = getItemString(_tree[parent_index]->_value);
-    //             std::string loser_str = getItemString(_tree[node_index]->_value);
-    //             // 更新失败者的偏移值代码
-    //             _tree[node_index]->_offset_value_code = calculate_offset_value_code(winner_str, loser_str);
-    //         }
-
-    //         // 交换节点
-    //         std::swap(_tree[node_index], _tree[parent_index]);
-    //     }
-
-    //     // 移动到父节点，继续调整
-    //     node_index = parent_index;
-    // }
-
-    // // 设置树顶节点
-    // _tree[0] = _tree[node_index];
 }
 
 // update num_of_reset_nodes tree nodes to negative infinity
