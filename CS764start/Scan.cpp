@@ -56,33 +56,9 @@ bool ScanIterator::next ()
 
 Item ScanIterator::GenerateOneRecord ()
 {
-	//FieldType incl = std::rand();
-	//FieldType mem = std::rand();
-	//FieldType mgmt = std::rand();
-	char inclTemp[_eSize] = {0};
-	memset(inclTemp , '0' , sizeof(inclTemp));
-	char memTemp[_eSize] = {0};
-	memset(memTemp , '0' , sizeof(memTemp));
-	char mgmtTemp[_eSize] = {0};
-	memset(mgmtTemp , '0' , sizeof(mgmtTemp));
 	StringFieldType incl = GeneratRandomStr();
 	StringFieldType mem = GeneratRandomStr();
 	StringFieldType mgmt = GeneratRandomStr();
-	int index = 0;
-	for(auto s : incl){
-		inclTemp[index++] = s;
-	}
-	index = 0;
-	for(auto s : mem){
-		memTemp[index++] = s;
-	}
-	index = 0;
-	for(auto s : mgmt){
-		mgmtTemp[index++] = s;
-	}
-	incl = (std::string)inclTemp;
-	mem  = (std::string)memTemp;
-	mgmt = (std::string)mgmtTemp;
 
 	return Item (incl, mem, mgmt);
 }

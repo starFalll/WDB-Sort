@@ -7,7 +7,7 @@
 
 typedef uint64_t RowCount;
 typedef uint32_t FieldType;
-typedef std::string  StringFieldType;
+
 typedef uint32_t ElementSize;
 
 enum ItemField
@@ -34,6 +34,7 @@ struct Item
 	Item ();
 	Item (ElementSize eSize);
 	bool operator < (const Item & other) const;
+	const StringFieldType* GetItemString() const;
 	~Item() = default;
 };
 
