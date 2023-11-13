@@ -69,8 +69,8 @@ void LoserTree::adjust(int32_t run_index) {
 
     // compare iteratively
     while(cmp_node_index > 0){
-        if (_tree[node_index] > _tree[cmp_node_index]){
-            swap(*_tree[node_index], *_tree[cmp_node_index]);
+        if (*_tree[node_index] > *_tree[cmp_node_index]){
+            swap(_tree[node_index], _tree[cmp_node_index]);
         }
         cmp_node_index /= 2;
     }

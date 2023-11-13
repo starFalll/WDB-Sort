@@ -147,9 +147,9 @@ void SortIterator::QuickSort (RandomIt start, RandomIt end, Compare comp)
 		swap( * left, * right);
 	}
 	if (comp( * left, * pivot)) {
-		swap(*left, *pivot);
+		left++;
 	}
-	else left++;
+	swap(*left, *pivot);
 	
 	QuickSort (start, left, comp);
 	QuickSort (left+1, end, comp);
@@ -189,7 +189,7 @@ void SortIterator::MultiwayMerge (){
 			_loser_tree->push(_cache_run_list[run_index][element_index], run_index, element_index);
 		}else{
 			Item temp = Item(_eSize);
-			_loser_tree->push(&temp, -1, -1);
+			_loser_tree->push(&temp, run_index, -1);
 			//_loser_tree->push(&ITEM_MAX, -1, -1);
 		}
 	}
