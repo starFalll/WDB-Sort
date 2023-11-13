@@ -32,9 +32,9 @@ public:
 
     TreeNode* top();
 
-    void push(const Item* item, int32_t run_index, int32_t element_index, const std::string& baseStr);
+    void push(const Item* item, int32_t run_index, int32_t element_index, const StringFieldType* baseStr);
 
-    void adjust(int32_t run_index, const std::string& baseStr);
+    void adjust(int32_t run_index, const StringFieldType* base_str_ptr);
 
     void reset(int32_t num_of_reset_nodes);
 };

@@ -1,5 +1,5 @@
 #include "LoserTree.h"
-#include "ovc.h"
+#include "Ovc.h"
 // constructor
 TreeNode::TreeNode (Item* item, int32_t run_index, int32_t element_index){
 	_value = item;
@@ -87,12 +87,14 @@ TreeNode* LoserTree::top(){
 }
 
 // push new value into the tree
-void LoserTree::push (const Item* item, int32_t run_index, int32_t element_index, const std::string& baseStr){
+void LoserTree::push(const Item* item, int32_t run_index, int32_t element_index, const StringFieldType* base_str_ptr){
     // 从Item中获取字符串表示
-    std::string itemStr = getItemString(item); 
-    
+    const StringFieldType *item_ptr = item->GetItemString(); 
+
+    uint32_t offsetValueCode = 0; 
     // 每一次push都需要计算偏移值代码，以刚刚top出去的节点为基准
-    uint32_t offsetValueCode = calculate_offset_value_code(baseStr, itemStr);
+    if (base_str_ptr)
+        offsetValueCode = CalculateOffsetValueCode(base_str_ptr, item_ptr);
 
     // update node value
     _tree[_leaf_num + run_index]->_value = item;
@@ -100,10 +102,10 @@ void LoserTree::push (const Item* item, int32_t run_index, int32_t element_index
     _tree[_leaf_num + run_index]->_element_index = element_index;
     _tree[_leaf_num + run_index]->_offset_value_code = offsetValueCode;
     // leaf to root update
-    adjust(run_index, baseStr);
+    adjust(run_index, base_str_ptr);
 }
 
-void LoserTree::adjust(int32_t run_index, const std::string& baseStr) {
+void LoserTree::adjust(int32_t run_index, const StringFieldType* base_str_ptr) {
     // to avoid overflow
     // calculate node index in the comparison
     uint32_t node_index = run_index + _leaf_num;
@@ -112,12 +114,12 @@ void LoserTree::adjust(int32_t run_index, const std::string& baseStr) {
     // compare iteratively
     while(cmp_node_index > 0){
         if (*_tree[node_index] > *_tree[cmp_node_index]){
-                if (_tree[node_index]->_offset_value_code == _tree[cmp_node_index]->_offset_value_code && baseStr != "") {
+                if (_tree[node_index]->_offset_value_code == _tree[cmp_node_index]->_offset_value_code && base_str_ptr) {
                 // _tree[node_index] is loser，update its ovc
-                std::string winner_str = getItemString(_tree[cmp_node_index]->_value);
-                std::string loser_str = getItemString(_tree[node_index]->_value);
+                auto winner_str = _tree[cmp_node_index]->_value->GetItemString();
+                auto loser_str = _tree[node_index]->_value->GetItemString();
                 // 更新失败者的偏移值代码
-                _tree[node_index]->_offset_value_code = calculate_offset_value_code(winner_str, loser_str);
+                _tree[node_index]->_offset_value_code = CalculateOffsetValueCode(winner_str, loser_str);
             }
             swap(_tree[node_index], _tree[cmp_node_index]);
         }
@@ -161,5 +163,6 @@ void LoserTree::reset(int32_t num_of_reset_nodes) {
         _tree[i]->_value = &ITEM_MIN;
         _tree[i]->_run_index = -1;
         _tree[i]->_element_index = -1;
+        _tree[i]->_offset_value_code = 0;
     }
 }

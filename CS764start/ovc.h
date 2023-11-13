@@ -3,10 +3,10 @@
 #define OCV_H
 
 #include <cstdint>
+#include "defs.h"
 
-class ovc {
-public:
-    uint32_t calculate_offset_value_code(const std::string& base, const std::string& compare);
-};
+
+uint32_t CalculateOffsetValueCode(const StringFieldType* base, const StringFieldType* compare);
+
 
 #endif

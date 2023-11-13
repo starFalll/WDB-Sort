@@ -6,12 +6,13 @@
 #include <string>
 
 typedef uint8_t byte;
+typedef std::string  StringFieldType;
 
 #define TRACE_SWITCH false
 
 #define slotsof(a)	(sizeof (a) / sizeof (a[0]))
 
-#define nullptr	((void *) NULL)
+//#define nullptr	((void *) NULL)
 
 #define yesno(b)	((b) ? "yes" : "no")
 
@@ -55,6 +56,9 @@ public :
 	Trace (bool const trace, char const * const function,
 			char const * const file, int const line, 
 			int const first, int const second, int const third);
+	Trace (bool const trace, char const * const function,
+			char const * const file, int const line, 
+			std::string const first, std::string const second, std::string const third);
 	~Trace ();
 
 private :

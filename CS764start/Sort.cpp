@@ -21,7 +21,7 @@ Iterator * SortPlan::init () const
 
 SortIterator::SortIterator (SortPlan const * const plan) :
 	_plan (plan), _input (plan->_input->init ()),
-	_consumed (0), _produced (0),
+	_consumed (0), _produced (0), _eSize(plan->_eSize),
 	_cache_run_list_row((MAX_DRAM * 5 / 10) / (MAX_CPU_CACHE * 5 / 10)),
 	_cache_run_list_col(MAX_CPU_CACHE * 5 / 10 / sizeof(Item))
 {
@@ -147,9 +147,9 @@ void SortIterator::QuickSort (RandomIt start, RandomIt end, Compare comp)
 		swap( * left, * right);
 	}
 	if (comp( * left, * pivot)) {
-		swap(*left, *pivot);
+		left++;
 	}
-	else left++;
+	swap(*left, *pivot);
 	
 	QuickSort (start, left, comp);
 	QuickSort (left+1, end, comp);
@@ -163,11 +163,11 @@ void SortIterator::MultiwayMerge (){
 	_loser_tree->reset(_current_run_index);
 
 	// 初始基准字符串为空
-	std::string baseStr = ""; 
+	const StringFieldType* base_str_ptr = nullptr; 
 
 	// Initialize with the first element of each sorted sequence
 	for (uint32_t i = 0; i < _current_run_index; i++) {	
-		_loser_tree->push(_cache_run_list[i][0], i, 0, baseStr);
+		_loser_tree->push(_cache_run_list[i][0], i, 0, base_str_ptr);
 	}
 
 	// reset result index
@@ -178,7 +178,7 @@ void SortIterator::MultiwayMerge (){
 		TreeNode* cur = _loser_tree->top();
 
 		// get the string of current data
-		baseStr = getItemString(cur->_value);
+		base_str_ptr = cur->_value->GetItemString();
 
 		// save in results
 		_result[res_index] = cur->_value;
@@ -192,9 +192,11 @@ void SortIterator::MultiwayMerge (){
 		uint32_t target_element_index = (run_index == _current_run_index-1) ? last_row_col : _cache_run_list_col;
 		// push next data into the tree
 		if (element_index < target_element_index) {
-			_loser_tree->push(_cache_run_list[run_index][element_index], run_index, element_index, baseStr);
+			_loser_tree->push(_cache_run_list[run_index][element_index], run_index, element_index, base_str_ptr);
 		}else{
-			_loser_tree->push(&ITEM_MAX, -1, -1, baseStr);
+			Item temp = Item(_eSize);
+			_loser_tree->push(&temp, run_index, -1, base_str_ptr);
+			//_loser_tree->push(&ITEM_MAX, -1, -1);
 		}
 	}
 }
