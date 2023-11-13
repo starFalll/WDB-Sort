@@ -26,11 +26,16 @@ bool TreeNode::operator < (const TreeNode & other) const {
         return this_offset > other_offset;
     } else {
         // if offset is same，extract offset_Data to compare
-        int this_offset_Data = _offset_value_code % 100;
-        int other_offset_Data = other._offset_value_code % 100;
-        if (this_offset_Data != other_offset_Data) {
-            return this_offset_Data < other_offset_Data;
+        int this_offset= _offset_value_code % 100;
+        int other_offset = other._offset_value_code % 100;
+        if (this_offset != other_offset) {
+            return this_offset < other_offset;
         } else {
+            int this_offsert_data = _offset_value_code % 10;
+            int other_offsert_data = other._offset_value_code % 10;
+            if (this_offsert_data != other_offsert_data) {
+                return this_offsert_data < other_offsert_data;
+            }
              // if OVC is same，then compare the whole string
             return _value->fields[COMPARE_FIELD] < other._value->fields[COMPARE_FIELD];
         }

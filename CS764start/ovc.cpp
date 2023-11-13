@@ -18,7 +18,8 @@ uint32_t CalculateOffsetValueCode(const StringFieldType* base, const StringField
         //first different char
         if (base->at(i) != compare->at(i)) {
             int offset = max_length - i - 1; 
-            int offset_Data = compare->at(i) - compare->at(i);
+            // Set the loser value to the value of the current number of digits
+            int offset_Data = compare->at(i) - '0';
             return offset * 100 + offset_Data;
         }
     }
