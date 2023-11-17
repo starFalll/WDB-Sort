@@ -1,9 +1,11 @@
-CPPOPT=-g -Og -D_DEBUG
+CPPOPT=-g -D_DEBUG
+LIBS=-lstring -stdlib -liostream -lfstream
 # -O2 -Os -Ofast
 # -fprofile-generate -fprofile-use
 CPPFLAGS=$(CPPOPT) -Wall -ansi -pedantic -std=c++11
 # -Wparentheses -Wno-unused-parameter -Wformat-security
 # -fno-rtti -std=c++11 -std=c++98
+
 
 # documents and scripts
 DOCS=Tasks.txt
@@ -11,13 +13,13 @@ SCRS=
 
 # headers and code sources
 HDRS=	defs.h \
-		Iterator.h LoserTree.h Scan.h Filter.h Sort.h
+		Iterator.h LoserTree.h Scan.h Filter.h Sort.h File.h ProducerConsumer.h
 SRCS=	defs.cpp Assert.cpp Test.cpp \
-		Iterator.cpp LoserTree.cpp Scan.cpp Filter.cpp Sort.cpp
+		Iterator.cpp LoserTree.cpp Scan.cpp Filter.cpp Sort.cpp File.cpp ProducerConsumer.cpp
 
 # compilation targets
 OBJS=	defs.o Assert.o Test.o \
-		Iterator.o LoserTree.o Scan.o Filter.o Sort.o
+		Iterator.o LoserTree.o Scan.o Filter.o Sort.o File.o ProducerConsumer.o
 
 # RCS assists
 REV=-q -f
@@ -35,11 +37,13 @@ trace : Test Makefile
 
 $(OBJS) : Makefile defs.h
 Test.o : Iterator.h LoserTree.h Scan.h Filter.h Sort.h
-Iterator.o LoserTree.o Scan.o Filter.o Sort.o : Iterator.h
+Iterator.o LoserTree.o Scan.o Filter.o Sort.o File.o : Iterator.h
 LoserTree.o : LoserTree.h
 Scan.o : Scan.h
 Filter.o : Filter.h
 Sort.o : Sort.h LoserTree.h
+File.o : File.h
+ProducerConsumer.o : File.h
 
 list : Makefile
 	echo Makefile $(HDRS) $(SRCS) $(DOCS) $(SCRS) > list

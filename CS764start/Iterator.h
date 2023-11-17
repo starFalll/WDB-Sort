@@ -8,7 +8,7 @@ typedef uint32_t FieldType;
 
 enum ItemField
 {
-	INCL = 1,
+	INCL = 0,
 	MEM,
 	MGMT,
 	MAX_ITEM,
@@ -31,9 +31,9 @@ struct Item
 };
 
 // the minimal value of object Item
-static const Item ITEM_MIN = Item(0, 0, 0);
+static Item ITEM_MIN = Item(0, 0, 0);
 // the maximal value of object Item
-static const Item ITEM_MAX = Item(UINT32_MAX, UINT32_MAX, UINT32_MAX);
+static Item ITEM_MAX = Item(INT32_MAX, INT32_MAX, INT32_MAX);
 
 class Plan
 {

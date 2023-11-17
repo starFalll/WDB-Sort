@@ -7,6 +7,7 @@ struct TreeNode{
 	int32_t _run_index;
     // index of data in the run
 	int32_t _element_index;
+
 	TreeNode(Item* item, int32_t run_index, int32_t element_index);
 	TreeNode();
 	bool operator < (const TreeNode & other) const;
@@ -34,5 +35,5 @@ public:
 
     void adjust(int32_t run_index);
 
-    void reset(int32_t num_of_reset_nodes);
+    void reset(int32_t num_of_reset_nodes, Item* value);
 };

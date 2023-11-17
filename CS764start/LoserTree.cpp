@@ -69,20 +69,20 @@ void LoserTree::adjust(int32_t run_index) {
 
     // compare iteratively
     while(cmp_node_index > 0){
-        if (_tree[node_index] > _tree[cmp_node_index]){
-            swap(*_tree[node_index], *_tree[cmp_node_index]);
+        if (*_tree[node_index] > *_tree[cmp_node_index]){
+            swap(_tree[node_index], _tree[cmp_node_index]);
         }
         cmp_node_index /= 2;
     }
 
     // replace the top element with the smallest one
-    _tree[0] = _tree[node_index];
+    swap(_tree[0], _tree[node_index]);
 }
 
 // update num_of_reset_nodes tree nodes to negative infinity
-void LoserTree::reset(int32_t num_of_reset_nodes) {
+void LoserTree::reset(int32_t num_of_reset_nodes, Item* value) {
     for(int32_t i=0;i<num_of_reset_nodes;i++){
-        _tree[i]->_value = &ITEM_MIN;
+        _tree[i]->_value = value;
         _tree[i]->_run_index = -1;
         _tree[i]->_element_index = -1;
     }

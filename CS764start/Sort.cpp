@@ -22,10 +22,15 @@ Iterator * SortPlan::init () const
 SortIterator::SortIterator (SortPlan const * const plan) :
 	_plan (plan), _input (plan->_input->init ()),
 	_consumed (0), _produced (0),
-	_cache_run_list_row((MAX_DRAM * 5 / 10) / (MAX_CPU_CACHE * 5 / 10)),
+	_cache_run_list_row((MAX_DRAM * 8 / 10) / (MAX_CPU_CACHE * 5 / 10)),
 	_cache_run_list_col(MAX_CPU_CACHE * 5 / 10 / sizeof(Item))
 {
 	TRACE (TRACE_SWITCH);
+
+	// init producer consumer
+	_pc = new ProducerConsumer(OUTPUT_BUFFER / sizeof(Item));
+	SSD = new File(SSD_PATH, MAX_SSD);
+	HDD = new File(HDD_PATH, __LONG_LONG_MAX__);
 
 	// allocate 90MB to sort
 	// _sort_records.resize (MAX_DRAM * 9 / 10 / sizeof(Item));
@@ -39,9 +44,6 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 	for(uint32_t i=0;i<_cache_run_list_row;i++){
 		_cache_run_list[i] = new Item*[_cache_run_list_col];
 	}
-
-	// initialize result array
-	_result = new const Item*[_cache_run_list_row * _cache_run_list_col];
 
 	_sort_index = 0;
 
@@ -58,10 +60,12 @@ SortIterator::~SortIterator ()
 		delete _cache_run_list[i];
 	}
 	delete [] _cache_run_list;
-	delete [] _result;
 
 	delete _input;
-	
+
+	delete _pc;
+	delete SSD;
+	delete HDD;
 
 	traceprintf ("produced %lu of %lu rows\n",
 			(unsigned long) (_produced),
@@ -96,7 +100,7 @@ bool SortIterator::next ()
 		
 		// save sorted 0.5M data in memory
 		for(uint32_t i=0;i<add_num;i++){
-			_cache_run_list[_current_run_index][i] = &(_sort_records[i]);
+			_cache_run_list[_current_run_index][i] = new Item(_sort_records[i]);
 		}
 		// count current run index
 		_current_run_index++;
@@ -114,6 +118,7 @@ bool SortIterator::next ()
 
 	// run list is full or finish, start to merge
 	if((_current_run_index >= _cache_run_list_row) || (!ret && _consumed > 0)){
+		_loser_tree->reset(_cache_run_list_row, &ITEM_MAX);
 		MultiwayMerge();
 		_current_run_index = 0;
 	}
@@ -138,7 +143,7 @@ void SortIterator::QuickSort (RandomIt start, RandomIt end, Compare comp)
 	pivot = end - 1;
 	auto left = start, right = end - 2;
 	while (left < right) {
-		while (left < right && (comp ( * pivot, * right) || (!comp ( * right, * pivot)))) { // * right >= * pivot
+		while (left < right && !comp ( * right, * pivot)) { // * right >= * pivot
 			right--;
 		}
 		while (left < right && comp ( * left, * pivot)) {
@@ -147,10 +152,10 @@ void SortIterator::QuickSort (RandomIt start, RandomIt end, Compare comp)
 		swap( * left, * right);
 	}
 	if (comp( * left, * pivot)) {
-		swap(*left, *pivot);
+		left++;
 	}
-	else left++;
-	
+	swap(*left, *pivot);
+
 	QuickSort (start, left, comp);
 	QuickSort (left+1, end, comp);
 }
@@ -160,7 +165,7 @@ void SortIterator::MultiwayMerge (){
 	uint32_t last_row_col = (_sort_index == 0) ? _cache_run_list_col : _sort_index;
 
 	// reset loser tree
-	_loser_tree->reset(_current_run_index);
+	_loser_tree->reset(_current_run_index, &ITEM_MIN);
 
 	// Initialize with the first element of each sorted sequence
 	for (uint32_t i = 0; i < _current_run_index; i++) {	
@@ -168,14 +173,16 @@ void SortIterator::MultiwayMerge (){
 	}
 
 	// reset result index
-	uint32_t res_index = 0;
+	int32_t res_index = 0;
 
+	std::thread cyclicalConsumeThread(&ProducerConsumer::cyclicalConsume, _pc, SSD, HDD);
 	while (!_loser_tree->empty()) {
 		// get smallest element
 		TreeNode* cur = _loser_tree->top();
 
 		// save in results
-		_result[res_index] = cur->_value;
+		// _results[res_index] = *(cur->_value);
+		_pc->produce(*(cur->_value));
 		res_index++;
 
 		// calculate the index of next data item 
@@ -188,9 +195,10 @@ void SortIterator::MultiwayMerge (){
 		if (element_index < target_element_index) {
 			_loser_tree->push(_cache_run_list[run_index][element_index], run_index, element_index);
 		}else{
-			_loser_tree->push(&ITEM_MAX, -1, -1);
+			_loser_tree->push(&ITEM_MAX, run_index, -1);
 		}
 	}
+	cyclicalConsumeThread.join();
 }
 
 
