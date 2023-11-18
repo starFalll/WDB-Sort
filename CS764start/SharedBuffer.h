@@ -12,9 +12,6 @@ private:
     std::mutex _mtx;
     std::condition_variable _not_full_cv;
     std::condition_variable _not_empty_cv;
-    //
-    int32_t _ssd_consume_length;
-    int32_t _hdd_consume_length;
 
 public:
     ProducerConsumer(int32_t buffer_capacity);

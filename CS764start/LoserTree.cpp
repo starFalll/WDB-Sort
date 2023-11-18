@@ -141,7 +141,7 @@ void LoserTree::adjust(int32_t run_index, const StringFieldType* base_str_ptr) {
 }
 
 // update num_of_reset_nodes tree nodes to negative infinity
-void LoserTree::reset(int32_t num_of_reset_nodes, Item* value) {
+void LoserTree::reset(int32_t num_of_reset_nodes, const Item* value) {
     for(int32_t i=0;i<num_of_reset_nodes;i++){
         _tree[i]->_value = value;
         _tree[i]->_run_index = -1;

@@ -1,4 +1,4 @@
-#include "ProducerConsumer.h"
+#include "SharedBuffer.h"
 
 ProducerConsumer::ProducerConsumer(int32_t buffer_capacity) : 
     _buffer_capacity(buffer_capacity), _front(0), _rear(0)
