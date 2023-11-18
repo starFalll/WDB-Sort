@@ -14,6 +14,7 @@ public:
 	
 private:
 	Plan * const _input;
+	ElementSize _eSize;
 }; // class SortPlan
 
 class SortIterator : public Iterator
@@ -37,6 +38,7 @@ private:
 	SortPlan const * const _plan;
 	Iterator * const _input;
 	RowCount _consumed, _produced;
+	ElementSize _eSize;
 	// merge cache run
 	const uint32_t _cache_run_list_row;
 	const uint32_t _cache_run_list_col;

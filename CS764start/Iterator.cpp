@@ -1,6 +1,16 @@
 #include "Iterator.h"
 
+/*
 Item::Item (FieldType incl, FieldType mem, FieldType mgmt)
+{
+	// fields.resize(MAX_ITEM);
+	fields [INCL] = incl;
+	fields [MEM] = mem;
+	fields [MGMT] = mgmt;
+}
+*/
+
+Item::Item (StringFieldType incl, StringFieldType mem, StringFieldType mgmt)
 {
 	// fields.resize(MAX_ITEM);
 	fields [INCL] = incl;
@@ -15,6 +25,7 @@ Item::Item (const Item& other){
 	}
 }
 
+/*
 Item::Item ()
 {
 	// fields.resize(MAX_ITEM);
@@ -22,10 +33,51 @@ Item::Item ()
 	fields [MEM] = INT_MAX;
 	fields [MGMT] = INT_MAX;
 }
+*/
+Item::Item ()
+{
+	// fields.resize(MAX_ITEM);
+	fields [INCL] = std::to_string(INT_MAX);
+	fields [MEM] = std::to_string(INT_MAX);
+	fields [MGMT] = std::to_string(INT_MAX);
+}
+
+Item::Item (ElementSize eSize){
+	char inclTemp[eSize];
+	memset(inclTemp , '0' , sizeof(inclTemp));
+	char memTemp[eSize];
+	memset(memTemp , '0' , sizeof(memTemp));
+	char mgmtTemp[eSize];
+	memset(mgmtTemp , '0' , sizeof(mgmtTemp));
+	StringFieldType incl = std::to_string(INT_MAX);
+	StringFieldType mem = std::to_string(INT_MAX);
+	StringFieldType mgmt = std::to_string(INT_MAX);
+	int index = 0;
+	for(auto s : incl){
+		inclTemp[index++] = s;
+	}
+	index = 0;
+	for(auto s : mem){
+		memTemp[index++] = s;
+	}
+	index = 0;
+	for(auto s : mgmt){
+		mgmtTemp[index++] = s;
+	}
+	fields [INCL] = (std::string)inclTemp;
+	fields [MEM] = (std::string)memTemp;
+	fields [MGMT] = (std::string)mgmtTemp;
+}
 
 bool Item::operator < (const Item & other) const
 {
 	return fields[COMPARE_FIELD] < other.fields[COMPARE_FIELD];
+}
+
+// using first value to compare
+const StringFieldType* Item::GetItemString() const
+{
+	return &fields[0];
 }
 
 Plan::Plan ()
