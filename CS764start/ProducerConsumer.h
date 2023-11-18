@@ -22,7 +22,7 @@ public:
 
     void produce(const Item& item);
 
-    void consume(File* file, int32_t block_size);
+    void consume(File* file);
 
     void cyclicalConsume(File* SSD, File* HDD);
 

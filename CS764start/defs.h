@@ -23,6 +23,12 @@ typedef uint8_t byte;
 // HDD Path
 #define HDD_PATH "./HDD.csv"
 
+// SSD Block per access
+#define SSD_BLOCK 10 * 1024
+
+// HDD Block per access
+#define HDD_BLOCK 1 * 1024 * 1024
+
 // CPU cache 1 MB
 #define MAX_CPU_CACHE 1024 * 1024
 

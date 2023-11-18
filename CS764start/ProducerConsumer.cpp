@@ -1,9 +1,8 @@
 #include "ProducerConsumer.h"
 
 ProducerConsumer::ProducerConsumer(int32_t buffer_capacity) : 
-    _buffer_capacity(buffer_capacity), _front(0), _rear(0),
-    _ssd_consume_length(100 * 1024 * 1024 / 10000),
-    _hdd_consume_length(100 * 1024 * 1024 / 100) {
+    _buffer_capacity(buffer_capacity), _front(0), _rear(0)
+{
     // init buffer
     _buffer = new Item[_buffer_capacity];
 }
@@ -25,12 +24,27 @@ void ProducerConsumer::produce(const Item& item){
     _not_empty_cv.notify_all();
 }
 
-void ProducerConsumer::consume(File* file, int32_t block_size){
+void ProducerConsumer::consume(File* file){
     std::unique_lock<std::mutex> lock(_mtx);
     _not_empty_cv.wait(lock, [this](int32_t block_size){ return !isBufferBigEnoughToConsume(block_size); });
     
-    file->write((char*)&(_buffer[_front]), block_size);
-    _front = (_front + block_size) % _buffer_capacity;
+    // convert the number of bytes to the number of elements
+    int32_t block_size = file->getBlockSize();
+    int32_t item_num = block_size / sizeof(Item);
+    // check data continuity
+    if(_front + item_num <= _buffer_capacity){
+        // write
+        file->write((char*)&(_buffer[_front]), item_num * sizeof(Item));
+    }else{
+        // first write
+        int32_t tmp_num = _buffer_capacity - _front;
+        file->write((char*)&(_buffer[_front]), tmp_num * sizeof(Item));
+        // second write
+        item_num -= tmp_num;
+        file->write((char*)&(_buffer[0]), item_num * sizeof(Item));
+    }
+    // update front
+    _front = (_front + item_num) % _buffer_capacity;
 
     lock.unlock();
     _not_full_cv.notify_all();
@@ -44,10 +58,10 @@ void ProducerConsumer::cyclicalConsume(File* SSD, File* HDD){
         count++;
         // 0.1ms = 100us
         if(!SSD->isFull()){
-            std::thread ssd_consume(consume, SSD, _ssd_consume_length);
+            std::thread ssd_consume(consume, SSD);
         }
         if(count % 100 == 0){
-            std::thread hdd_consume(consume, HDD, _hdd_consume_length);
+            std::thread hdd_consume(consume, HDD);
             count = 0;
         }
         
@@ -67,5 +81,4 @@ bool ProducerConsumer::isBufferBigEnoughToConsume(int32_t length){
     return _rear + _buffer_capacity - _front >= length;
 }
 
-// 正好rear小于front怎么读
 // 最后一小块

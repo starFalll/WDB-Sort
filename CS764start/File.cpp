@@ -1,7 +1,7 @@
 #include "File.h"
 
-File::File(const char* path, long long max_byte) : 
-    _file_path(path), _max_byte(max_byte), _cur_byte(0)
+File::File(const char* path, long long max_byte, int32_t block_size) : 
+    _file_path(path), _max_byte(max_byte), _cur_byte(0), _block_size(block_size)
 {
     // open file
     _file_stream.open(_file_path, std::ios::in | std::ios::out);
@@ -31,4 +31,8 @@ void File::write(const char* data, int32_t length){
 
 bool File::isFull(){
     return _cur_byte >= _max_byte; 
+}
+
+int32_t File::getBlockSize(){
+    return _block_size;
 }

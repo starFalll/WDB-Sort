@@ -29,8 +29,8 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 
 	// init producer consumer
 	_pc = new ProducerConsumer(OUTPUT_BUFFER / sizeof(Item));
-	SSD = new File(SSD_PATH, MAX_SSD);
-	HDD = new File(HDD_PATH, __LONG_LONG_MAX__);
+	SSD = new File(SSD_PATH, MAX_SSD, SSD_BLOCK);
+	HDD = new File(HDD_PATH, __LONG_LONG_MAX__, HDD_BLOCK);
 
 	// allocate 90MB to sort
 	// _sort_records.resize (MAX_DRAM * 9 / 10 / sizeof(Item));
