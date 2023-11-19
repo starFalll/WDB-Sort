@@ -1,6 +1,6 @@
 #include "Iterator.h"
 #include "LoserTree.h"
-#include "ProducerConsumer.h"
+#include "SharedBuffer.h"
 #include <queue>
 // #include <thread>
 
@@ -45,7 +45,7 @@ private:
 	uint32_t _current_run_index;
 	Item*** _cache_run_list;
 	// result buffer
-	ProducerConsumer* _pc;
+	SharedBuffer* _pc;
 	File* SSD;
 	File* HDD;
 

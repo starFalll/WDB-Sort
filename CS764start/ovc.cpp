@@ -1,4 +1,4 @@
-#include "Ovc.h"
+#include "OVC.h"
 #include<iostream>
 
 /*

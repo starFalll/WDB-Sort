@@ -1,7 +1,7 @@
 #include "File.h"
 #include <future>
 
-class ProducerConsumer {
+class SharedBuffer {
 private:
     // buffer
     Item* _buffer;
@@ -14,8 +14,8 @@ private:
     std::condition_variable _not_empty_cv;
 
 public:
-    ProducerConsumer(int32_t buffer_capacity);
-    ~ProducerConsumer();
+    SharedBuffer(int32_t buffer_capacity);
+    ~SharedBuffer();
 
     void produce(const Item& item);
 

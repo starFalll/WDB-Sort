@@ -28,7 +28,7 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 	TRACE (TRACE_SWITCH);
 
 	// init producer consumer
-	_pc = new ProducerConsumer(OUTPUT_BUFFER / sizeof(Item));
+	_pc = new SharedBuffer(OUTPUT_BUFFER / sizeof(Item));
 	SSD = new File(SSD_PATH, MAX_SSD, SSD_BLOCK);
 	HDD = new File(HDD_PATH, __LONG_LONG_MAX__, HDD_BLOCK);
 
@@ -180,7 +180,7 @@ void SortIterator::MultiwayMerge (){
 	// reset result index
 	int32_t res_index = 0;
 
-	std::thread cyclicalConsumeThread(&ProducerConsumer::cyclicalConsume, _pc, SSD, HDD);
+	std::thread cyclicalConsumeThread(&SharedBuffer::cyclicalConsume, _pc, SSD, HDD);
 	while (!_loser_tree->empty()) {
 		// get smallest element
 		TreeNode* cur = _loser_tree->top();

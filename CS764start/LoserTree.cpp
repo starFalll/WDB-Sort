@@ -1,5 +1,5 @@
 #include "LoserTree.h"
-#include "Ovc.h"
+#include "OVC.h"
 // constructor
 TreeNode::TreeNode (Item* item, int32_t run_index, int32_t element_index){
 	_value = item;

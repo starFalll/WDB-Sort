@@ -1,4 +1,4 @@
-CPPOPT=-g -D_DEBUG
+CPPOPT=-g -Og -D_DEBUG
 LIBS=-lstring -stdlib -liostream -lfstream
 # -O2 -Os -Ofast
 # -fprofile-generate -fprofile-use
@@ -13,13 +13,13 @@ SCRS=
 
 # headers and code sources
 HDRS=	defs.h \
-		Iterator.h LoserTree.h Scan.h Filter.h Sort.h Ovc.h
+		Iterator.h LoserTree.h Scan.h Filter.h Sort.h OVC.h File.h SharedBuffer.h
 SRCS=	defs.cpp Assert.cpp Test.cpp \
-		Iterator.cpp LoserTree.cpp Scan.cpp Filter.cpp Sort.cpp Ovc.cpp
+		Iterator.cpp LoserTree.cpp Scan.cpp Filter.cpp Sort.cpp OVC.cpp File.cpp SharedBuffer.cpp
 
 # compilation targets
 OBJS=	defs.o Assert.o Test.o \
-		Iterator.o LoserTree.o Scan.o Filter.o Sort.o Ovc.o
+		Iterator.o LoserTree.o Scan.o Filter.o Sort.o OVC.o File.o SharedBuffer.o
 
 # RCS assists
 REV=-q -f
@@ -37,12 +37,14 @@ trace : Test Makefile
 
 $(OBJS) : Makefile defs.h
 Test.o : Iterator.h LoserTree.h Scan.h Filter.h Sort.h
-Iterator.o LoserTree.o Scan.o Filter.o Sort.o Ovc.o: Iterator.h
-LoserTree.o : LoserTree.h Ovc.h
+Iterator.o LoserTree.o Scan.o Filter.o Sort.o : Iterator.h
+LoserTree.o : LoserTree.h OVC.h
 Scan.o : Scan.h
 Filter.o : Filter.h
 Sort.o : Sort.h LoserTree.h
-Ovc.o : Ovc.h
+OVC.o : OVC.h
+File.o : File.h Iterator.h
+SharedBuffer.o : SharedBuffer.h File.h
 
 list : Makefile
 	echo Makefile $(HDRS) $(SRCS) $(DOCS) $(SCRS) > list
