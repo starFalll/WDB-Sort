@@ -74,6 +74,12 @@ bool Item::operator < (const Item & other) const
 	return fields[COMPARE_FIELD] < other.fields[COMPARE_FIELD];
 }
 
+// using first value to compare
+const StringFieldType* Item::GetItemString() const
+{
+	return &fields[0];
+}
+
 Plan::Plan ()
 {
 	TRACE (TRACE_SWITCH);

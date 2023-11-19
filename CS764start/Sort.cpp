@@ -86,17 +86,19 @@ bool SortIterator::next ()
 	TRACE (TRACE_SWITCH);
 	// _sort_records is fulled
 	if ((!ret && _consumed > 0) || 0 == _sort_index) {
-		uint32_t add_num = _sort_index == 0 ? (RowCount)_sort_records.size() : _sort_index;
+		uint32_t add_num = _sort_index == 0 ? (RowCount)_sort_records.size() : _sort_index+1;
+		// when not full, valid value from index 1
+		uint32_t begin_num = _sort_index == 0 ? 0 : 1;
 		// because quicksort's sequential and localized memory references work well with a cache
-		QuickSort(_sort_records.begin(), _sort_records.begin() + add_num, [] (const Item & a, const Item & b) {
+		QuickSort(_sort_records.begin() + begin_num, _sort_records.begin() + add_num, [] (const Item & a, const Item & b) {
 			// TODO supporting group by
 			// temporarily sorting by first field
 			return a.fields[COMPARE_FIELD] < b.fields[COMPARE_FIELD];
 		});
 		
 		// save sorted 0.5M data in memory
-		for(uint32_t i=0;i<add_num;i++){
-			_cache_run_list[_current_run_index][i] = &(_sort_records[i]);
+		for(uint32_t i=0, j = begin_num;j<add_num;i++, j++){
+			_cache_run_list[_current_run_index][i] = &(_sort_records[j]);
 		}
 		// count current run index
 		_current_run_index++;
@@ -104,9 +106,9 @@ bool SortIterator::next ()
 		_produced += add_num;
 		TRACE (TRACE_SWITCH);
 		// printf("test index:%u\n", _sort_index);
-		// for (int i = 0; i < add_num; i++) {
+		// for (int i = begin_num; i < add_num; i++) {
 		// 	const auto& item = _sort_records[i];
-		// 	traceprintf ("test result: %d\n",item.fields[INCL]);
+		// 	traceprintf ("test result: %s\n",item.fields[INCL].c_str());
 		// }
 		// TODO asynchronously writing buffer into SSD or HDD
 
@@ -147,9 +149,9 @@ void SortIterator::QuickSort (RandomIt start, RandomIt end, Compare comp)
 		swap( * left, * right);
 	}
 	if (comp( * left, * pivot)) {
-		swap(*left, *pivot);
+		left++;
 	}
-	else left++;
+	swap(*left, *pivot);
 	
 	QuickSort (start, left, comp);
 	QuickSort (left+1, end, comp);
@@ -162,9 +164,12 @@ void SortIterator::MultiwayMerge (){
 	// reset loser tree
 	_loser_tree->reset(_current_run_index);
 
+	// 初始基准字符串为空
+	const StringFieldType* base_str_ptr = nullptr; 
+
 	// Initialize with the first element of each sorted sequence
 	for (uint32_t i = 0; i < _current_run_index; i++) {	
-		_loser_tree->push(_cache_run_list[i][0], i, 0);
+		_loser_tree->push(_cache_run_list[i][0], i, 0, base_str_ptr);
 	}
 
 	// reset result index
@@ -173,6 +178,9 @@ void SortIterator::MultiwayMerge (){
 	while (!_loser_tree->empty()) {
 		// get smallest element
 		TreeNode* cur = _loser_tree->top();
+
+		// get the string of current data
+		base_str_ptr = cur->_value->GetItemString();
 
 		// save in results
 		_result[res_index] = cur->_value;
@@ -186,10 +194,10 @@ void SortIterator::MultiwayMerge (){
 		uint32_t target_element_index = (run_index == _current_run_index-1) ? last_row_col : _cache_run_list_col;
 		// push next data into the tree
 		if (element_index < target_element_index) {
-			_loser_tree->push(_cache_run_list[run_index][element_index], run_index, element_index);
+			_loser_tree->push(_cache_run_list[run_index][element_index], run_index, element_index, base_str_ptr);
 		}else{
 			Item temp = Item(_eSize);
-			_loser_tree->push(&temp, -1, -1);
+			_loser_tree->push(&temp, run_index, -1, base_str_ptr);
 			//_loser_tree->push(&ITEM_MAX, -1, -1);
 		}
 	}

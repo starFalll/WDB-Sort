@@ -6,6 +6,7 @@
 #include <string>
 
 typedef uint8_t byte;
+typedef std::string  StringFieldType;
 
 #define TRACE_SWITCH false
 
