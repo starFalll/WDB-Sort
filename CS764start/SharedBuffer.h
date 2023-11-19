@@ -12,12 +12,15 @@ private:
     std::mutex _mtx;
     std::condition_variable _not_full_cv;
     std::condition_variable _not_empty_cv;
+    bool _finish;
+    //
+    //todo：添加状态数组
 
 public:
     SharedBuffer(int32_t buffer_capacity);
     ~SharedBuffer();
 
-    void produce(const Item& item);
+    void produce(const Item& item, bool finish);
 
     void consume(File* file);
 

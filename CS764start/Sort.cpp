@@ -179,18 +179,21 @@ void SortIterator::MultiwayMerge (){
 
 	// reset result index
 	int32_t res_index = 0;
-
+	bool isFinish = false;
 	std::thread cyclicalConsumeThread(&SharedBuffer::cyclicalConsume, _pc, SSD, HDD);
 	while (!_loser_tree->empty()) {
 		// get smallest element
 		TreeNode* cur = _loser_tree->top();
+		if(_loser_tree->empty()){
+			isFinish = true;
+		}
 
 		// get the string of current data
 		base_str_ptr = cur->_value->GetItemString();
 
 		// save in results
 		// _results[res_index] = *(cur->_value);
-		_pc->produce(*(cur->_value));
+		_pc->produce(*(cur->_value), isFinish);
 		res_index++;
 
 		// calculate the index of next data item 

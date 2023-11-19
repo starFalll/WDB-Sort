@@ -1,7 +1,7 @@
 #include "SharedBuffer.h"
 
 SharedBuffer::SharedBuffer(int32_t buffer_capacity) : 
-    _buffer_capacity(buffer_capacity), _front(0), _rear(0)
+    _buffer_capacity(buffer_capacity), _front(0), _rear(0), _finish(false)
 {
     // init buffer
     _buffer = new Item[_buffer_capacity];
@@ -11,7 +11,7 @@ SharedBuffer::~SharedBuffer(){
     delete _buffer;
 }
 
-void SharedBuffer::produce(const Item& item){
+void SharedBuffer::produce(const Item& item, bool finish){
     // check if current produce slot valid
     std::unique_lock<std::mutex> lock(_mtx);
     _not_full_cv.wait(lock, [this]{ return !isBufferFull(); });
@@ -20,18 +20,23 @@ void SharedBuffer::produce(const Item& item){
     _buffer[_rear] = item;
     _rear = (_rear + 1) % _buffer_capacity;
 
-    lock.unlock();
+    _finish = finish;
+
     _not_empty_cv.notify_all();
+    lock.unlock();
 }
 
 void SharedBuffer::consume(File* file){
     int32_t block_size = file->getBlockSize();
 
     std::unique_lock<std::mutex> lock(_mtx);
-    _not_empty_cv.wait(lock, [this, block_size]{ return !isBufferBigEnoughToConsume(block_size); });
+    _not_empty_cv.wait(lock, [this, block_size]{ return !isBufferBigEnoughToConsume(block_size) || _finish; });
     
     // convert the number of bytes to the number of elements
-    int32_t item_num = block_size / sizeof(Item);
+    int32_t item_num = block_size / sizeof(Item); // todo: 获取item的实际大小
+    if(_finish){
+        item_num = _rear + _buffer_capacity - _front;
+    }
     // check data continuity
     if(_front + item_num <= _buffer_capacity){
         // write
@@ -47,9 +52,11 @@ void SharedBuffer::consume(File* file){
     // update front
     _front = (_front + item_num) % _buffer_capacity;
 
-    lock.unlock();
     _not_full_cv.notify_all();
+    lock.unlock();
 }
+
+// todo: 回调函数，更新状态数组，要加锁
 
 void SharedBuffer::cyclicalConsume(File* SSD, File* HDD){
     int32_t count=0;
@@ -71,15 +78,18 @@ void SharedBuffer::cyclicalConsume(File* SSD, File* HDD){
 }
 
 bool SharedBuffer::isBufferEmpty(){
-    return _front == _rear;
+    return _front == _rear && _finish;
 }
 
 bool SharedBuffer::isBufferFull(){
     return _front == (_rear + 1) % _buffer_capacity;
+    // todo: 判断状态数组
 }
 
 bool SharedBuffer::isBufferBigEnoughToConsume(int32_t length){
     return _rear + _buffer_capacity - _front >= length;
+    // todo：判断状态数组
 }
 
-// 最后一小块
+// todo
+// sort 改 finish
