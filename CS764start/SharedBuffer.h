@@ -31,4 +31,8 @@ public:
     bool isBufferFull();
 
     bool isBufferBigEnoughToConsume(int32_t length);
+
+    int32_t getValidDataLength();
+
+    void reset();
 };

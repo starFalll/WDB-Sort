@@ -45,7 +45,7 @@ private:
 	uint32_t _current_run_index;
 	Item*** _cache_run_list;
 	// result buffer
-	SharedBuffer* _pc;
+	SharedBuffer* _shared_buffer;
 	File* SSD;
 	File* HDD;
 

@@ -28,7 +28,7 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 	TRACE (TRACE_SWITCH);
 
 	// init producer consumer
-	_pc = new SharedBuffer(OUTPUT_BUFFER / sizeof(Item));
+	_shared_buffer = new SharedBuffer(OUTPUT_BUFFER / sizeof(Item));
 	SSD = new File(SSD_PATH, MAX_SSD, SSD_BLOCK);
 	HDD = new File(HDD_PATH, __LONG_LONG_MAX__, HDD_BLOCK);
 
@@ -63,7 +63,7 @@ SortIterator::~SortIterator ()
 
 	delete _input;
 
-	delete _pc;
+	delete _shared_buffer;
 	delete SSD;
 	delete HDD;
 
@@ -180,21 +180,14 @@ void SortIterator::MultiwayMerge (){
 	// reset result index
 	int32_t res_index = 0;
 	bool isFinish = false;
-	std::thread cyclicalConsumeThread(&SharedBuffer::cyclicalConsume, _pc, SSD, HDD);
+	_shared_buffer->reset();
+	std::thread cyclicalConsumeThread(&SharedBuffer::cyclicalConsume, _shared_buffer, SSD, HDD);
 	while (!_loser_tree->empty()) {
 		// get smallest element
 		TreeNode* cur = _loser_tree->top();
-		if(_loser_tree->empty()){
-			isFinish = true;
-		}
 
 		// get the string of current data
 		base_str_ptr = cur->_value->GetItemString();
-
-		// save in results
-		// _results[res_index] = *(cur->_value);
-		_pc->produce(*(cur->_value), isFinish);
-		res_index++;
 
 		// calculate the index of next data item 
 		uint32_t run_index = cur->_run_index;
@@ -210,6 +203,14 @@ void SortIterator::MultiwayMerge (){
 			_loser_tree->push(&temp, run_index, -1, base_str_ptr);
 			//_loser_tree->push(&ITEM_MAX, -1, -1);
 		}
+
+		if(_loser_tree->empty()){
+			isFinish = true;
+		}
+		// save in results
+		// _results[res_index] = *(cur->_value);
+		_shared_buffer->produce(*(cur->_value), isFinish);
+		res_index++;
 	}
 	cyclicalConsumeThread.join();
 }

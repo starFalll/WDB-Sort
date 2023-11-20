@@ -1,6 +1,6 @@
 #include "File.h"
 
-File::File(const char* path, long long max_byte, int32_t block_size) : 
+File::File(const char* path, unsigned long long max_byte, int32_t block_size) : 
     _file_path(path), _max_byte(max_byte), _cur_byte(0), _block_size(block_size)
 {
     // open file
