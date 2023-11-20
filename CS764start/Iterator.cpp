@@ -42,31 +42,12 @@ Item::Item ()
 	fields [MGMT] = std::to_string(INT_MAX);
 }
 
+// set eSize length  value to 99999...
 Item::Item (ElementSize eSize){
-	char inclTemp[eSize];
-	memset(inclTemp , '0' , sizeof(inclTemp));
-	char memTemp[eSize];
-	memset(memTemp , '0' , sizeof(memTemp));
-	char mgmtTemp[eSize];
-	memset(mgmtTemp , '0' , sizeof(mgmtTemp));
-	StringFieldType incl = std::to_string(INT_MAX);
-	StringFieldType mem = std::to_string(INT_MAX);
-	StringFieldType mgmt = std::to_string(INT_MAX);
-	int index = 0;
-	for(auto s : incl){
-		inclTemp[index++] = s;
-	}
-	index = 0;
-	for(auto s : mem){
-		memTemp[index++] = s;
-	}
-	index = 0;
-	for(auto s : mgmt){
-		mgmtTemp[index++] = s;
-	}
-	fields [INCL] = (std::string)inclTemp;
-	fields [MEM] = (std::string)memTemp;
-	fields [MGMT] = (std::string)mgmtTemp;
+
+	fields [INCL].assign(eSize, '9');
+	fields [MEM].assign(eSize, '9');
+	fields [MGMT].assign(eSize, '9');
 }
 
 bool Item::operator < (const Item & other) const
@@ -80,8 +61,9 @@ const StringFieldType* Item::GetItemString() const
 	return &fields[0];
 }
 
-Plan::Plan ()
+Plan::Plan (ElementSize eSize)
 {
+	_eSize = eSize;
 	TRACE (TRACE_SWITCH);
 } // Plan::Plan
 
@@ -90,7 +72,12 @@ Plan::~Plan ()
 	TRACE (TRACE_SWITCH);
 } // Plan::~Plan
 
-Iterator::Iterator () : _count (0)
+ElementSize Plan::GetSize() const
+{
+	return _eSize;
+}
+
+Iterator::Iterator (ElementSize eSize) : _eSize(eSize), _count (0) 
 {
 	TRACE (TRACE_SWITCH);
 	// allocate 2MB to _records
@@ -117,4 +104,9 @@ void Iterator::GetRecords(std::vector<Item> ** records, uint32_t ** index)
 {
 	*records = &_records;
 	*index = &_index;
+}
+
+ElementSize Iterator::GetSize() const
+{
+	return _eSize;
 }

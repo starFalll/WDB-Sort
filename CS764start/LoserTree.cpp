@@ -47,10 +47,10 @@ bool TreeNode::operator > (const TreeNode & other) const {
 
     int this_offset = _offset_value_code / 100;
     int other_offset = other._offset_value_code / 100;
-
+    
     // compare offset
     if (this_offset != other_offset) {
-        return this_offset < other_offset;
+        return this_offset > other_offset;
     } else {
         // if offset is same，extract offset_Data to compare
         int this_offset = _offset_value_code % 100;
@@ -129,6 +129,7 @@ void LoserTree::adjust(int32_t run_index, const StringFieldType* base_str_ptr) {
                 auto winner_str = _tree[cmp_node_index]->_value->GetItemString();
                 auto loser_str = _tree[node_index]->_value->GetItemString();
                 // Update the offset value code of the loser
+                
                 _tree[node_index]->_offset_value_code = CalculateOffsetValueCode(winner_str, loser_str);
             }
             swap(_tree[node_index], _tree[cmp_node_index]);

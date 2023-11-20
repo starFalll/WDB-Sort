@@ -1,6 +1,6 @@
 #include "Filter.h"
 
-FilterPlan::FilterPlan (Plan * const input) : _input (input)
+FilterPlan::FilterPlan (Plan * const input) : Plan(input->GetSize()), _input (input)
 {
 	TRACE (TRACE_SWITCH);
 } // FilterPlan::FilterPlan
@@ -59,7 +59,7 @@ bool FilterPlan::ApplyPredicate (Item & item) const
 }
 
 FilterIterator::FilterIterator (FilterPlan const * const plan) :
-	_plan (plan), _input (plan->_input->init ()),
+	Iterator(plan->GetSize()), _plan (plan), _input (plan->_input->init ()),
 	_consumed (0), _produced (0)
 {
 	TRACE (TRACE_SWITCH);

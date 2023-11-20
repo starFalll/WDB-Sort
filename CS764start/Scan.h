@@ -9,7 +9,6 @@ public:
 	Iterator * init () const;
 private:
 	RowCount const _count;
-	ElementSize _eSize;
 }; // class ScanPlan
 
 class ScanIterator : public Iterator
@@ -25,5 +24,4 @@ private:
 private:
 	ScanPlan const * const _plan;
 	RowCount _count;
-	ElementSize _eSize;
 }; // class ScanIterator
