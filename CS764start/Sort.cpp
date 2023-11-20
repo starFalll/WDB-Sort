@@ -110,7 +110,7 @@ bool SortIterator::next ()
 		// 	const auto& item = _sort_records[i];
 		// 	traceprintf ("test result: %s\n",item.fields[INCL].c_str());
 		// }
-		// // TODO asynchronously writing buffer into SSD or HDD
+		// TODO asynchronously writing buffer into SSD or HDD
 
 	}
 

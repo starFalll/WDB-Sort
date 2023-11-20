@@ -124,15 +124,16 @@ void LoserTree::adjust(int32_t run_index, const StringFieldType* base_str_ptr) {
     // compare iteratively
     while(cmp_node_index > 0){
         if (*_tree[node_index] > *_tree[cmp_node_index]){
-                if (_tree[node_index]->_offset_value_code == _tree[cmp_node_index]->_offset_value_code && base_str_ptr) {
-                // _tree[node_index] is loser，update its ovc
-                auto winner_str = _tree[cmp_node_index]->_value->GetItemString();
-                auto loser_str = _tree[node_index]->_value->GetItemString();
-                // Update the offset value code of the loser
-                
-                _tree[node_index]->_offset_value_code = CalculateOffsetValueCode(winner_str, loser_str);
-            }
+      
             swap(_tree[node_index], _tree[cmp_node_index]);
+        }
+        if (_tree[node_index]->_offset_value_code == _tree[cmp_node_index]->_offset_value_code && base_str_ptr) {
+            // _tree[node_index] is loser，update its ovc
+            auto winner_str = _tree[node_index]->_value->GetItemString();
+            auto loser_str = _tree[cmp_node_index]->_value->GetItemString();
+            // Update the offset value code of the loser
+            
+            _tree[cmp_node_index]->_offset_value_code = CalculateOffsetValueCode(winner_str, loser_str);
         }
         cmp_node_index /= 2;
     }
@@ -143,7 +144,8 @@ void LoserTree::adjust(int32_t run_index, const StringFieldType* base_str_ptr) {
 
 // update num_of_reset_nodes tree nodes to negative infinity
 void LoserTree::reset(int32_t num_of_reset_nodes) {
-    for(int32_t i=0;i<num_of_reset_nodes;i++){
+    _leaf_num = num_of_reset_nodes;
+    for(int32_t i = 0; i < num_of_reset_nodes; i++) {
         _tree[i]->_value = &ITEM_MIN;
         _tree[i]->_run_index = -1;
         _tree[i]->_element_index = -1;
