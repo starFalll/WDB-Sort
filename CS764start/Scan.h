@@ -21,13 +21,10 @@ public:
 private:
 	Item GenerateOneRecord ();
 	std::string GeneratRandomStr();
-	Item ReadRecordsFromSSD();
-	Item ReadRecordsFromHDD();
+	Item* ReadRecordsFromDisk(bool ssdFlag);
 
 private:
 	ScanPlan const * const _plan;
 	RowCount _count;
 	ElementSize _eSize;
-	SSDRowCount _ssdRow;
-	HDDRowCount _hddRow;
 }; // class ScanIterator

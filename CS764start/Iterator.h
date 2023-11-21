@@ -9,6 +9,8 @@ typedef uint64_t RowCount;
 typedef uint32_t FieldType;
 
 typedef uint32_t ElementSize;
+typedef uint64_t BatchSize;
+typedef uint64_t GroupRow;
 typedef uint64_t SSDRowCount;
 typedef uint64_t HDDRowCount;
 

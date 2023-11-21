@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <cstdio>
 #include <string>
+#include <iostream>
+#include <fstream>
 
 typedef uint8_t byte;
 typedef std::string  StringFieldType;
@@ -16,6 +18,21 @@ typedef std::string  StringFieldType;
 
 #define yesno(b)	((b) ? "yes" : "no")
 
+// SSD Path
+#define SSD_PATH "./SSD.csv"
+
+// HDD Path
+#define HDD_PATH "./HDD.csv"
+
+// Result HDD Path
+#define RES_HDD_PATH "./res_HDD.csv"
+
+// SSD Block per access
+#define SSD_BLOCK 10 * 1024
+
+// HDD Block per access
+#define HDD_BLOCK 1 * 1024 * 1024
+
 // CPU cache 1 MB
 #define MAX_CPU_CACHE 1024 * 1024
 
@@ -23,7 +40,7 @@ typedef std::string  StringFieldType;
 #define MAX_DRAM 100 * 1024 * 1024
 
 // SSD 10 GB
-#define MAX_SSD 10 * 1024 * 1024 * 1024
+#define MAX_SSD 10LL * 1024 * 1024 * 1024
 
 // call-through to assert() from <assert.h>
 //

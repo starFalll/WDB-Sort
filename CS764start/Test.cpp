@@ -7,7 +7,11 @@
 int main (int argc, char * argv [])
 {
 	TRACE (TRACE_SWITCH);
-	Plan * const scan_plan = new ScanPlan (30000,16);
+	//edit e_size
+	int e_size = 16;
+	//edit row_count
+	int row_count = 100000;
+	Plan * const scan_plan = new ScanPlan ( row_count , e_size );
 	//Plan * scan_plan = new ScanPlan(10000000);
 	FilterPlan * filter_plan = new FilterPlan ( scan_plan );
 	Plan * plan = new SortPlan ( filter_plan );
@@ -23,6 +27,14 @@ int main (int argc, char * argv [])
     auto timestamp_later = std::chrono::time_point_cast<std::chrono::milliseconds>(later);
     long long milliseconds_later = timestamp_later.time_since_epoch().count();
 	printf("cost time: %lld ms\n", milliseconds_later - milliseconds_now);
+
+	//todo edit batch_size
+	int batch_size = 5;
+	//todo edit group_row
+	int group_row = 100;
+
+	SortIterator * disk_it = new SortIterator(e_size , batch_size, group_row);
+	disk_it -> MultiwayMergeFromDisk();
 	delete it;
 
 	delete plan;

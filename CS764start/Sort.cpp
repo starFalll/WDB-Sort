@@ -49,6 +49,48 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 	_loser_tree = new LoserTree(_cache_run_list_row);
 } // SortIterator::SortIterator
 
+//used to sort data in disk
+SortIterator::SortIterator (int _eSize, int batch_size, int group_row) :
+	_plan(nullptr) , _input(nullptr), _eSize(_eSize),
+	_batch_size(batch_size) , _group_row(group_row),
+	_cache_run_list_row((MAX_DRAM * 5 / 10) / (MAX_CPU_CACHE * 5 / 10)),
+	_cache_run_list_col(MAX_CPU_CACHE * 5 / 10 / sizeof(Item))
+{
+	TRACE (TRACE_SWITCH);
+
+	SSD = new File(SSD_PATH, MAX_SSD, SSD_BLOCK);
+	SSD->setReadPosition(_eSize , group_row);
+	HDD = new File(HDD_PATH, __LONG_LONG_MAX__, HDD_BLOCK);
+	HDD->setReadPosition(_eSize , group_row);
+	ResultHDD = new File(RES_HDD_PATH, __LONG_LONG_MAX__, HDD_BLOCK);
+
+	_ssd_group_num = ceil(SSD->getFileSize()/group_row);
+	_hdd_group_num = ceil(HDD->getFileSize()/group_row);
+	_disk_run_list_row = _ssd_group_num + _hdd_group_num;
+	_disk_run_list_col = batch_size;
+	// allocate 90MB to sort
+	// _sort_records.resize (MAX_DRAM * 9 / 10 / sizeof(Item));
+	// allocate 0.5MB to sort (use CPU Cache)
+	_sort_records.resize (MAX_CPU_CACHE * 5 / 10 / sizeof(Item));
+
+	// initialize current run index
+	_current_run_index = 0;
+	// initialize run list
+	_disk_run_list = new Item**[_disk_run_list_row];
+	for(uint32_t i=0;i<_disk_run_list_row;i++){
+		_disk_run_list[i] = new Item*[_disk_run_list_col];
+	}
+
+	// initialize result array
+	_disk_result = new const Item*[_disk_run_list_row * _disk_run_list_col];
+
+	_sort_index = 0;
+
+	// initialize loser of tree
+	_loser_tree = new LoserTree(_disk_run_list_row);
+} // SortIterator::SortIterator
+
+
 SortIterator::~SortIterator ()
 {
 	TRACE (TRACE_SWITCH);
@@ -61,7 +103,8 @@ SortIterator::~SortIterator ()
 	delete [] _result;
 
 	delete _input;
-	
+	delete SSD;
+	delete HDD;
 
 	traceprintf ("produced %lu of %lu rows\n",
 			(unsigned long) (_produced),
@@ -203,5 +246,105 @@ void SortIterator::MultiwayMerge (){
 	}
 }
 
+void SortIterator::MultiwayMergeFromDisk()
+{
+	//batch_size means the row to read in one group
+	//group_row means how many bytes a group has
+	//set the origin _disk_run_list
+	for(int row = 0 ; row < _disk_run_list_row ; row++){
+		std::vector<Item>* one_batch;
+		if(row < _ssd_group_num){
+			one_batch = SSD->getBatchRecords(_eSize ,_batch_size ,_ssd_offset);
+			_ssd_offset += _group_row;
+			int col = 0;
+			for(auto iter : *one_batch)
+    		{
+        		*_disk_run_list[row][col]= iter;
+				col++;
+    		}
+		} else{
+			one_batch = HDD->getBatchRecords(_eSize ,_batch_size ,_hdd_offset);
+			_hdd_offset += _group_row;
+			int col = 0;
+			for(auto iter : *one_batch)
+    		{
+        		*_disk_run_list[row][col]= iter;
+				col++;
+    		}
+		}
+	}
 
+	// check full or finish and get the column number in the last row
+	uint32_t last_row_col = (_sort_index == 0) ? _disk_run_list_col : _sort_index;
+
+	// reset loser tree
+	_loser_tree->reset(_current_run_index);
+
+	// 初始基准字符串为空
+	const StringFieldType* base_str_ptr = nullptr; 
+
+	// Initialize with the first element of each sorted sequence
+	for (uint32_t i = 0; i < _current_run_index; i++) {	
+		_loser_tree->push(_disk_run_list[i][0], i, 0, base_str_ptr);
+	}
+
+	// reset result index
+	uint32_t res_index = 0;
+
+	while (!_loser_tree->empty()) {
+		// get smallest element
+		TreeNode* cur = _loser_tree->top();
+
+		// get the string of current data
+		base_str_ptr = cur->_value->GetItemString();
+
+		// save in results
+		_disk_result[res_index] = cur->_value;
+		res_index++;
+		if(sizeof(*_disk_result) * _eSize * 3 >= HDD_BLOCK) {
+			for(int i = 0 ; i < sizeof(*_disk_result);i++ ){
+				Item temp = *_disk_result[i];
+				std::string tempC = temp.fields[0]+temp.fields[1]+temp.fields[2];
+				HDD->write((char*)&(tempC), sizeof(Item));
+			}
+		}
+
+		// calculate the index of next data item 
+		uint32_t run_index = cur->_run_index;
+		uint32_t element_index = cur->_element_index + 1;
+
+		// calculate the last index in the target run
+		uint32_t target_element_index = (run_index == _current_run_index-1) ? last_row_col : _disk_run_list_col;
+		// push next data into the tree
+		if (element_index < target_element_index) {
+			_loser_tree->push(_disk_run_list[run_index][element_index], run_index, element_index, base_str_ptr);
+		}else{
+			std::vector<Item>* one_batch;
+			if (run_index < _ssd_group_num){
+				_ssd_offset = run_index * _group_row;
+				one_batch = SSD->getBatchRecords(_eSize ,_batch_size ,_ssd_offset);
+				int col = 0;
+				for(auto iter : *one_batch)
+    			{
+        			*_disk_run_list[run_index][col]= iter;
+					col++;
+    			}
+				_loser_tree->push(_disk_run_list[run_index][0], run_index, 0, base_str_ptr);
+			} else{
+				_hdd_offset = (run_index- _ssd_group_num) * _group_row;
+				one_batch = HDD->getBatchRecords(_eSize ,_batch_size ,_hdd_offset);
+				int col = 0;
+				for(auto iter : *one_batch)
+    			{
+        			*_disk_run_list[run_index][col]= iter;
+					col++;
+    			}
+				_loser_tree->push(_disk_run_list[run_index][0], run_index, 0, base_str_ptr);
+			}
+			Item temp = Item(_eSize);
+			_loser_tree->push(&temp, run_index, -1, base_str_ptr);
+			//_loser_tree->push(&ITEM_MAX, -1, -1);
+		}
+	}
+} 
 
