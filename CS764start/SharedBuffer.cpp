@@ -37,6 +37,7 @@ void SharedBuffer::consume(File* file){
     if(_finish){
         item_num = getValidDataLength();
     }
+    // write file
     if(item_num != 0){
         // check data continuity
         if(_front + item_num <= _buffer_capacity){
@@ -47,8 +48,8 @@ void SharedBuffer::consume(File* file){
             int32_t tmp_num = _buffer_capacity - _front;
             file->write((char*)&(_buffer[_front]), tmp_num * sizeof(Item));
             // second write
-            item_num -= tmp_num;
-            file->write((char*)&(_buffer[0]), item_num * sizeof(Item));
+            tmp_num = item_num - tmp_num;
+            file->write((char*)&(_buffer[0]), tmp_num * sizeof(Item));
         }
         // update front
         _front = (_front + item_num) % _buffer_capacity;
@@ -63,6 +64,10 @@ void SharedBuffer::consume(File* file){
 
 void SharedBuffer::cyclicalConsume(File* SSD, File* HDD){
     int32_t count=0;
+    if(!SSD->isFull()){
+        SSD->addRunNum();
+    }
+    HDD->addRunNum();
     while (!isBufferEmpty()) {
         // sleep 0.1ms
         std::this_thread::sleep_for(std::chrono::microseconds(100));
@@ -111,6 +116,3 @@ void SharedBuffer::reset(){
     _rear = 0;
     _finish = false;
 }
-
-// todo
-// sort 改 finish
