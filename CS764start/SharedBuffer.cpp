@@ -12,7 +12,6 @@ SharedBuffer::~SharedBuffer(){
 }
 
 void SharedBuffer::produce(const Item& item, bool finish){
-    // check if current produce slot valid
     std::unique_lock<std::mutex> lock(_mtx);
     _not_full_cv.wait(lock, [this]{ return !isBufferFull(); });
 
@@ -55,7 +54,6 @@ void SharedBuffer::consume(File* file){
         _front = (_front + item_num) % _buffer_capacity;
     }
     
-
     _not_full_cv.notify_all();
     lock.unlock();
 }
@@ -64,21 +62,25 @@ void SharedBuffer::consume(File* file){
 
 void SharedBuffer::cyclicalConsume(File* SSD, File* HDD){
     int32_t count=0;
+    // update file run number
     if(!SSD->isFull()){
         SSD->addRunNum();
     }
     HDD->addRunNum();
+    // loop until merge finish
     while (!isBufferEmpty()) {
         // sleep 0.1ms
         std::this_thread::sleep_for(std::chrono::microseconds(100));
         count++;
         // 0.1ms = 100us
         if(!SSD->isFull()){
+            // ssd consume
             std::thread ssd_consume([this, &SSD](){this->consume(SSD);});
             // join thread
             ssd_consume.join();
         }
         if(count % 100 == 0){
+            // hdd consume
             std::thread hdd_consume([this, &HDD](){this->consume(HDD);});
             count = 0;
             // join thread

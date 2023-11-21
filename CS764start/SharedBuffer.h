@@ -8,10 +8,11 @@ private:
     const int32_t _buffer_capacity;
     int32_t _front;
     int32_t _rear;
-    //
+    // mutex
     std::mutex _mtx;
     std::condition_variable _not_full_cv;
     std::condition_variable _not_empty_cv;
+    // merge finish symbol
     bool _finish;
     //
     //todo：添加状态数组
