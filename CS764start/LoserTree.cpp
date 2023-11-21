@@ -47,10 +47,10 @@ bool TreeNode::operator > (const TreeNode & other) const {
 
     int this_offset = _offset_value_code / 100;
     int other_offset = other._offset_value_code / 100;
-
+    
     // compare offset
     if (this_offset != other_offset) {
-        return this_offset < other_offset;
+        return this_offset > other_offset;
     } else {
         // if offset is same，extract offset_Data to compare
         int this_offset = _offset_value_code % 100;
@@ -124,14 +124,16 @@ void LoserTree::adjust(int32_t run_index, const StringFieldType* base_str_ptr) {
     // compare iteratively
     while(cmp_node_index > 0){
         if (*_tree[node_index] > *_tree[cmp_node_index]){
-                if (_tree[node_index]->_offset_value_code == _tree[cmp_node_index]->_offset_value_code && base_str_ptr) {
-                // _tree[node_index] is loser，update its ovc
-                auto winner_str = _tree[cmp_node_index]->_value->GetItemString();
-                auto loser_str = _tree[node_index]->_value->GetItemString();
-                // Update the offset value code of the loser
-                _tree[node_index]->_offset_value_code = CalculateOffsetValueCode(winner_str, loser_str);
-            }
+      
             swap(_tree[node_index], _tree[cmp_node_index]);
+        }
+        if (_tree[node_index]->_offset_value_code == _tree[cmp_node_index]->_offset_value_code && base_str_ptr) {
+            // _tree[node_index] is loser，update its ovc
+            auto winner_str = _tree[node_index]->_value->GetItemString();
+            auto loser_str = _tree[cmp_node_index]->_value->GetItemString();
+            // Update the offset value code of the loser
+            
+            _tree[cmp_node_index]->_offset_value_code = CalculateOffsetValueCode(winner_str, loser_str);
         }
         cmp_node_index /= 2;
     }
@@ -142,6 +144,7 @@ void LoserTree::adjust(int32_t run_index, const StringFieldType* base_str_ptr) {
 
 // update num_of_reset_nodes tree nodes to negative infinity
 void LoserTree::reset(int32_t num_of_reset_nodes, const Item* value) {
+    _leaf_num = num_of_reset_nodes;
     for(int32_t i=0;i<num_of_reset_nodes;i++){
         _tree[i]->_value = value;
         _tree[i]->_run_index = -1;

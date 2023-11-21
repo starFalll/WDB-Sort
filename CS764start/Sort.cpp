@@ -1,7 +1,7 @@
 #include "Sort.h"
 #include <algorithm>
 
-SortPlan::SortPlan (Plan * const input) : _input (input)
+SortPlan::SortPlan (Plan * const input) : Plan(input->GetSize()), _input (input)
 {
 	TRACE (TRACE_SWITCH);
 } // SortPlan::SortPlan
@@ -20,8 +20,8 @@ Iterator * SortPlan::init () const
 
 
 SortIterator::SortIterator (SortPlan const * const plan) :
-	_plan (plan), _input (plan->_input->init ()),
-	_consumed (0), _produced (0), _eSize(plan->_eSize),
+	Iterator(plan->GetSize()), _plan (plan), 
+	_input (plan->_input->init ()), _consumed (0), _produced (0), 
 	_cache_run_list_row((MAX_DRAM * 5 / 10) / (MAX_CPU_CACHE * 5 / 10)),
 	_cache_run_list_col(MAX_CPU_CACHE * 5 / 10 / sizeof(Item))
 {
@@ -109,7 +109,7 @@ bool SortIterator::next ()
 
 		_produced += add_num;
 		TRACE (TRACE_SWITCH);
-		// printf("test index:%u\n", _sort_index);
+		// printf("_current_run_index:%d max_element_index:%d test index:%u\n", _current_run_index, m, _sort_index);
 		// for (int i = begin_num; i < add_num; i++) {
 		// 	const auto& item = _sort_records[i];
 		// 	traceprintf ("test result: %s\n",item.fields[INCL].c_str());
@@ -165,7 +165,6 @@ void SortIterator::QuickSort (RandomIt start, RandomIt end, Compare comp)
 void SortIterator::MultiwayMerge (){
 	// check full or finish and get the column number in the last row
 	uint32_t last_row_col = (_sort_index == 0) ? _cache_run_list_col : _sort_index;
-
 	// reset loser tree
 	_loser_tree->reset(_current_run_index, &ITEM_MIN);
 

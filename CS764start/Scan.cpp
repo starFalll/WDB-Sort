@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 
-ScanPlan::ScanPlan (RowCount const count,ElementSize const eSize) : _count (count), _eSize(eSize)
+ScanPlan::ScanPlan (RowCount const count, ElementSize const eSize) : Plan(eSize), _count (count)
 {
 	TRACE (TRACE_SWITCH);
 } // ScanPlan::ScanPlan
@@ -18,8 +18,8 @@ Iterator * ScanPlan::init () const
 	return new ScanIterator (this);
 } // ScanPlan::init
 
-ScanIterator::ScanIterator (ScanPlan const * const plan) :
-	_plan (plan), _count (0), _eSize(plan->_eSize)
+ScanIterator::ScanIterator (ScanPlan const * const plan) : Iterator(plan->GetSize()), 
+	_plan (plan), _count (0)
 {
 	TRACE (TRACE_SWITCH);
 	std::srand (static_cast <unsigned int> (std::time (NULL)));
