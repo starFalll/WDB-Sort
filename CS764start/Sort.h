@@ -1,6 +1,8 @@
 #include "Iterator.h"
 #include "LoserTree.h"
+#include "SharedBuffer.h"
 #include <queue>
+// #include <thread>
 
 class SortPlan : public Plan
 {
@@ -40,6 +42,9 @@ private:
 	const uint32_t _cache_run_list_col;
 	uint32_t _current_run_index;
 	Item*** _cache_run_list;
-	// result array
-	const Item** _result;
+	// result buffer
+	SharedBuffer* _shared_buffer;
+	File* SSD;
+	File* HDD;
+
 }; // class SortIterator

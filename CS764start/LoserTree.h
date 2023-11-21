@@ -36,5 +36,5 @@ public:
 
     void adjust(int32_t run_index, const StringFieldType* base_str_ptr);
 
-    void reset(int32_t num_of_reset_nodes);
+    void reset(int32_t num_of_reset_nodes, const Item* value);
 };

@@ -1,5 +1,5 @@
 #include "LoserTree.h"
-#include "Ovc.h"
+#include "OVC.h"
 // constructor
 TreeNode::TreeNode (Item* item, int32_t run_index, int32_t element_index){
 	_value = item;
@@ -139,14 +139,14 @@ void LoserTree::adjust(int32_t run_index, const StringFieldType* base_str_ptr) {
     }
 
     // replace the top element with the smallest one
-    _tree[0] = _tree[node_index];
+    swap(_tree[0], _tree[node_index]);
 }
 
 // update num_of_reset_nodes tree nodes to negative infinity
-void LoserTree::reset(int32_t num_of_reset_nodes) {
+void LoserTree::reset(int32_t num_of_reset_nodes, const Item* value) {
     _leaf_num = num_of_reset_nodes;
-    for(int32_t i = 0; i < num_of_reset_nodes; i++) {
-        _tree[i]->_value = &ITEM_MIN;
+    for(int32_t i=0;i<num_of_reset_nodes;i++){
+        _tree[i]->_value = value;
         _tree[i]->_run_index = -1;
         _tree[i]->_element_index = -1;
         _tree[i]->_offset_value_code = 0;
