@@ -42,12 +42,11 @@ Item::Item ()
 	fields [MGMT] = std::to_string(INT_MAX);
 }
 
-// set eSize length  value to 99999...
-Item::Item (ElementSize eSize){
-
-	fields [INCL].assign(eSize, '9');
-	fields [MEM].assign(eSize, '9');
-	fields [MGMT].assign(eSize, '9');
+Item::Item (RowSize row_size){
+	int element_size = int(row_size) / 3;
+	fields [INCL].assign(element_size, '9');
+	fields [MEM].assign(element_size, '9');
+	fields [MGMT].assign(row_size - element_size*2, '9');
 }
 
 bool Item::operator < (const Item & other) const
@@ -61,9 +60,9 @@ const StringFieldType* Item::GetItemString() const
 	return &fields[0];
 }
 
-Plan::Plan (ElementSize eSize)
+Plan::Plan (RowSize row_size)
 {
-	_eSize = eSize;
+	_row_size = row_size;
 	TRACE (TRACE_SWITCH);
 } // Plan::Plan
 
@@ -72,12 +71,12 @@ Plan::~Plan ()
 	TRACE (TRACE_SWITCH);
 } // Plan::~Plan
 
-ElementSize Plan::GetSize() const
+RowSize Plan::GetSize() const
 {
-	return _eSize;
+	return _row_size;
 }
 
-Iterator::Iterator (ElementSize eSize) : _eSize(eSize), _count (0) 
+Iterator::Iterator (RowSize row_size) : _row_size(row_size), _count (0) 
 {
 	TRACE (TRACE_SWITCH);
 	// allocate 2MB to _records
@@ -106,7 +105,7 @@ void Iterator::GetRecords(std::vector<Item> ** records, uint32_t ** index)
 	*index = &_index;
 }
 
-ElementSize Iterator::GetSize() const
+RowSize Iterator::GetSize() const
 {
-	return _eSize;
+	return _row_size;
 }

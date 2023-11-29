@@ -1,3 +1,5 @@
+#pragma once
+
 #include "File.h"
 #include <future>
 
@@ -26,6 +28,7 @@ public:
     void consume(File* file);
 
     void cyclicalConsume(File* SSD, File* HDD);
+    void resConsume(File* RES_HDD);
 
     bool isBufferEmpty();
 

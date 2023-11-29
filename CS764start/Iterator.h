@@ -8,7 +8,7 @@
 typedef uint64_t RowCount;
 typedef uint32_t FieldType;
 
-typedef uint32_t ElementSize;
+typedef uint32_t RowSize;
 
 enum ItemField
 {
@@ -32,7 +32,7 @@ struct Item
 	StringFieldType fields[3]; 
 	Item (const Item& other);
 	Item ();
-	Item (ElementSize eSize);
+	Item (RowSize row_size);
 	bool operator < (const Item & other) const;
 	const StringFieldType* GetItemString() const;
 	~Item() = default;
@@ -49,27 +49,27 @@ class Plan
 {
 	friend class Iterator;
 public:
-	Plan (ElementSize eSize);
+	Plan (RowSize row_size);
 	virtual ~Plan ();
 	virtual class Iterator * init () const = 0;
-	virtual ElementSize GetSize() const;
+	virtual RowSize GetSize() const;
 protected:
-	ElementSize _eSize;	
+	RowSize _row_size;	
 private:
 }; // class Plan
 
 class Iterator
 {
 public:
-	Iterator (ElementSize eSize);
+	Iterator (RowSize row_size);
 	virtual ~Iterator ();
 	void run ();
 	virtual bool next () = 0;
 	virtual void GetRecords(std::vector<Item> ** records, uint32_t ** index);
-	virtual ElementSize GetSize() const;
+	virtual RowSize GetSize() const;
 
 protected:
-	ElementSize _eSize;
+	RowSize _row_size;
 private:
 	// ring queue
 	std::vector<Item> _records;

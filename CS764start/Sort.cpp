@@ -198,7 +198,7 @@ void SortIterator::MultiwayMerge (){
 		if (element_index < target_element_index) {
 			_loser_tree->push(_cache_run_list[run_index][element_index], run_index, element_index, base_str_ptr);
 		}else{
-			Item temp = Item(_eSize);
+			Item temp = Item(_row_size);
 			_loser_tree->push(&temp, run_index, -1, base_str_ptr);
 			//_loser_tree->push(&ITEM_MAX, -1, -1);
 		}
@@ -213,6 +213,3 @@ void SortIterator::MultiwayMerge (){
 	}
 	cyclicalConsumeThread.join();
 }
-
-
-
