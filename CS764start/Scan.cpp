@@ -23,10 +23,13 @@ ScanIterator::ScanIterator (ScanPlan const * const plan) : Iterator(plan->GetSiz
 {
 	TRACE (TRACE_SWITCH);
 	std::srand (static_cast <unsigned int> (std::time (NULL)));
+
+	HDD = new File(HDD_PATH_INPUT, __LONG_LONG_MAX__, HDD_BLOCK);
 } // ScanIterator::ScanIterator
 
 ScanIterator::~ScanIterator ()
 {
+	delete HDD;
 	TRACE (TRACE_SWITCH);
 	traceprintf ("produced %lu of %lu rows\n",
 			(unsigned long) (_count),
@@ -38,6 +41,8 @@ bool ScanIterator::next ()
 	if (_count >= _plan->_count)
 		return false;
 	Item item = GenerateOneRecord();
+	// save generated record in input hdd
+	HDD->write((char*)&item, sizeof(item));
 
 	// // scan too quickly, wait writing
 	// if (_index < _records.size() && !_records[_index].write) {

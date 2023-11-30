@@ -19,10 +19,14 @@ typedef std::string  StringFieldType;
 #define yesno(b)	((b) ? "yes" : "no")
 
 // SSD Path
-#define SSD_PATH "./SSD.csv"
+#define SSD_PATH_INPUT "./input/SSD.csv"
+
+#define SSD_PATH_TEMP "./output/SSD.csv"
 
 // HDD Path
-#define HDD_PATH "./HDD.csv"
+#define HDD_PATH_INPUT "./input/HDD.csv"
+
+#define HDD_PATH_TEMP "./output/HDD.csv"
 
 // RES_HDD Path
 #define RES_HDD_PATH "./RES_HDD.csv"
@@ -79,6 +83,8 @@ public :
 	Trace (bool const trace, char const * const function,
 			char const * const file, int const line, 
 			std::string const first, std::string const second, std::string const third);
+	Trace (bool const trace, char const * const function,
+			char const * const file, int const line, std::string const msg);
 	~Trace ();
 
 private :
@@ -93,6 +99,7 @@ private :
 
 #define TRACE(trace)	{Trace __trace (trace, __FUNCTION__, __FILE__, __LINE__);}
 #define TRACE_ITEM(trace, first, second, third)	{Trace __trace (trace, __FUNCTION__, __FILE__, __LINE__, first, second, third);}
+#define TRACE_MSG(trace, msg) {Trace __trace(trace, __FUNCTION__, __FILE__, __LINE__, msg);}
 
 // -----------------------------------------------------------------
 

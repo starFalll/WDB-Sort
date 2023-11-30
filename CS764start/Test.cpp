@@ -4,9 +4,31 @@
 #include "Sort.h"
 #include "DiskScan.h"
 #include <chrono>
+#include <unistd.h>
 
 int main (int argc, char * argv [])
 {
+	int opt;
+	int row_count = 0, column_size = 0;
+	char* trace_file_name = nullptr;
+	while((opt = getopt(argc, argv, "c:s:o:")) != -1){
+		switch(opt){
+			case 'c':
+				row_count = std::stoi(optarg);
+				break;
+			case 's':
+				column_size = std::stoi(optarg);
+				break;
+			case 'o':
+				trace_file_name = optarg;
+				break;
+			default:
+				printf("Wrong Parameter\n");
+				return 1;
+		}
+	}
+	printf("%d, %d, %s\n", row_count, column_size, trace_file_name);
+
 	TRACE (TRACE_SWITCH);
 	Plan * const scan_plan = new ScanPlan (20,14);
 	//Plan * scan_plan = new ScanPlan(10000000);

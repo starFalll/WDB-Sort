@@ -5,8 +5,8 @@ DiskScan::DiskScan(GroupCount const ssd_group_count, GroupCount const hdd_group_
     _disk_run_list_row(ssd_group_count + hdd_group_count), _disk_run_list_col(batch_size)
 {
     TRACE (TRACE_SWITCH);
-    SSD = new File(SSD_PATH, MAX_SSD, SSD_BLOCK);
-	HDD = new File(HDD_PATH, __LONG_LONG_MAX__, HDD_BLOCK);
+    SSD = new File(SSD_PATH_TEMP, MAX_SSD, SSD_BLOCK);
+	HDD = new File(HDD_PATH_TEMP, __LONG_LONG_MAX__, HDD_BLOCK);
     RES_HDD = new File(RES_HDD_PATH, __LONG_LONG_MAX__, HDD_BLOCK);
 
     _shared_buffer = new SharedBuffer(OUTPUT_BUFFER / sizeof(Item));
