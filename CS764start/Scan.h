@@ -1,4 +1,5 @@
 #include "Iterator.h"
+#include "File.h"
 
 class ScanPlan : public Plan
 {
@@ -21,7 +22,7 @@ private:
 	Item GenerateOneRecord ();
 	std::string GeneratRandomStr();
 
-private:
 	ScanPlan const * const _plan;
 	RowCount _count;
+	File* HDD;
 }; // class ScanIterator

@@ -3,11 +3,33 @@
 #include "Filter.h"
 #include "Sort.h"
 #include <chrono>
+#include <unistd.h>
 
 int main (int argc, char * argv [])
 {
+	int opt;
+	int row_count = 0, column_size = 0;
+	char* trace_file_name = nullptr;
+	while((opt = getopt(argc, argv, "c:s:o:")) != -1){
+		switch(opt){
+			case 'c':
+				row_count = std::stoi(optarg);
+				break;
+			case 's':
+				column_size = std::stoi(optarg);
+				break;
+			case 'o':
+				trace_file_name = optarg;
+				break;
+			default:
+				printf("Wrong Parameter\n");
+				return 1;
+		}
+	}
+	printf("%d, %d, %s\n", row_count, column_size, trace_file_name);
+
 	TRACE (TRACE_SWITCH);
-	Plan * const scan_plan = new ScanPlan (40000,16);
+	Plan * const scan_plan = new ScanPlan (5,16);
 	//Plan * scan_plan = new ScanPlan(10000000);
 	FilterPlan * filter_plan = new FilterPlan ( scan_plan );
 	Plan * plan = new SortPlan ( filter_plan );
@@ -26,6 +48,6 @@ int main (int argc, char * argv [])
 	delete it;
 
 	delete plan;
-
+	
 	return 0;
 } // main

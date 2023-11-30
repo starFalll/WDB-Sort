@@ -27,6 +27,13 @@ Trace::Trace (bool const trace, char const * const function,
 	_trace (">>>>> first:" + first + " second:" + second + " third:" + third);
 }
 
+Trace::Trace (bool const trace, char const * const function,
+			char const * const file, int const line, std::string const msg)
+	: _output (trace), _function (function), _file (file), _line (line)
+{
+	_trace (">>>>> MSG:" + msg);
+}
+
 Trace::~Trace ()
 {
 	_trace ("<<<<<");
