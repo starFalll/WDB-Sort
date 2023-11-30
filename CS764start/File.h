@@ -30,7 +30,7 @@ public:
     void write(const char* data, int32_t length);
 
     //read
-    char* read(GroupCount group_num ,RowSize row_size,RowCount each_group_row_count, BatchSize batch_size);
+    char* read(GroupCount group_num ,RowCount each_group_row_count, BatchSize batch_size);
 
     // check if file is full(important for SSD)
     bool isFull();

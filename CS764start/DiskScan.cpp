@@ -36,6 +36,18 @@ DiskScan::~DiskScan ()
         (unsigned long) (_hdd_group_count));
 	TRACE (TRACE_SWITCH);
 
+    for(uint32_t i=0;i<_disk_run_list_row;i++){
+        for(uint32_t j=0;j<_disk_run_list_col;j++){
+            std::cout<<std::endl;
+		    if(_disk_run_list[i][j]!=nullptr){
+                Item temp = *_disk_run_list[i][j];
+                std::cout<<temp.fields[INCL]+" ";
+                std::cout<<temp.fields[MEM]+" ";
+                std::cout<<temp.fields[MGMT]+" ";
+            }
+	    }
+	}
+
     // release resource
 	for(uint32_t i=0;i<_disk_run_list_row;i++){
 		delete _disk_run_list[i];
@@ -50,13 +62,13 @@ void DiskScan::ReadFromDisk(){
     //construct _disk_run_list
     //ssd part
     for(uint32_t group_num =0; group_num < _ssd_group_count; group_num ++){
-        char* buffer = SSD->read(group_num , _row_size, _each_group_row_count, _batch_size);
+        char* buffer = SSD->read(group_num , _each_group_row_count, _batch_size);
         Bytes2DiskRecord(buffer , group_num);
 		_current_run_index++;
     }
     //hdd part
     for(uint32_t group_num = 0; group_num < _hdd_group_count ; group_num ++){
-        char* buffer = HDD->read(group_num , _row_size, _each_group_row_count, _batch_size);
+        char* buffer = HDD->read(group_num , _each_group_row_count, _batch_size);
         Bytes2DiskRecord(buffer , group_num);
         _current_run_index++;
     }
@@ -66,10 +78,10 @@ void DiskScan::RefillRow(uint32_t group_num){
     //construct _disk_run_list
     //ssd part
     if (group_num < _ssd_group_count){
-        char* buffer = SSD->read(group_num , _row_size, _each_group_row_count, _batch_size);
+        char* buffer = SSD->read(group_num , _each_group_row_count, _batch_size);
         Bytes2DiskRecord(buffer , group_num);
     } else{
-        char* buffer = HDD->read(group_num , _row_size, _each_group_row_count, _batch_size);
+        char* buffer = HDD->read(group_num , _each_group_row_count, _batch_size);
         Bytes2DiskRecord(buffer , group_num);
     }
 }
@@ -78,13 +90,13 @@ void DiskScan::MultiwayMerge(){
 	// check full or finish and get the column number in the last row
 	uint32_t last_row_col =  _disk_run_list_col;
 	// reset loser tree
-	_loser_tree->reset(_current_run_index, &ITEM_MIN);
+	_loser_tree->reset(_disk_run_list_row, &ITEM_MIN);
 
 	// 初始基准字符串为空
 	const StringFieldType* base_str_ptr = nullptr; 
 
 	// Initialize with the first element of each sorted sequence
-	for (uint32_t i = 0; i < _current_run_index; i++) {	
+	for (uint32_t i = 0; i < _disk_run_list_row; i++) {	
 		_loser_tree->push(_disk_run_list[i][0], i, 0, base_str_ptr);
 	}
 
@@ -105,7 +117,7 @@ void DiskScan::MultiwayMerge(){
 		uint32_t element_index = cur->_element_index + 1;
 
 		// calculate the last index in the target run
-		uint32_t target_element_index = (run_index == _current_run_index-1) ? last_row_col : _disk_run_list_col;
+		uint32_t target_element_index = _disk_run_list_col;
 		// push next data into the tree
 		if (element_index < target_element_index) {
 			_loser_tree->push(_disk_run_list[run_index][element_index], run_index, element_index, base_str_ptr);
@@ -119,7 +131,6 @@ void DiskScan::MultiwayMerge(){
 			isFinish = true;
 		}
 		// save in results
-		// _results[res_index] = *(cur->_value);
 		_shared_buffer->produce(*(cur->_value), isFinish);
 		res_index++;
 	}
@@ -130,12 +141,12 @@ void DiskScan::Bytes2DiskRecord(char* buffer, uint32_t group_num){
     int element_size = _row_size /3;
     for (int col = 0; col<_batch_size; col++){
         // 转换为三个对应长度的std::string
-        std::string incl(buffer, element_size);
-        std::string mem (buffer + element_size , element_size);
-        std::string mgmt(buffer + element_size*2 , _row_size - element_size*2);
-        buffer += _row_size;
-        //std::cout<<incl+mem+mgmt;
-        Item * temp = new Item(incl,mem,mgmt);
+        Item * temp = (Item*)buffer;
+        // std::string incl(buffer, element_size);
+        // std::string mem (buffer + element_size , element_size);
+        // std::string mgmt(buffer + element_size*2 , _row_size - element_size*2);
+        buffer += sizeof(Item);
+        //Item * temp = new Item(incl,mem,mgmt);
         if(group_num<_ssd_group_count){
             _disk_run_list[group_num][col] = temp;
         } else{

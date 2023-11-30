@@ -29,14 +29,14 @@ void File::write(const char* data, int32_t length){
     }
 }
 
-char* File::read(GroupCount group_num , RowSize row_size, RowCount each_group_row_count, BatchSize batch_size){
+char* File::read(GroupCount group_num, RowCount each_group_row_count, BatchSize batch_size){
     if(_file_stream.is_open()){
         // bytes need reading
-        int need_reading = batch_size * row_size ;
+        int need_reading = batch_size * sizeof(Item) ;
         char* buffer = new char[need_reading];
 
         // set read start from index
-        std::streampos start_index = group_num  * each_group_row_count * row_size; 
+        std::streampos start_index = group_num  * each_group_row_count * sizeof(Item); 
         _file_stream.seekg(start_index);
 
         // read
