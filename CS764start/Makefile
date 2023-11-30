@@ -39,7 +39,7 @@ $(OBJS) : Makefile defs.h
 Test.o : Iterator.h LoserTree.h Scan.h Filter.h Sort.h
 Iterator.o LoserTree.o Scan.o Filter.o Sort.o : Iterator.h
 LoserTree.o : LoserTree.h OVC.h
-Scan.o : Scan.h
+Scan.o : Scan.h File.h
 Filter.o : Filter.h
 Sort.o : Sort.h LoserTree.h
 OVC.o : OVC.h
