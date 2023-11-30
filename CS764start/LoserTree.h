@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Iterator.h"
 
 struct TreeNode{

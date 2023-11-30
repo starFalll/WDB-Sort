@@ -29,8 +29,8 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 
 	// init producer consumer
 	_shared_buffer = new SharedBuffer(OUTPUT_BUFFER / sizeof(Item));
-	SSD = new File(SSD_PATH_OUTPUT, MAX_SSD, SSD_BLOCK);
-	HDD = new File(HDD_PATH_OUTPUT, __LONG_LONG_MAX__, HDD_BLOCK);
+	SSD = new File(SSD_PATH_TEMP, MAX_SSD, SSD_BLOCK);
+	HDD = new File(HDD_PATH_TEMP, __LONG_LONG_MAX__, HDD_BLOCK);
 
 	// allocate 90MB to sort
 	// _sort_records.resize (MAX_DRAM * 9 / 10 / sizeof(Item));
@@ -198,7 +198,7 @@ void SortIterator::MultiwayMerge (){
 		if (element_index < target_element_index) {
 			_loser_tree->push(_cache_run_list[run_index][element_index], run_index, element_index, base_str_ptr);
 		}else{
-			Item temp = Item(_eSize);
+			Item temp = Item(_row_size);
 			_loser_tree->push(&temp, run_index, -1, base_str_ptr);
 			//_loser_tree->push(&ITEM_MAX, -1, -1);
 		}
@@ -213,6 +213,3 @@ void SortIterator::MultiwayMerge (){
 	}
 	cyclicalConsumeThread.join();
 }
-
-
-

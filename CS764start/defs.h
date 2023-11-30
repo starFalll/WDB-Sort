@@ -21,12 +21,15 @@ typedef std::string  StringFieldType;
 // SSD Path
 #define SSD_PATH_INPUT "./input/SSD.csv"
 
-#define SSD_PATH_OUTPUT "./output/SSD.csv"
+#define SSD_PATH_TEMP "./output/SSD.csv"
 
 // HDD Path
 #define HDD_PATH_INPUT "./input/HDD.csv"
 
-#define HDD_PATH_OUTPUT "./output/HDD.csv"
+#define HDD_PATH_TEMP "./output/HDD.csv"
+
+// RES_HDD Path
+#define RES_HDD_PATH "./RES_HDD.csv"
 
 // SSD Block per access
 #define SSD_BLOCK 10 * 1024

@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 
-ScanPlan::ScanPlan (RowCount const count, ElementSize const eSize) : Plan(eSize), _count (count)
+ScanPlan::ScanPlan (RowCount const count, RowSize const row_size) : Plan(row_size), _count (count)
 {
 	TRACE (TRACE_SWITCH);
 } // ScanPlan::ScanPlan
@@ -61,18 +61,19 @@ bool ScanIterator::next ()
 
 Item ScanIterator::GenerateOneRecord ()
 {
-	StringFieldType incl = GeneratRandomStr();
-	StringFieldType mem = GeneratRandomStr();
-	StringFieldType mgmt = GeneratRandomStr();
+	int element_size = _row_size / 3;
+	StringFieldType incl = GeneratRandomStr(element_size);
+	StringFieldType mem = GeneratRandomStr(element_size);
+	StringFieldType mgmt = GeneratRandomStr(_row_size - element_size*2);
 
 	return Item (incl, mem, mgmt);
 }
 
 //generate random string, whose lenth is equal to the column's size
-std::string ScanIterator::GeneratRandomStr(){
+std::string ScanIterator::GeneratRandomStr(int count){
 	std::string str;
 	char c;
-	for(int idx = 0; idx < _eSize ; idx++){
+	for(int idx = 0; idx < count ; idx++){
 		c = '0' + std::rand()%10;
 		str.push_back(c);
 	}

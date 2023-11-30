@@ -5,7 +5,7 @@ class ScanPlan : public Plan
 {
 	friend class ScanIterator;
 public:
-	ScanPlan (RowCount const count, ElementSize const eSize);
+	ScanPlan (RowCount const count, RowSize const row_size);
 	~ScanPlan ();
 	Iterator * init () const;
 private:
@@ -20,7 +20,7 @@ public:
 	bool next ();
 private:
 	Item GenerateOneRecord ();
-	std::string GeneratRandomStr();
+	std::string GeneratRandomStr(int count);
 
 	ScanPlan const * const _plan;
 	RowCount _count;
