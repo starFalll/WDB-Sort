@@ -23,11 +23,11 @@ Item::Item ()
 }
 
 // set eSize length  value to 99999...
-Item::Item (ElementSize eSize){
-
-	fields[INCL].assign(eSize, '9');
-	fields[MEM].assign(eSize, '9');
-	fields[MGMT].assign(eSize, '9');
+Item::Item (RowSize row_size){
+	int element_size = int(row_size) / 3;
+	fields[INCL].assign(element_size, '9');
+	fields[MEM].assign(element_size, '9');
+	fields[MGMT].assign(row_size - element_size*2, '9');
 }
 
 bool Item::operator < (const Item & other) const

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Iterator.h"
-#include "OVC.h"
+#include "ovc.h"
 
 struct TreeNode{
     // data record pointer

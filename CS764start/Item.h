@@ -4,7 +4,7 @@
 #include <string.h>
 
 typedef uint64_t RowCount;
-typedef uint32_t ElementSize;
+typedef uint32_t RowSize;
 
 enum ItemField
 {
@@ -26,7 +26,7 @@ struct Item
 	FieldType fields[3]; 
 	Item (const Item& other);
 	Item ();
-	Item (ElementSize eSize);
+	Item (RowSize row_size);
 	bool operator < (const Item & other) const;
 	const FieldType* GetItemString() const;
 	~Item() = default;

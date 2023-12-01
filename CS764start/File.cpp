@@ -31,7 +31,6 @@ void File::write(const char* data, int32_t length){
     if(_file_stream.is_open()){
         // write
         _file_stream.write(data, length);
-        _file_stream.put('\n');
         // record file size
         _cur_byte += length;
 

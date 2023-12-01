@@ -13,13 +13,13 @@ SCRS=
 
 # headers and code sources
 HDRS=	defs.h \
-		Iterator.h LoserTree.h Scan.h Filter.h Sort.h OVC.h File.h SharedBuffer.h DiskScan.h
+		Iterator.h LoserTree.h Scan.h Filter.h Sort.h ovc.h File.h SharedBuffer.h DiskScan.h Item.h
 SRCS=	defs.cpp Assert.cpp Test.cpp \
-		Iterator.cpp LoserTree.cpp Scan.cpp Filter.cpp Sort.cpp OVC.cpp File.cpp SharedBuffer.cpp DiskScan.cpp
+		Iterator.cpp LoserTree.cpp Scan.cpp Filter.cpp Sort.cpp ovc.cpp File.cpp SharedBuffer.cpp DiskScan.cpp Item.cpp
 
 # compilation targets
 OBJS=	defs.o Assert.o Test.o \
-		Iterator.o LoserTree.o Scan.o Filter.o Sort.o OVC.o File.o SharedBuffer.o DiskScan.o
+		Iterator.o LoserTree.o Scan.o Filter.o Sort.o ovc.o File.o SharedBuffer.o DiskScan.o Item.o
 
 # RCS assists
 REV=-q -f
@@ -38,14 +38,16 @@ trace : Test Makefile
 $(OBJS) : Makefile defs.h
 Test.o : Iterator.h LoserTree.h Scan.h Filter.h Sort.h DiskScan.h
 Iterator.o LoserTree.o Scan.o Filter.o Sort.o : Iterator.h
-LoserTree.o : LoserTree.h OVC.h
+Iterator.o : Item.h
+LoserTree.o : LoserTree.h ovc.h
 Scan.o : Scan.h File.h
 Filter.o : Filter.h
 Sort.o : Sort.h LoserTree.h
-OVC.o : OVC.h
+ovc.o : ovc.h
 File.o : File.h Iterator.h
 SharedBuffer.o : SharedBuffer.h File.h
 DiskScan.o : DiskScan.h SharedBuffer.h LoserTree.h
+Item.o : Item.h
 
 list : Makefile
 	echo Makefile $(HDRS) $(SRCS) $(DOCS) $(SCRS) > list

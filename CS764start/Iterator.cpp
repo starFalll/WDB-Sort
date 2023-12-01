@@ -2,41 +2,6 @@
 
 Plan::Plan (RowSize row_size)
 {
-	// fields.resize(MAX_ITEM);
-	fields [INCL] = INT_MAX;
-	fields [MEM] = INT_MAX;
-	fields [MGMT] = INT_MAX;
-}
-*/
-Item::Item ()
-{
-	// fields.resize(MAX_ITEM);
-	fields [INCL] = std::to_string(INT_MAX);
-	fields [MEM] = std::to_string(INT_MAX);
-	fields [MGMT] = std::to_string(INT_MAX);
-}
-
-// set eSize length  value to 99999...
-Item::Item (ElementSize eSize){
-
-	fields [INCL].assign(eSize, '9');
-	fields [MEM].assign(eSize, '9');
-	fields [MGMT].assign(eSize, '9');
-}
-
-bool Item::operator < (const Item & other) const
-{
-	return fields[COMPARE_FIELD] < other.fields[COMPARE_FIELD];
-}
-
-// using first value to compare
-const StringFieldType* Item::GetItemString() const
-{
-	return &fields[0];
-}
-
-Plan::Plan (RowSize row_size)
-{
 	_row_size = row_size;
 	TRACE (TRACE_SWITCH);
 } // Plan::Plan
