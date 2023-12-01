@@ -28,7 +28,7 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 	TRACE (TRACE_SWITCH);
 
 	// init producer consumer
-	_shared_buffer = new SharedBuffer(OUTPUT_BUFFER / sizeof(Item));
+	_shared_buffer = new SharedBuffer(OUTPUT_BUFFER);
 	SSD = new File(SSD_PATH_OUTPUT, MAX_SSD, SSD_BLOCK);
 	HDD = new File(HDD_PATH_OUTPUT, __LONG_LONG_MAX__, HDD_BLOCK);
 
@@ -169,7 +169,7 @@ void SortIterator::MultiwayMerge (){
 	_loser_tree->reset(_current_run_index, &ITEM_MIN);
 
 	// 初始基准字符串为空
-	const StringFieldType* base_str_ptr = nullptr; 
+	const FieldType* base_str_ptr = nullptr; 
 
 	// Initialize with the first element of each sorted sequence
 	for (uint32_t i = 0; i < _current_run_index; i++) {	

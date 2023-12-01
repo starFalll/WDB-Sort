@@ -20,8 +20,8 @@ struct Predicate
 	Predicate (ItemField f, PredicateEnum p, FieldType v):
 		field (f), predicate (p), value (v) {}
 	*/
-	StringFieldType value;
-	Predicate (ItemField f, PredicateEnum p, StringFieldType v):
+	FieldType value;
+	Predicate (ItemField f, PredicateEnum p, FieldType v):
 		field (f), predicate (p), value (v) {}
 
 };
@@ -38,7 +38,7 @@ public:
 	 * set predicate (>=, <=, >, <, ==)
 	*/
 	//bool SetPredicate (ItemField field, PredicateEnum predicate, FieldType value) ;
-	bool SetPredicate (ItemField field, PredicateEnum predicate, StringFieldType value) ;
+	bool SetPredicate (ItemField field, PredicateEnum predicate, FieldType value) ;
 
 	/**
 	 * apply predicate to item

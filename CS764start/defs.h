@@ -6,9 +6,10 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <regex>
 
 typedef uint8_t byte;
-typedef std::string  StringFieldType;
+typedef std::string  FieldType;
 
 #define TRACE_SWITCH false
 
