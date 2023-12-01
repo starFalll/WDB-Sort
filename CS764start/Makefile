@@ -1,4 +1,4 @@
-CPPOPT=-g -Og -D_DEBUG
+CPPOPT=-g -D_DEBUG
 LIBS=-lstring -stdlib -liostream -lfstream
 # -O2 -Os -Ofast
 # -fprofile-generate -fprofile-use

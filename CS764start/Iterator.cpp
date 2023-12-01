@@ -1,32 +1,6 @@
 #include "Iterator.h"
 
-/*
-Item::Item (FieldType incl, FieldType mem, FieldType mgmt)
-{
-	// fields.resize(MAX_ITEM);
-	fields [INCL] = incl;
-	fields [MEM] = mem;
-	fields [MGMT] = mgmt;
-}
-*/
-
-Item::Item (StringFieldType incl, StringFieldType mem, StringFieldType mgmt)
-{
-	// fields.resize(MAX_ITEM);
-	fields [INCL] = incl;
-	fields [MEM] = mem;
-	fields [MGMT] = mgmt;
-}
-
-Item::Item (const Item& other){
-	// copy constructor
-	for (int32_t i = 0; i < sizeof(other.fields) / sizeof(other.fields[0]); i++){
-		fields[i] = other.fields[i];
-	}
-}
-
-/*
-Item::Item ()
+Plan::Plan (RowSize row_size)
 {
 	// fields.resize(MAX_ITEM);
 	fields [INCL] = INT_MAX;
@@ -42,11 +16,12 @@ Item::Item ()
 	fields [MGMT] = std::to_string(INT_MAX);
 }
 
-Item::Item (RowSize row_size){
-	int element_size = int(row_size) / 3;
-	fields [INCL].assign(element_size, '9');
-	fields [MEM].assign(element_size, '9');
-	fields [MGMT].assign(row_size - element_size*2, '9');
+// set eSize length  value to 99999...
+Item::Item (ElementSize eSize){
+
+	fields [INCL].assign(eSize, '9');
+	fields [MEM].assign(eSize, '9');
+	fields [MGMT].assign(eSize, '9');
 }
 
 bool Item::operator < (const Item & other) const

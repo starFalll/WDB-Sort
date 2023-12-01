@@ -42,6 +42,19 @@ bool ScanIterator::next ()
 		return false;
 	Item item = GenerateOneRecord();
 	// save generated record in input hdd
+	// std::string str1 = item.fields[0];
+	// std::string str2 = item.fields[1];
+	// std::string str3 = item.fields[2];
+	// const char tmp[3][16] = {*str1.c_str(), *str2.c_str(), *str3.c_str()};
+	// char tmp[3][5] = {"1234", "1234", "1234"};
+	
+	// char tmp[3][16];
+	// for(int i=0;i<3;i++){
+	// 	for(int j=0;j<item.fields[i].size();j++){
+	// 		tmp[i][j] = item.fields[i][j];
+	// 	}
+	// }
+	// HDD->write(tmp[0], 3*_eSize);
 	HDD->write((char*)&item, sizeof(item));
 
 	// // scan too quickly, wait writing
@@ -62,9 +75,9 @@ bool ScanIterator::next ()
 Item ScanIterator::GenerateOneRecord ()
 {
 	int element_size = _row_size / 3;
-	StringFieldType incl = GeneratRandomStr(element_size);
-	StringFieldType mem = GeneratRandomStr(element_size);
-	StringFieldType mgmt = GeneratRandomStr(_row_size - element_size*2);
+	FieldType incl = GeneratRandomStr(element_size);
+	FieldType mem = GeneratRandomStr(element_size);
+	FieldType mgmt = GeneratRandomStr(_row_size - element_size*2);
 
 	return Item (incl, mem, mgmt);
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Iterator.h"
+#include "OVC.h"
 
 struct TreeNode{
     // data record pointer
@@ -34,9 +35,9 @@ public:
 
     TreeNode* top();
 
-    void push(const Item* item, int32_t run_index, int32_t element_index, const StringFieldType* baseStr);
+    void push(const Item* item, int32_t run_index, int32_t element_index, const FieldType* baseStr);
 
-    void adjust(int32_t run_index, const StringFieldType* base_str_ptr);
+    void adjust(int32_t run_index, const FieldType* base_str_ptr);
 
     void reset(int32_t num_of_reset_nodes, const Item* value);
 };

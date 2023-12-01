@@ -1,5 +1,4 @@
 #include "OVC.h"
-#include<iostream>
 
 /*
 base:    0425
@@ -8,7 +7,7 @@ compare: 3461
          0123
 403: 3@0
 */
-uint32_t CalculateOffsetValueCode(const StringFieldType* base, const StringFieldType* compare) {
+uint32_t CalculateOffsetValueCode(const FieldType* base, const FieldType* compare) {
     //TODO: check if string have same length
     // check the max of two string length
     int max_length = std::max(base->length(), compare->length());
