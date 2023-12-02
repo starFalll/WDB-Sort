@@ -1,5 +1,5 @@
 #include "LoserTree.h"
-#include "OVC.h"
+
 // constructor
 TreeNode::TreeNode (Item* item, int32_t run_index, int32_t element_index){
 	_value = item;
@@ -97,9 +97,9 @@ TreeNode* LoserTree::top(){
 }
 
 // push new value into the tree
-void LoserTree::push(const Item* item, int32_t run_index, int32_t element_index, const StringFieldType* base_str_ptr){
+void LoserTree::push(const Item* item, int32_t run_index, int32_t element_index, const FieldType* base_str_ptr){
     // Get the string representation from Item
-    const StringFieldType *item_ptr = item->GetItemString(); 
+    const FieldType *item_ptr = item->GetItemString(); 
 
     uint32_t offsetValueCode = 0; 
     // Every push needs to calculate the offset value code, based on the node that was just topped.
@@ -115,7 +115,7 @@ void LoserTree::push(const Item* item, int32_t run_index, int32_t element_index,
     adjust(run_index, base_str_ptr);
 }
 
-void LoserTree::adjust(int32_t run_index, const StringFieldType* base_str_ptr) {
+void LoserTree::adjust(int32_t run_index, const FieldType* base_str_ptr) {
     // to avoid overflow
     // calculate node index in the comparison
     uint32_t node_index = run_index + _leaf_num;

@@ -4,10 +4,20 @@ File::File(const char* path, unsigned long long max_byte, int32_t block_size) :
     _file_path(path), _max_byte(max_byte), _cur_byte(0), _block_size(block_size), _run_num(0)
 {
     // open file
-    _file_stream.open(_file_path, std::ios::in | std::ios::out | std::ios::binary);
+    _file_stream.open(_file_path, std::ios::out | std::ios::in | std::ios::trunc | std::ios::binary);
 
     if (!_file_stream.is_open()) {
-        std::cerr << "Error opening file: " << _file_path << std::endl;
+        // extract directory
+        std::regex re("(.*/)[^/]+");
+        std::cmatch cm;
+        std::regex_match(_file_path, cm, re);
+        // create directory and file
+        int result = std::system(("mkdir " + cm[1].str() + "&& touch " + std::string(_file_path)).c_str());
+        if(result != 0){
+            std::cerr << "Error creating file: " << _file_path << std::endl;
+        }
+        // open file
+        _file_stream.open(_file_path, std::ios::out | std::ios::in | std::ios::trunc | std::ios::binary);
     }
 }
 

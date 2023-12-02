@@ -6,7 +6,7 @@
 #include "defs.h"
 
 
-uint32_t CalculateOffsetValueCode(const StringFieldType* base, const StringFieldType* compare);
+uint32_t CalculateOffsetValueCode(const FieldType* base, const FieldType* compare);
 
 
 #endif

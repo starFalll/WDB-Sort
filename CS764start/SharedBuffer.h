@@ -6,7 +6,7 @@
 class SharedBuffer {
 private:
     // buffer
-    Item* _buffer;
+    char* _buffer;
     const int32_t _buffer_capacity;
     int32_t _front;
     int32_t _rear;
@@ -32,11 +32,13 @@ public:
 
     bool isBufferEmpty();
 
-    bool isBufferFull();
+    bool isBufferFull(int32_t row_size);
 
     bool isBufferBigEnoughToConsume(int32_t length);
 
     int32_t getValidDataLength();
+
+    int32_t getAvailableSpace();
 
     void reset();
 };
