@@ -93,7 +93,7 @@ void DiskScan::MultiwayMerge(){
 	_loser_tree->reset(_disk_run_list_row, &ITEM_MIN);
 
 	// 初始基准字符串为空
-	const StringFieldType* base_str_ptr = nullptr; 
+	const FieldType* base_str_ptr = nullptr; 
 
 	// Initialize with the first element of each sorted sequence
 	for (uint32_t i = 0; i < _disk_run_list_row; i++) {	

@@ -27,7 +27,7 @@ bool FilterPlan::SetPredicate (ItemField field, PredicateEnum predicate, FieldTy
 }
 */
 
-bool FilterPlan::SetPredicate (ItemField field, PredicateEnum predicate, StringFieldType value) 
+bool FilterPlan::SetPredicate (ItemField field, PredicateEnum predicate, FieldType value) 
 {
 	TRACE (TRACE_SWITCH);
 	Predicate new_condition (field, predicate, value);

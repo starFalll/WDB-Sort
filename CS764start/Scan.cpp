@@ -62,9 +62,9 @@ bool ScanIterator::next ()
 Item ScanIterator::GenerateOneRecord ()
 {
 	int element_size = _row_size / 3;
-	StringFieldType incl = GeneratRandomStr(element_size);
-	StringFieldType mem = GeneratRandomStr(element_size);
-	StringFieldType mgmt = GeneratRandomStr(_row_size - element_size*2);
+	FieldType incl = GeneratRandomStr(element_size);
+	FieldType mem = GeneratRandomStr(element_size);
+	FieldType mgmt = GeneratRandomStr(_row_size - element_size*2);
 
 	return Item (incl, mem, mgmt);
 }
