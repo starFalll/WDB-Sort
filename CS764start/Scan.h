@@ -20,7 +20,7 @@ public:
 	bool next ();
 private:
 	Item GenerateOneRecord ();
-	std::string GeneratRandomStr(int count);
+	char* GeneratRandomStr(int count);
 
 	ScanPlan const * const _plan;
 	RowCount _count;

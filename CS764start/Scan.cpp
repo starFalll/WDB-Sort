@@ -42,7 +42,9 @@ bool ScanIterator::next ()
 		return false;
 	Item item = GenerateOneRecord();
 	// save generated record in input hdd
-	HDD->write((char*)&item, sizeof(item));
+	HDD->write(item.fields[0], _row_size / 3);
+	HDD->write(item.fields[1], _row_size / 3);
+	HDD->write(item.fields[2], _row_size - 2 * (_row_size / 3));
 
 	// // scan too quickly, wait writing
 	// if (_index < _records.size() && !_records[_index].write) {
@@ -70,12 +72,12 @@ Item ScanIterator::GenerateOneRecord ()
 }
 
 //generate random string, whose lenth is equal to the column's size
-std::string ScanIterator::GeneratRandomStr(int count){
-	std::string str;
+char* ScanIterator::GeneratRandomStr(int count){
+	char* str = new char[count];
 	char c;
 	for(int idx = 0; idx < count ; idx++){
 		c = '0' + std::rand()%10;
-		str.push_back(c);
+		str[idx] = c;
 	}
 	return str;
 }

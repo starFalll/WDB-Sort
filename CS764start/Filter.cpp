@@ -44,13 +44,14 @@ bool FilterPlan::ApplyPredicate (Item & item) const
 		auto it = _predicates.find (field);
 		if (it != _predicates.end ()) {
 			for (const auto & predicate : it->second) {
-				if ((predicate.predicate == EQ && stoull(item.fields [field]) == stoull(predicate.value))
-					|| (predicate.predicate == GT && stoull(item.fields [field]) > stoull(predicate.value))
-					|| (predicate.predicate == LT && stoull(item.fields [field]) < stoull(predicate.value))
-					|| (predicate.predicate == GE && stoull(item.fields [field]) >= stoull(predicate.value))
-					|| (predicate.predicate == LE && stoull(item.fields [field]) <= stoull(predicate.value))) {
-					return true;
-				}
+				// if ((predicate.predicate == EQ && stoull(item.fields [field]) == stoull(predicate.value))
+				// 	|| (predicate.predicate == GT && stoull(item.fields [field]) > stoull(predicate.value))
+				// 	|| (predicate.predicate == LT && stoull(item.fields [field]) < stoull(predicate.value))
+				// 	|| (predicate.predicate == GE && stoull(item.fields [field]) >= stoull(predicate.value))
+				// 	|| (predicate.predicate == LE && stoull(item.fields [field]) <= stoull(predicate.value))) {
+				// 	return true;
+				// }
+				return true;
 			}
 		}
 		
