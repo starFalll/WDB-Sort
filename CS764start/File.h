@@ -20,7 +20,8 @@ private:
     int32_t _run_num;
 
 public:
-    File(const char* path, unsigned long long _max_byte, int32_t block_size);
+    File(const char* path); //open (only in)
+    File(const char* path, unsigned long long _max_byte, int32_t block_size); //open and clear content
     ~File();
 
     // write file

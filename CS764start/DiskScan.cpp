@@ -5,8 +5,8 @@ DiskScan::DiskScan(GroupCount const ssd_group_count, GroupCount const hdd_group_
     _disk_run_list_row(ssd_group_count + hdd_group_count), _disk_run_list_col(batch_size)
 {
     TRACE (TRACE_SWITCH);
-    SSD = new File(SSD_PATH_TEMP, MAX_SSD, SSD_BLOCK);
-	HDD = new File(HDD_PATH_TEMP, __LONG_LONG_MAX__, HDD_BLOCK);
+    SSD = new File(SSD_PATH_TEMP);
+	HDD = new File(HDD_PATH_TEMP);
     RES_HDD = new File(RES_HDD_PATH, __LONG_LONG_MAX__, HDD_BLOCK);
 
     _shared_buffer = new SharedBuffer(OUTPUT_BUFFER / sizeof(Item));
@@ -141,12 +141,11 @@ void DiskScan::Bytes2DiskRecord(char* buffer, uint32_t group_num){
     int element_size = _row_size /3;
     for (int col = 0; col<_batch_size; col++){
         // 转换为三个对应长度的std::string
-        Item * temp = (Item*)buffer;
-        // std::string incl(buffer, element_size);
-        // std::string mem (buffer + element_size , element_size);
-        // std::string mgmt(buffer + element_size*2 , _row_size - element_size*2);
-        buffer += sizeof(Item);
-        //Item * temp = new Item(incl,mem,mgmt);
+        std::string incl(buffer, element_size);
+        std::string mem (buffer + element_size , element_size);
+        std::string mgmt(buffer + element_size*2 , _row_size - element_size*2);
+        buffer += _row_size;
+        Item * temp = new Item(incl,mem,mgmt);
         if(group_num<_ssd_group_count){
             _disk_run_list[group_num][col] = temp;
         } else{
