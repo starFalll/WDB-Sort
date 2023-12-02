@@ -62,13 +62,13 @@ void DiskScan::ReadFromDisk(){
     //construct _disk_run_list
     //ssd part
     for(uint32_t group_num =0; group_num < _ssd_group_count; group_num ++){
-        char* buffer = SSD->read(group_num , _each_group_row_count, _batch_size);
+        char* buffer = SSD->read(group_num , _row_size, _each_group_row_count, _batch_size);
         Bytes2DiskRecord(buffer , group_num);
 		_current_run_index++;
     }
     //hdd part
     for(uint32_t group_num = 0; group_num < _hdd_group_count ; group_num ++){
-        char* buffer = HDD->read(group_num , _each_group_row_count, _batch_size);
+        char* buffer = HDD->read(group_num , _row_size, _each_group_row_count, _batch_size);
         Bytes2DiskRecord(buffer , group_num);
         _current_run_index++;
     }
@@ -78,10 +78,10 @@ void DiskScan::RefillRow(uint32_t group_num){
     //construct _disk_run_list
     //ssd part
     if (group_num < _ssd_group_count){
-        char* buffer = SSD->read(group_num , _each_group_row_count, _batch_size);
+        char* buffer = SSD->read(group_num , _row_size, _each_group_row_count, _batch_size);
         Bytes2DiskRecord(buffer , group_num);
     } else{
-        char* buffer = HDD->read(group_num , _each_group_row_count, _batch_size);
+        char* buffer = HDD->read(group_num , _row_size, _each_group_row_count, _batch_size);
         Bytes2DiskRecord(buffer , group_num);
     }
 }
