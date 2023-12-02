@@ -35,6 +35,8 @@ public:
 
     TreeNode* top();
 
+    //todo temp
+    std::string getvalue(int i);
     void push(const Item* item, int32_t run_index, int32_t element_index, const FieldType* baseStr);
 
     void adjust(int32_t run_index, const FieldType* base_str_ptr);

@@ -60,6 +60,7 @@ void SharedBuffer::consume(File* file){
         // check data continuity
         if(_front + block_size <= _buffer_capacity){
             // write
+            std::cout<<_buffer<<std::endl;
             file->write((char*)&(_buffer[_front]), block_size);
         }else{
             // first write

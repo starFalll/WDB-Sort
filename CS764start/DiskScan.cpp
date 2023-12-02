@@ -46,6 +46,7 @@ DiskScan::~DiskScan ()
                 std::cout<<temp.fields[MGMT]+" ";
             }
 	    }
+		std::cout<<std::endl;
 	}
 
     // release resource
@@ -56,6 +57,7 @@ DiskScan::~DiskScan ()
 
     delete SSD;
 	delete HDD;
+	delete RES_HDD;
 } // ScanPlan::~ScanPlan
 
 void DiskScan::ReadFromDisk(){
@@ -99,9 +101,10 @@ void DiskScan::MultiwayMerge(){
 	for (uint32_t i = 0; i < _disk_run_list_row; i++) {	
 		_loser_tree->push(_disk_run_list[i][0], i, 0, base_str_ptr);
 	}
+	for (uint32_t i = 0; i < _disk_run_list_row * 2; i++) {	
+		std::cout<< _loser_tree->getvalue(i) <<std::endl;
+	}
 
-	// reset result index
-	int32_t res_index = 0;
 	bool isFinish = false;
 	_shared_buffer->reset();
 	std::thread resConsumeThread(&SharedBuffer::resConsume, _shared_buffer, RES_HDD);
@@ -120,6 +123,7 @@ void DiskScan::MultiwayMerge(){
 		uint32_t target_element_index = _disk_run_list_col;
 		// push next data into the tree
 		if (element_index < target_element_index) {
+			std::cout<<_disk_run_list[run_index][element_index]->fields[0]<<std::endl;
 			_loser_tree->push(_disk_run_list[run_index][element_index], run_index, element_index, base_str_ptr);
 		}else{
 			Item temp = Item(_row_size);
@@ -128,11 +132,13 @@ void DiskScan::MultiwayMerge(){
 		}
 
 		if(_loser_tree->empty()){
+			for (uint32_t i = 0; i < _disk_run_list_row * 2; i++) {	
+				std::cout<< _loser_tree->getvalue(i) <<std::endl;
+			}
 			isFinish = true;
 		}
 		// save in results
 		_shared_buffer->produce(*(cur->_value), isFinish);
-		res_index++;
 	}
 	resConsumeThread.join();
 }

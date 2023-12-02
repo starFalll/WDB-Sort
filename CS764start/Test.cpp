@@ -52,9 +52,9 @@ int main (int argc, char * argv [])
 	delete plan;
 
 	//need ssd总组数ssd_group_count 、hdd总组数hdd_group_count、每行大小row_size、每组总行数each_group_row_count、每组一次读多少行batch_size 按顺序输入
-	DiskScan * d_scan = new DiskScan(4,0,row_size,5,3);
+	DiskScan * d_scan = new DiskScan(4,0,row_size,5,5);
 	d_scan->ReadFromDisk();
-	//d_scan->MultiwayMerge();
+	d_scan->MultiwayMerge();
 	delete d_scan;
 
 	return 0;

@@ -152,3 +152,7 @@ void LoserTree::reset(int32_t num_of_reset_nodes, const Item* value) {
         _tree[i]->_offset_value_code = 0;
     }
 }
+
+std::string LoserTree::getvalue(int i){
+    return _tree[i]->_value->fields[0];
+}
