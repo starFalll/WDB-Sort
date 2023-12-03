@@ -22,7 +22,7 @@ public:
 	SortIterator (SortPlan const * const plan);
 	~SortIterator ();
 	bool next () override;
-	void GetRecords(std::vector<Item> ** records, uint32_t ** index) override;
+	// void GetRecords(std::vector<Item> ** records, uint32_t ** index) override;
 	
 	template <typename RandomIt, typename Compare>
 	void QuickSort (RandomIt start, RandomIt end, Compare comp);

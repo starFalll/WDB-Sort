@@ -9,7 +9,7 @@
 #include <regex>
 
 typedef uint8_t byte;
-typedef std::string  FieldType;
+typedef char*  FieldType;
 
 #define TRACE_SWITCH false
 

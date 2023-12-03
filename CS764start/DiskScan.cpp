@@ -9,7 +9,7 @@ DiskScan::DiskScan(GroupCount const ssd_group_count, GroupCount const hdd_group_
 	HDD = new File(HDD_PATH_TEMP);
     RES_HDD = new File(RES_HDD_PATH, __LONG_LONG_MAX__, HDD_BLOCK);
 
-    _shared_buffer = new SharedBuffer(OUTPUT_BUFFER / sizeof(Item));
+    _shared_buffer = new SharedBuffer(OUTPUT_BUFFER, _row_size);
     // initialize current run index
 	_current_run_index = 0;
 	// initialize run list
@@ -19,11 +19,11 @@ DiskScan::DiskScan(GroupCount const ssd_group_count, GroupCount const hdd_group_
 	}
 
     // initialize loser of tree
-	_loser_tree = new LoserTree(_disk_run_list_row);
+	_loser_tree = new LoserTree(_disk_run_list_row, _row_size);
 
     // merge
 	if((_current_run_index >= _disk_run_list_row)){
-		_loser_tree->reset(_disk_run_list_row, &ITEM_MAX);
+		_loser_tree->reset(_disk_run_list_row, _loser_tree->getMaxItem());
 		MultiwayMerge();
 		_current_run_index = 0;
 	}
@@ -41,9 +41,9 @@ DiskScan::~DiskScan ()
             std::cout<<std::endl;
 		    if(_disk_run_list[i][j]!=nullptr){
                 Item temp = *_disk_run_list[i][j];
-                std::cout<<temp.fields[INCL]+" ";
-                std::cout<<temp.fields[MEM]+" ";
-                std::cout<<temp.fields[MGMT]+" ";
+                std::cout<<std::string(temp.fields[INCL])+" ";
+                std::cout<<std::string(temp.fields[MEM])+" ";
+                std::cout<<std::string(temp.fields[MGMT])+" ";
             }
 	    }
 		std::cout<<std::endl;
@@ -92,10 +92,11 @@ void DiskScan::MultiwayMerge(){
 	// check full or finish and get the column number in the last row
 	uint32_t last_row_col =  _disk_run_list_col;
 	// reset loser tree
-	_loser_tree->reset(_disk_run_list_row, &ITEM_MIN);
+	_loser_tree->reset(_current_run_index, _loser_tree->getMinItem());
 
 	// 初始基准字符串为空
-	const FieldType* base_str_ptr = nullptr; 
+	std::string ovc_negative_infinity(_row_size/3, '0');
+	std::string* base_str_ptr = &ovc_negative_infinity; 
 
 	// Initialize with the first element of each sorted sequence
 	for (uint32_t i = 0; i < _disk_run_list_row; i++) {	
@@ -113,7 +114,8 @@ void DiskScan::MultiwayMerge(){
 		TreeNode* cur = _loser_tree->top();
 
 		// get the string of current data
-		base_str_ptr = cur->_value->GetItemString();
+		std::string tmp_base_str(cur->_value->GetItemString());
+		base_str_ptr = &tmp_base_str;
 
 		// calculate the index of next data item 
 		uint32_t run_index = cur->_run_index;
@@ -126,7 +128,7 @@ void DiskScan::MultiwayMerge(){
 			std::cout<<_disk_run_list[run_index][element_index]->fields[0]<<std::endl;
 			_loser_tree->push(_disk_run_list[run_index][element_index], run_index, element_index, base_str_ptr);
 		}else{
-			Item temp = Item(_row_size);
+			Item temp = Item(_row_size,'9');
 			_loser_tree->push(&temp, run_index, -1, base_str_ptr);
 			//_loser_tree->push(&ITEM_MAX, -1, -1);
 		}
@@ -146,10 +148,21 @@ void DiskScan::MultiwayMerge(){
 void DiskScan::Bytes2DiskRecord(char* buffer, uint32_t group_num){
     int element_size = _row_size /3;
     for (int col = 0; col<_batch_size; col++){
-        // 转换为三个对应长度的std::string
-        std::string incl(buffer, element_size);
-        std::string mem (buffer + element_size , element_size);
-        std::string mgmt(buffer + element_size*2 , _row_size - element_size*2);
+		char* incl = new char[element_size];
+		char* mem = new char[element_size];
+		char* mgmt = new char[_row_size - element_size *2];
+		for(int i  = 0 ; i< element_size; i ++){
+			incl[i] = buffer[i];
+		}
+		for(int i  = 0 ; i< element_size; i ++){
+			mem[i] = buffer[i + element_size];
+		}
+		for(int i  = 0 ; i< _row_size - element_size *2; i ++){
+			mgmt[i] = buffer[i+ element_size*2];
+		}
+        // std::string incl(buffer, element_size);
+        // std::string mem (buffer + element_size , element_size);
+        // std::string mgmt(buffer + element_size*2 , _row_size - element_size*2);
         buffer += _row_size;
         Item * temp = new Item(incl,mem,mgmt);
         if(group_num<_ssd_group_count){

@@ -17,10 +17,11 @@ private:
     // merge finish symbol
     bool _finish;
     //
+    RowSize _row_size;
     //todo：添加状态数组
 
 public:
-    SharedBuffer(int32_t buffer_capacity);
+    SharedBuffer(int32_t buffer_capacity, RowSize row_size);
     ~SharedBuffer();
 
     void produce(const Item& item, bool finish);
@@ -32,7 +33,7 @@ public:
 
     bool isBufferEmpty();
 
-    bool isBufferFull(int32_t row_size);
+    bool isBufferFull();
 
     bool isBufferBigEnoughToConsume(int32_t length);
 

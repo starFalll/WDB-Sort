@@ -26,15 +26,8 @@ struct Item
 	FieldType fields[3]; 
 	Item (const Item& other);
 	Item ();
-	Item (RowSize row_size);
+	Item (RowSize row_size, char init_char = '0');
 	bool operator < (const Item & other) const;
-	const FieldType* GetItemString() const;
+	char* GetItemString();
 	~Item() = default;
 };
-
-// the minimal value of object Item
-//static const Item ITEM_MIN = Item(0, 0, 0);
-static const Item ITEM_MIN = Item("0", "0", "0");
-// the maximal value of object Item
-//static const Item ITEM_MAX = Item(UINT32_MAX, UINT32_MAX, UINT32_MAX);
-static const Item ITEM_MAX = Item(std::to_string(UINT32_MAX).c_str(), std::to_string(UINT32_MAX).c_str(), std::to_string(UINT32_MAX).c_str());

@@ -9,7 +9,7 @@ TreeNode::TreeNode (Item* item, int32_t run_index, int32_t element_index){
 }
 
 TreeNode::TreeNode (){
-	_value = &ITEM_MIN;
+	_value = nullptr;
 	_run_index = -1;
 	_element_index = -1;
 }
@@ -19,64 +19,77 @@ TreeNode::~TreeNode() {}
 // override operator
 bool TreeNode::operator < (const TreeNode & other) const {
 	//return _value->fields[COMPARE_FIELD] < other._value->fields[COMPARE_FIELD];
-    int this_offset = _offset_value_code / 100;
-    int other_offset = other._offset_value_code / 100;
+    // int this_offset = _offset_value_code / 100;
+    // int other_offset = other._offset_value_code / 100;
 
-    if (this_offset != other_offset) {
-        return this_offset > other_offset;
-    } else {
-        // if offset is same，extract offset_Data to compare
-        int this_offset= _offset_value_code % 100;
-        int other_offset = other._offset_value_code % 100;
-        if (this_offset != other_offset) {
-            return this_offset < other_offset;
-        } else {
-            int this_offsert_data = _offset_value_code % 10;
-            int other_offsert_data = other._offset_value_code % 10;
-            if (this_offsert_data != other_offsert_data) {
-                return this_offsert_data < other_offsert_data;
-            }
-             // if OVC is same，then compare the whole string
-            return _value->fields[COMPARE_FIELD] < other._value->fields[COMPARE_FIELD];
-        }
+    // if (this_offset != other_offset) {
+    //     return this_offset < other_offset;
+    // } else {
+    //     // if offset is same，extract offset_Data to compare
+    //     int this_offset= _offset_value_code % 100;
+    //     int other_offset = other._offset_value_code % 100;
+    //     if (this_offset != other_offset) {
+    //         return this_offset < other_offset;
+    //     } else {
+    //         int this_offsert_data = _offset_value_code % 10;
+    //         int other_offsert_data = other._offset_value_code % 10;
+    //         if (this_offsert_data != other_offsert_data) {
+    //             return this_offsert_data < other_offsert_data;
+    //         }
+    //         // if OVC is same，then compare the whole string
+    //         return *_value < *(other._value);
+    //     }
+    // }
+    if(_offset_value_code != other._offset_value_code){
+        return _offset_value_code < other._offset_value_code;
+    }else{
+        return strcmp(_value->fields[COMPARE_FIELD], other._value->fields[COMPARE_FIELD]) < 0;
     }
 }
 
 bool TreeNode::operator > (const TreeNode & other) const {
 	//return _value->fields[COMPARE_FIELD] > other._value->fields[COMPARE_FIELD];
 
-    int this_offset = _offset_value_code / 100;
-    int other_offset = other._offset_value_code / 100;
+    // int this_offset = _offset_value_code / 100;
+    // int other_offset = other._offset_value_code / 100;
     
-    // compare offset
-    if (this_offset != other_offset) {
-        return this_offset > other_offset;
-    } else {
-        // if offset is same，extract offset_Data to compare
-        int this_offset = _offset_value_code % 100;
-        int other_offset = other._offset_value_code % 100;
+    // // compare offset
+    // if (this_offset != other_offset) {
+    //     return this_offset > other_offset;
+    // } else {
+    //     // if offset is same，extract offset_Data to compare
+    //     int this_offset = _offset_value_code % 100;
+    //     int other_offset = other._offset_value_code % 100;
                 
-        if (this_offset != other_offset) {
-            return this_offset > other_offset;
-        } else {
-            int this_offsert_data = _offset_value_code % 10;
-            int other_offsert_data = other._offset_value_code % 10;
-            if (this_offsert_data != other_offsert_data) {
-                return this_offsert_data > other_offsert_data;
-            }
-            // if OVC is same，then compare the whole string
-            return _value->fields[COMPARE_FIELD] > other._value->fields[COMPARE_FIELD];
-        }
+    //     if (this_offset != other_offset) {
+    //         return this_offset > other_offset;
+    //     } else {
+    //         int this_offsert_data = _offset_value_code % 10;
+    //         int other_offsert_data = other._offset_value_code % 10;
+    //         if (this_offsert_data != other_offsert_data) {
+    //             return this_offsert_data > other_offsert_data;
+    //         }
+    //         // if OVC is same，then compare the whole string
+    //         return _value->fields[COMPARE_FIELD] > other._value->fields[COMPARE_FIELD];
+    //     }
+    // }
+    if(_offset_value_code != other._offset_value_code){
+        return _offset_value_code > other._offset_value_code;
+    }else{
+        return strcmp(_value->fields[COMPARE_FIELD], other._value->fields[COMPARE_FIELD]) > 0;
     }
 }
 
 
 // loser tree constructor
-LoserTree::LoserTree (int32_t leaf_num):_leaf_num(leaf_num) {
+LoserTree::LoserTree (int32_t leaf_num, RowSize row_size):_leaf_num(leaf_num) {
     _tree = new TreeNode*[2 * leaf_num];
     for(uint32_t i=0;i<2 * leaf_num;i++){
         _tree[i] = new TreeNode();
     }
+
+    ITEM_MIN = new Item(row_size, '0');
+    ITEM_MAX = new Item(row_size, '9');
 }
 
 LoserTree::~LoserTree() {
@@ -84,6 +97,9 @@ LoserTree::~LoserTree() {
         delete _tree[i];
     }
     delete [] _tree;
+
+    delete ITEM_MIN;
+    delete ITEM_MAX;
 }
 
 // check if loser tree is empty (no valid node)
@@ -97,14 +113,15 @@ TreeNode* LoserTree::top(){
 }
 
 // push new value into the tree
-void LoserTree::push(const Item* item, int32_t run_index, int32_t element_index, const FieldType* base_str_ptr){
+void LoserTree::push(Item* item, int32_t run_index, int32_t element_index, std::string* base_str_ptr){
     // Get the string representation from Item
-    const FieldType *item_ptr = item->GetItemString(); 
+    std::string item_string = std::string(item->GetItemString());
 
     uint32_t offsetValueCode = 0; 
     // Every push needs to calculate the offset value code, based on the node that was just topped.
-    if (base_str_ptr)
-        offsetValueCode = CalculateOffsetValueCode(base_str_ptr, item_ptr);
+    // if (base_str_ptr)
+    //     offsetValueCode = CalculateOffsetValueCode(base_str_ptr, item_ptr);
+    offsetValueCode = CalculateOffsetValueCode(base_str_ptr, &item_string);
 
     // update node value
     _tree[_leaf_num + run_index]->_value = item;
@@ -112,10 +129,10 @@ void LoserTree::push(const Item* item, int32_t run_index, int32_t element_index,
     _tree[_leaf_num + run_index]->_element_index = element_index;
     _tree[_leaf_num + run_index]->_offset_value_code = offsetValueCode;
     // leaf to root update
-    adjust(run_index, base_str_ptr);
+    adjust(run_index);
 }
 
-void LoserTree::adjust(int32_t run_index, const FieldType* base_str_ptr) {
+void LoserTree::adjust(int32_t run_index) {
     // to avoid overflow
     // calculate node index in the comparison
     uint32_t node_index = run_index + _leaf_num;
@@ -124,16 +141,14 @@ void LoserTree::adjust(int32_t run_index, const FieldType* base_str_ptr) {
     // compare iteratively
     while(cmp_node_index > 0){
         if (*_tree[node_index] > *_tree[cmp_node_index]){
-      
             swap(_tree[node_index], _tree[cmp_node_index]);
         }
-        if (_tree[node_index]->_offset_value_code == _tree[cmp_node_index]->_offset_value_code && base_str_ptr) {
+        if (_tree[node_index]->_offset_value_code == _tree[cmp_node_index]->_offset_value_code) {
             // _tree[node_index] is loser，update its ovc
-            auto winner_str = _tree[node_index]->_value->GetItemString();
-            auto loser_str = _tree[cmp_node_index]->_value->GetItemString();
+            auto winner_str = std::string(_tree[node_index]->_value->GetItemString());
+            auto loser_str = std::string(_tree[cmp_node_index]->_value->GetItemString());
             // Update the offset value code of the loser
-            
-            _tree[cmp_node_index]->_offset_value_code = CalculateOffsetValueCode(winner_str, loser_str);
+            _tree[cmp_node_index]->_offset_value_code = CalculateOffsetValueCode(&winner_str, &loser_str);
         }
         cmp_node_index /= 2;
     }
@@ -143,7 +158,7 @@ void LoserTree::adjust(int32_t run_index, const FieldType* base_str_ptr) {
 }
 
 // update num_of_reset_nodes tree nodes to negative infinity
-void LoserTree::reset(int32_t num_of_reset_nodes, const Item* value) {
+void LoserTree::reset(int32_t num_of_reset_nodes, Item* value) {
     _leaf_num = num_of_reset_nodes;
     for(int32_t i=0;i<num_of_reset_nodes;i++){
         _tree[i]->_value = value;
@@ -155,4 +170,12 @@ void LoserTree::reset(int32_t num_of_reset_nodes, const Item* value) {
 
 std::string LoserTree::getvalue(int i){
     return _tree[i]->_value->fields[0];
+}
+
+Item* LoserTree::getMinItem(){
+    return ITEM_MIN;
+}
+
+Item* LoserTree::getMaxItem(){
+    return ITEM_MAX;
 }

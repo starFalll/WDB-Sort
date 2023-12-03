@@ -5,7 +5,7 @@
 
 struct TreeNode{
     // data record pointer
-	const Item* _value;
+	Item* _value;
     // index of data's run
 	int32_t _run_index;
     // index of data in the run
@@ -25,9 +25,13 @@ private:
     int32_t _leaf_num;
     // loser tree (implemented by array)
     TreeNode** _tree;
+    // max item
+    Item* ITEM_MIN;
+    // min item
+    Item* ITEM_MAX;
 
 public:
-    LoserTree(int32_t leaf_num);
+    LoserTree(int32_t leaf_num, RowSize row_size);
 
     ~LoserTree();
 
@@ -35,11 +39,16 @@ public:
 
     TreeNode* top();
 
-    //todo temp
+    void push(Item* item, int32_t run_index, int32_t element_index, std::string* baseStr);
+
+    void adjust(int32_t run_index);
+
+    void reset(int32_t num_of_reset_nodes, Item* value);
+
     std::string getvalue(int i);
-    void push(const Item* item, int32_t run_index, int32_t element_index, const FieldType* baseStr);
 
-    void adjust(int32_t run_index, const FieldType* base_str_ptr);
+    Item* getMinItem();
 
-    void reset(int32_t num_of_reset_nodes, const Item* value);
+    Item* getMaxItem();
+
 };

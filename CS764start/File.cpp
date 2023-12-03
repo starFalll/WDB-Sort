@@ -21,12 +21,18 @@ File::File(const char* path, unsigned long long max_byte, int32_t block_size) :
         std::cmatch cm;
         std::regex_match(_file_path, cm, re);
         // create directory and file
-        int result = std::system(("mkdir " + cm[1].str() + "&& touch " + std::string(_file_path)).c_str());
-        if(result != 0){
-            std::cerr << "Error creating file: " << _file_path << std::endl;
+        int status = std::system(("[ -d '" + cm[1].str() + "' ]").c_str());
+        if(status != 0){
+            status = std::system(("mkdir " + cm[1].str() + "&& touch " + std::string(_file_path)).c_str());
+        }else{
+            status = std::system(("touch " + std::string(_file_path)).c_str());
         }
         // open file
         _file_stream.open(_file_path, std::ios::out | std::ios::in | std::ios::trunc | std::ios::binary);
+
+        if(!_file_stream.is_open() || status != 0){
+            std::cerr << "Error opening file: " << _file_path << std::endl;
+        }
     }
 }
 
