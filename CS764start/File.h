@@ -20,14 +20,15 @@ private:
     int32_t _run_num;
 
 public:
-    File(const char* path, unsigned long long _max_byte, int32_t block_size);
+    File(const char* path); //open (only in)
+    File(const char* path, unsigned long long _max_byte, int32_t block_size); //open and clear content
     ~File();
 
     // write file
     void write(const char* data, int32_t length);
 
     //read
-    char* read(GroupCount group_num ,RowCount each_group_row_count, BatchSize batch_size);
+    char* read(GroupCount group_num , RowSize row_size, RowCount each_group_row_count, BatchSize batch_size, uint32_t group_offset);
 
     // check if file is full(important for SSD)
     bool isFull();

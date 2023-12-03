@@ -1,7 +1,7 @@
 #include "SharedBuffer.h"
 
-SharedBuffer::SharedBuffer(int32_t buffer_capacity) : 
-    _buffer_capacity(buffer_capacity), _front(0), _rear(0), _finish(false)
+SharedBuffer::SharedBuffer(int32_t buffer_capacity, RowSize row_size) : 
+    _buffer_capacity(buffer_capacity), _row_size(row_size), _front(0), _rear(0), _finish(false)
 {
     // init buffer
     _buffer = new char[_buffer_capacity];
@@ -12,25 +12,22 @@ SharedBuffer::~SharedBuffer(){
 }
 
 void SharedBuffer::produce(const Item& item, bool finish){
-    int32_t row_size=0;
-    for(int i=0;i<3;i++){
-        row_size += item.fields[i].size();
-    }
 
     std::unique_lock<std::mutex> lock(_mtx);
-    _not_full_cv.wait(lock, [this, row_size]{ return !isBufferFull(row_size); });
+    _not_full_cv.wait(lock, [this]{ return !isBufferFull(); });
 
     // write buffer
     for(int i=0;i<3;i++){
-        int32_t str_length = item.fields[i].size();
+        int32_t str_length = (i==2) ? _row_size-2*(_row_size/3) : _row_size/3;
         if(_buffer_capacity - _rear >= str_length){
-            strcpy(&(_buffer[_rear]), item.fields[i].c_str());
+            strcpy(&(_buffer[_rear]), item.fields[i]);
         }else{
             int32_t tmp_length = _buffer_capacity - _rear;
-            strcpy(&(_buffer[_rear]), item.fields[i].substr(0, tmp_length).c_str());
+            std::string tmp_str(item.fields[i]);
+            strcpy(&(_buffer[_rear]), tmp_str.substr(0, tmp_length).c_str());
             int32_t start_idx = tmp_length;
             tmp_length = str_length - tmp_length;
-            strcpy(&(_buffer[0]), item.fields[i].substr(start_idx, tmp_length).c_str());
+            strcpy(&(_buffer[0]), tmp_str.substr(start_idx, tmp_length).c_str());
         }
         // update rear
         _rear = (_rear + str_length) % _buffer_capacity;
@@ -60,6 +57,7 @@ void SharedBuffer::consume(File* file){
         // check data continuity
         if(_front + block_size <= _buffer_capacity){
             // write
+            std::cout<<_buffer<<std::endl;
             file->write((char*)&(_buffer[_front]), block_size);
         }else{
             // first write
@@ -129,8 +127,8 @@ bool SharedBuffer::isBufferEmpty(){
     return _front == _rear && _finish;
 }
 
-bool SharedBuffer::isBufferFull(int32_t row_size){
-    return getAvailableSpace() < row_size;
+bool SharedBuffer::isBufferFull(){
+    return getAvailableSpace() < _row_size;
     // todo: 判断状态数组
 }
 
