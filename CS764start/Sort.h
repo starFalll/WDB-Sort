@@ -44,7 +44,5 @@ private:
 	Item*** _cache_run_list;
 	// result buffer
 	SharedBuffer* _shared_buffer;
-	File* SSD;
-	File* HDD;
 
 }; // class SortIterator

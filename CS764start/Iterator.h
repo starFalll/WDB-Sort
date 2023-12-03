@@ -2,6 +2,7 @@
 
 #include "defs.h"
 #include "Item.h"
+#include "File.h"
 
 class Plan
 {
@@ -28,6 +29,10 @@ public:
 
 protected:
 	RowSize _row_size;
+	File* SSD_INPUT;
+	File* HDD_INPUT;
+	File* SSD_OUTPUT;
+	File* HDD_OUTPUT;
 private:
 	// ring queue
 	std::vector<Item> _records;
