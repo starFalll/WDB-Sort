@@ -27,6 +27,12 @@ private:
     uint32_t _current_run_index;
     Item*** _disk_run_list;
 
+    //数组用来存每个组里的元素个数
+    uint32_t* _each_group_col;
+
+    //group offset
+    uint32_t* _group_offset;
+
     // loser tree
 	LoserTree* _loser_tree;
 
