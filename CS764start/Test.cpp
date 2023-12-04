@@ -9,7 +9,7 @@
 int main (int argc, char * argv [])
 {
 	int opt;
-	int row_count = 0, column_size = 0;
+	int row_count = 0, row_size = 0;
 	char* trace_file_name = nullptr;
 	while((opt = getopt(argc, argv, "c:s:o:")) != -1){
 		switch(opt){
@@ -17,7 +17,7 @@ int main (int argc, char * argv [])
 				row_count = std::stoi(optarg);
 				break;
 			case 's':
-				column_size = std::stoi(optarg);
+				row_size = std::stoi(optarg);
 				break;
 			case 'o':
 				trace_file_name = optarg;
@@ -27,10 +27,12 @@ int main (int argc, char * argv [])
 				return 1;
 		}
 	}
-	printf("%d, %d, %s\n", row_count, column_size, trace_file_name);
+	printf("%d, %d, %s\n", row_count, row_size, trace_file_name);
 
+	row_count = 2000;
+	row_size = 50;
 	TRACE (TRACE_SWITCH);
-	Plan * const scan_plan = new ScanPlan (20,14);
+	Plan * const scan_plan = new ScanPlan (row_count,row_size);
 	//Plan * scan_plan = new ScanPlan(10000000);
 	FilterPlan * filter_plan = new FilterPlan ( scan_plan );
 	Plan * plan = new SortPlan ( filter_plan );
@@ -49,8 +51,8 @@ int main (int argc, char * argv [])
 	delete it;
 	delete plan;
 
-	//need ssd总组数ssd_group_count 、hdd总组数hdd_group_count、每行大小row_size、每组总行数ach_group_row_count、每组一次读多少行batch_size 按顺序输入
-	DiskScan * d_scan = new DiskScan(4,0,14,5,3);
+	//need ssd总组数ssd_group_count 、hdd总组数hdd_group_count、每行大小row_size、每组总行数each_group_row_count、每组一次读多少行batch_size 按顺序输入
+	DiskScan * d_scan = new DiskScan(40,0,row_size,50,9);
 	d_scan->ReadFromDisk();
 	d_scan->MultiwayMerge();
 	delete d_scan;

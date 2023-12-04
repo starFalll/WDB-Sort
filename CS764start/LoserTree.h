@@ -45,6 +45,8 @@ public:
 
     void reset(int32_t num_of_reset_nodes, Item* value);
 
+    std::string getvalue(int i);
+
     Item* getMinItem();
 
     Item* getMaxItem();

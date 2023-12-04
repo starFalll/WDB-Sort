@@ -168,6 +168,10 @@ void LoserTree::reset(int32_t num_of_reset_nodes, Item* value) {
     }
 }
 
+std::string LoserTree::getvalue(int i){
+    return _tree[i]->_value->fields[0];
+}
+
 Item* LoserTree::getMinItem(){
     return ITEM_MIN;
 }
