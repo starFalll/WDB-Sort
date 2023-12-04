@@ -18,6 +18,15 @@ Verify::Verify(int row_size, unsigned long long file_size, unsigned long long me
 
     _input_file = new File(HDD_PATH_INPUT, __LONG_LONG_MAX__, HDD_BLOCK, std::ios::app);
 	_output_file = new File(SSD_PATH_TEMP, __LONG_LONG_MAX__, HDD_BLOCK, std::ios::app);
+
+    int status = std::system(("[ -d './input_hash_table/' ]"));
+    if(status == 0){
+        status = std::system(("rm -rf ./input_hash_table/" ));
+    }
+    status = std::system(("[ -d './output_hash_table/' ]"));
+    if(status == 0){
+        status = std::system(("rm -rf ./output_hash_table/"));
+    }
 }
 
 Verify::~Verify(){
@@ -166,14 +175,14 @@ void Verify::verify(){
         }
         std::string bucket_1_str(bucket_1);
         for(int j=0;j<bucket_1_str.size();j=j+_row_size){
-            std::string record = bucket_1_str.substr(j*_row_size, _row_size);
+            std::string record = bucket_1_str.substr(j, _row_size);
             hash_map[record]++;
         }
         // 
         char* bucket_2 = read_bucket(i, "./output_hash_table/");
         std::string bucket_2_str(bucket_2);
         for(int j=0;j<bucket_2_str.size();j=j+_row_size){
-            std::string record = bucket_2_str.substr(j*_row_size, _row_size);
+            std::string record = bucket_2_str.substr(j, _row_size);
             if(hash_map.find(record) == hash_map.end()){
                 set_status = false;
                 break;
