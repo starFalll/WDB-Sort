@@ -1,7 +1,7 @@
 #include "SharedBuffer.h"
 
 SharedBuffer::SharedBuffer(int32_t buffer_capacity, RowSize row_size) : 
-    _buffer_capacity(buffer_capacity), _row_size(row_size), _front(0), _rear(0), _finish(false)
+    _buffer_capacity(buffer_capacity), _front(0), _rear(0), _finish(false), _row_size(row_size)
 {
     // init buffer
     _buffer = new char[_buffer_capacity];

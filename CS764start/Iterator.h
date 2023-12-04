@@ -31,8 +31,8 @@ protected:
 	RowSize _row_size;
 	File* SSD_INPUT;
 	File* HDD_INPUT;
-	File* SSD_OUTPUT;
-	File* HDD_OUTPUT;
+	File* SSD_TEMP;
+	File* HDD_TEMP;
 private:
 	// ring queue
 	std::vector<Item> _records;

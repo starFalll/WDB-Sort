@@ -18,7 +18,7 @@ File::File(const char* path, unsigned long long max_byte, int32_t block_size, st
             status = std::system(("touch " + std::string(_file_path)).c_str());
         }
         // open file
-        _file_stream.open(_file_path, std::ios::out | std::ios::in | std::ios::trunc | std::ios::binary);
+        _file_stream.open(_file_path, std::ios::in | std::ios::binary | m);
 
         if(!_file_stream.is_open() || status != 0){
             std::cerr << "Error opening file: " << _file_path << std::endl;
@@ -103,7 +103,7 @@ char* File::read(GroupCount group_num, RowSize row_size, RowCount each_group_row
 char* File::read(int32_t start, int32_t length){
     if(_file_stream.is_open()){
         char* buffer = new char[length];
-        _file_stream.seekg(start);
+        _file_stream.seekg(start, std::ios::beg);
         // read
         _file_stream.read(buffer, length);
 
@@ -111,6 +111,7 @@ char* File::read(int32_t start, int32_t length){
     }else{
         printf("Fail to read.");
     }
+    return nullptr;
 }
 
 bool File::isFull(){

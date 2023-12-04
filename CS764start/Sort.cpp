@@ -180,7 +180,7 @@ void SortIterator::MultiwayMerge (){
 	// reset shared buffer
 	_shared_buffer->reset();
 	// create consume thread
-	std::thread cyclicalConsumeThread(&SharedBuffer::cyclicalConsume, _shared_buffer, SSD_OUTPUT, HDD_OUTPUT);
+	std::thread cyclicalConsumeThread(&SharedBuffer::cyclicalConsume, _shared_buffer, SSD_TEMP, HDD_TEMP);
 	while (!_loser_tree->empty()) {
 		// get smallest element
 		TreeNode* cur = _loser_tree->top();
