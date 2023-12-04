@@ -8,6 +8,7 @@ struct Bucket{
     int _bucket_index;
 
     Bucket(int bucket_capacity);
+    void rest_bucket();
 };
 
 class Verify{

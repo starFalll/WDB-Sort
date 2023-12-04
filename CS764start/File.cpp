@@ -3,7 +3,7 @@
 File::File(const char* path, unsigned long long max_byte, int32_t block_size, std::ios::openmode m) : 
     _file_path(path), _max_byte(max_byte), _block_size(block_size), _run_num(0){
         // open file
-    _file_stream.open(_file_path, std::ios::out | std::ios::in | std::ios::binary | m);
+    _file_stream.open(_file_path, std::ios::in | std::ios::binary | m);
 
     if (!_file_stream.is_open()) {
         // extract directory
@@ -40,7 +40,7 @@ File::File(const char* path, unsigned long long max_byte, int32_t block_size) :
     _file_path(path), _max_byte(max_byte), _cur_byte(0), _block_size(block_size), _run_num(0)
 {
     // open file
-    _file_stream.open(_file_path, std::ios::out | std::ios::in | std::ios::binary);
+    _file_stream.open(_file_path, std::ios::out | std::ios::in | std::ios::trunc | std::ios::binary);
 
     if (!_file_stream.is_open()) {
         // extract directory
@@ -83,7 +83,6 @@ void File::write(const char* data, int32_t length){
 
 char* File::read(GroupCount group_num, RowSize row_size, RowCount each_group_row_count, BatchSize batch_size , uint32_t group_offset){
     if(_file_stream.is_open()){
-        int row_size = getCurByte() / _run_num;
         // bytes need reading
         int need_reading = batch_size * row_size ;
         char* buffer = new char[need_reading];

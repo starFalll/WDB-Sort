@@ -26,6 +26,7 @@ Verify::~Verify(){
     }
 }
 
+
 int Verify::hash(std::string record){
     // generate buckets id
     return std::stoi(record.substr(0, 7)) % _bucket_num;

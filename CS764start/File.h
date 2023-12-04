@@ -10,14 +10,14 @@ private:
     // file size
     unsigned long long _max_byte;
     // current size
-    // unsigned long long _cur_byte;
+    unsigned long long _cur_byte;
     // block size (one access)
     int32_t _block_size;
     // number of runs
     int32_t _run_num;
 
 public:
-    File(const char* path, unsigned long long _max_byte, int32_t block_size, std::ios::openmode m = std::ios::trunc);
+    File(const char* path, unsigned long long _max_byte, int32_t block_size, std::ios::openmode m);
     File(const char* path); //open (only in)
     File(const char* path, unsigned long long _max_byte, int32_t block_size); //open and clear content
     ~File();
