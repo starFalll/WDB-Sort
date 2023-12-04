@@ -1,9 +1,6 @@
 #pragma once
+#include "defs.h"
 
-#include "Iterator.h"
-
-typedef uint32_t GroupCount;
-typedef uint32_t BatchSize;
 class File{
 private:
     // file path
@@ -20,6 +17,7 @@ private:
     int32_t _run_num;
 
 public:
+    File(const char* path, unsigned long long _max_byte, int32_t block_size, std::ios::openmode m);
     File(const char* path); //open (only in)
     File(const char* path, unsigned long long _max_byte, int32_t block_size); //open and clear content
     ~File();
@@ -30,6 +28,8 @@ public:
     //read
     char* read(GroupCount group_num , RowSize row_size, RowCount each_group_row_count, BatchSize batch_size, uint32_t group_offset);
 
+    char* read(int32_t start, int32_t length);
+
     // check if file is full(important for SSD)
     bool isFull();
 
@@ -38,4 +38,6 @@ public:
     
     // add number of runs
     void addRunNum();
+
+    unsigned long long getCurByte();
 };

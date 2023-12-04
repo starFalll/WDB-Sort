@@ -24,5 +24,4 @@ private:
 
 	ScanPlan const * const _plan;
 	RowCount _count;
-	File* HDD;
 }; // class ScanIterator

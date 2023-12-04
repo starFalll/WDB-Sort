@@ -7,9 +7,14 @@
 #include <iostream>
 #include <fstream>
 #include <regex>
+#include <vector>
 
 typedef uint8_t byte;
 typedef char*  FieldType;
+typedef uint32_t GroupCount;
+typedef uint32_t BatchSize;
+typedef uint64_t RowCount;
+typedef uint32_t RowSize;
 
 #define TRACE_SWITCH false
 
@@ -22,12 +27,15 @@ typedef char*  FieldType;
 // SSD Path
 #define SSD_PATH_INPUT "./input/SSD.csv"
 
-#define SSD_PATH_TEMP "./output/SSD.csv"
+#define SSD_PATH_TEMP "./temp/SSD.csv"
 
 // HDD Path
 #define HDD_PATH_INPUT "./input/HDD.csv"
 
-#define HDD_PATH_TEMP "./output/HDD.csv"
+#define HDD_PATH_TEMP "./temp/HDD.csv"
+
+// Hash Table DIR
+#define HASH_TABLE_DIR "./hashtable/"
 
 // RES_HDD Path
 #define RES_HDD_PATH "./output/RES_HDD.csv"

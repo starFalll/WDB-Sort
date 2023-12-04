@@ -1,6 +1,7 @@
 #pragma once
 
 #include "File.h"
+#include "Item.h"
 #include <future>
 
 class SharedBuffer {

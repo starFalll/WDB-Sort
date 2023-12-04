@@ -1,5 +1,32 @@
 #include "File.h"
 
+File::File(const char* path, unsigned long long max_byte, int32_t block_size, std::ios::openmode m) : 
+    _file_path(path), _max_byte(max_byte), _block_size(block_size), _run_num(0){
+        // open file
+    _file_stream.open(_file_path, std::ios::in | std::ios::binary | m);
+
+    if (!_file_stream.is_open()) {
+        // extract directory
+        std::regex re("(.*/)[^/]+");
+        std::cmatch cm;
+        std::regex_match(_file_path, cm, re);
+        // create directory and file
+        int status = std::system(("[ -d '" + cm[1].str() + "' ]").c_str());
+        if(status != 0){
+            status = std::system(("mkdir " + cm[1].str() + "&& touch " + std::string(_file_path)).c_str());
+        }else{
+            status = std::system(("touch " + std::string(_file_path)).c_str());
+        }
+        // open file
+        _file_stream.open(_file_path, std::ios::in | std::ios::binary | m);
+
+        if(!_file_stream.is_open() || status != 0){
+            std::cerr << "Error opening file: " << _file_path << std::endl;
+        }
+    }
+}
+
+
 File::File(const char* path) : _file_path(path)
 {
     // open file
@@ -47,7 +74,7 @@ void File::write(const char* data, int32_t length){
         // write
         _file_stream.write(data, length);
         // record file size
-        _cur_byte += length;
+        // _cur_byte += length;
 
     }else{
         printf("Fail to write SSD.");
@@ -73,8 +100,22 @@ char* File::read(GroupCount group_num, RowSize row_size, RowCount each_group_row
     return nullptr;
 }
 
+char* File::read(int32_t start, int32_t length){
+    if(_file_stream.is_open()){
+        char* buffer = new char[length];
+        _file_stream.seekg(start, std::ios::beg);
+        // read
+        _file_stream.read(buffer, length);
+
+        return buffer;
+    }else{
+        printf("Fail to read.");
+    }
+    return nullptr;
+}
+
 bool File::isFull(){
-    return _cur_byte >= _max_byte; 
+    return getCurByte() >= _max_byte; 
 }
 
 int32_t File::getBlockSize(){
@@ -83,4 +124,9 @@ int32_t File::getBlockSize(){
 
 void File::addRunNum(){
     _run_num++;
+}
+
+unsigned long long File::getCurByte(){
+    _file_stream.seekg(0, std::ios::end);
+    return _file_stream.tellg();
 }

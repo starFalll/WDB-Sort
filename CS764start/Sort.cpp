@@ -29,8 +29,6 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 
 	// init producer consumer
 	_shared_buffer = new SharedBuffer(OUTPUT_BUFFER, _row_size);
-	SSD = new File(SSD_PATH_TEMP, MAX_SSD, SSD_BLOCK);
-	HDD = new File(HDD_PATH_TEMP, __LONG_LONG_MAX__, HDD_BLOCK);
 
 	// allocate 90MB to sort
 	// _sort_records.resize (MAX_DRAM * 9 / 10 / sizeof(Item));
@@ -64,8 +62,6 @@ SortIterator::~SortIterator ()
 	delete _input;
 
 	delete _shared_buffer;
-	delete SSD;
-	delete HDD;
 
 	traceprintf ("produced %lu of %lu rows\n",
 			(unsigned long) (_produced),
@@ -184,7 +180,7 @@ void SortIterator::MultiwayMerge (){
 	// reset shared buffer
 	_shared_buffer->reset();
 	// create consume thread
-	std::thread cyclicalConsumeThread(&SharedBuffer::cyclicalConsume, _shared_buffer, SSD, HDD);
+	std::thread cyclicalConsumeThread(&SharedBuffer::cyclicalConsume, _shared_buffer, SSD_TEMP, HDD_TEMP);
 	while (!_loser_tree->empty()) {
 		// get smallest element
 		TreeNode* cur = _loser_tree->top();
