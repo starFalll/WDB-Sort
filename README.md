@@ -37,10 +37,10 @@ Size of three Queues:
 After sorting, asynchronously writing buffer into SSD or HDD.
 
 Each group member's names and student IDs:
-Kefan Zheng 
-Tianyu Huang
-Ethan Fang
-Chuan Tian
+- Kefan Zheng 
+- Tianyu Huang
+- Ethan Fang
+- Chuan Tian
 
 The techniques (see Grading) implemented by your submission and the corresponding source files and lines
 1. Quicksort?: Sort.cpp (Line 138 - 163)
