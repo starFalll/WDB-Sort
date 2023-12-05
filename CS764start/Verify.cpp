@@ -7,9 +7,10 @@ Bucket::Bucket(int bucket_capacity) : _bucket_index(0) {
 Verify::Verify(){}
 
 Verify::Verify(int row_size, unsigned long long file_size, unsigned long long memory_size) : 
-    _row_size(row_size), _bucket_num(file_size / (memory_size * 0.5)) {
+    _row_size(row_size), _bucket_num(ceil(file_size / (memory_size * 0.5))) {
 
-    _bucket_capacity = memory_size * 0.5 / _bucket_num;
+    _batch_size = 0.5 * memory_size;
+    _bucket_capacity = _batch_size / _bucket_num;
     _hash_table = new Bucket*[_bucket_num];
     for(int i=0;i<_bucket_num;i++){
         _hash_table[i] = new Bucket(_bucket_capacity);
@@ -92,16 +93,16 @@ void Verify::read_bucket(char* bucket, int bucket_id, std::string dir_path, bool
     return;
 }
 
-void Verify::create_hash_table(File* file, int batch_size, std::string dir_path, bool& order_status, bool is_output){
+void Verify::create_hash_table(File* file, std::string dir_path, bool& order_status, bool is_output){
     // previous record (for check order)
     std::string prev;
     
     // scan input/output in batched, 100M per batch
     char* batch;
-    int batch_num = ceil(file->getCurByte() / double(batch_size));
+    int batch_num = ceil(file->getCurByte() / double(_batch_size));
     int batch_id = 0;
     while(batch_id < batch_num){
-        batch = file->read(batch_id * batch_size, batch_size);
+        batch = file->read(batch_id * _batch_size, _batch_size);
         // traversal records in batch
         std::string batch_str(batch);
         for(int i=0;i<batch_str.size();i=i+_row_size){
@@ -151,15 +152,16 @@ void Verify::create_hash_table(File* file, int batch_size, std::string dir_path,
 }
 
 void Verify::verify(){
+    std::cout << std::endl << "Start Verifying..." << std::endl;
     // check if the correct ascending order
     bool order_status = true;
     // check if the same set
     bool set_status = true;
 
     // scan input file
-    create_hash_table(_input_file, 100*1024*1024, "./input_hash_table/", order_status, false);
+    create_hash_table(_input_file, "./input_hash_table/", order_status, false);
     // scan output file
-    create_hash_table(_output_file, 100*1024*1024, "./output_hash_table/", order_status, true);
+    create_hash_table(_output_file, "./output_hash_table/", order_status, true);
 
     // compare two hash tables
     for(int i=0;i<_bucket_num;i++){

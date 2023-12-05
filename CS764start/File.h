@@ -9,8 +9,6 @@ private:
     std::fstream _file_stream;
     // file size
     unsigned long long _max_byte;
-    // current size
-    unsigned long long _cur_byte;
     // block size (one access)
     int32_t _block_size;
     // number of runs

@@ -173,8 +173,6 @@ void SortIterator::MultiwayMerge (){
 		_loser_tree->push(_cache_run_list[i][0], i, 0, base_str_ptr);
 	}
 
-	// reset result index
-	int32_t res_index = 0;
 	// merge finish symbol
 	bool isFinish = false;
 	// reset shared buffer
@@ -210,7 +208,6 @@ void SortIterator::MultiwayMerge (){
 		// save in results
 		// _results[res_index] = *(cur->_value);
 		_shared_buffer->produce(*(cur->_value), isFinish);
-		res_index++;
 	}
 	cyclicalConsumeThread.join();
 }

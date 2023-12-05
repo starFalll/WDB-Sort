@@ -58,7 +58,7 @@ int main (int argc, char * argv [])
 	d_scan->MultiwayMerge();
 	delete d_scan;
 
-	Verify* v = new Verify(row_size, 2400, 1000);
+	Verify* v = new Verify(row_size, row_count*row_size, MAX_DRAM);
 	v->verify();
 	delete v;
 

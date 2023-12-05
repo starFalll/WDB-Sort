@@ -37,7 +37,7 @@ File::File(const char* path) : _file_path(path)
 }
 
 File::File(const char* path, unsigned long long max_byte, int32_t block_size) : 
-    _file_path(path), _max_byte(max_byte), _cur_byte(0), _block_size(block_size), _run_num(0)
+    _file_path(path), _max_byte(max_byte), _block_size(block_size), _run_num(0)
 {
     // open file
     _file_stream.open(_file_path, std::ios::out | std::ios::in | std::ios::trunc | std::ios::binary);
