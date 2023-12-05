@@ -23,7 +23,8 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 	Iterator(plan->GetSize()), _plan (plan), 
 	_input (plan->_input->init ()), _consumed (0), _produced (0), 
 	_cache_run_list_row((MAX_DRAM * 5 / 10) / (MAX_CPU_CACHE * 5 / 10)),
-	_cache_run_list_col(MAX_CPU_CACHE * 5 / 10 / sizeof(Item))
+	//_cache_run_list_col(MAX_CPU_CACHE * 5 / 10 / sizeof(Item))
+	_cache_run_list_col(MAX_CPU_CACHE * 5 / 10 / _row_size)
 {
 	TRACE (TRACE_SWITCH);
 
@@ -33,7 +34,8 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 	// allocate 90MB to sort
 	// _sort_records.resize (MAX_DRAM * 9 / 10 / sizeof(Item));
 	// allocate 0.5MB to sort (use CPU Cache)
-	_sort_records.resize (MAX_CPU_CACHE * 5 / 10 / sizeof(Item), Item(plan->_input->GetSize(), '0'));
+	//_sort_records.resize (MAX_CPU_CACHE * 5 / 10 / sizeof(Item), Item(plan->_input->GetSize(), '0'));
+	_sort_records.resize (MAX_CPU_CACHE * 5 / 10 / _row_size, Item(plan->_input->GetSize(), '0'));
 
 	// initialize current run index
 	_current_run_index = 0;
