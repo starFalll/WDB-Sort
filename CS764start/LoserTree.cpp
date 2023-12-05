@@ -116,14 +116,10 @@ TreeNode* LoserTree::top(){
 
 // push new value into the tree
 void LoserTree::push(Item* item, int32_t run_index, int32_t element_index, std::string* base_str_ptr){
-    // Get the string representation from Item
-    std::string item_string = std::string(item->GetItemString());
 
     uint32_t offsetValueCode = 0; 
     // Every push needs to calculate the offset value code, based on the node that was just topped.
-    // if (base_str_ptr)
-    //     offsetValueCode = CalculateOffsetValueCode(base_str_ptr, item_ptr);
-    offsetValueCode = CalculateOffsetValueCode(base_str_ptr, &item_string);
+    offsetValueCode = CalculateOffsetValueCode((*base_str_ptr).c_str(), item->GetItemString());
 
     // update node value
     _tree[_leaf_num + run_index]->_value = item;
@@ -147,10 +143,10 @@ void LoserTree::adjust(int32_t run_index) {
         }
         if (_tree[node_index]->_offset_value_code == _tree[cmp_node_index]->_offset_value_code) {
             // _tree[node_index] is loser，update its ovc
-            auto winner_str = std::string(_tree[node_index]->_value->GetItemString());
-            auto loser_str = std::string(_tree[cmp_node_index]->_value->GetItemString());
+            char* winner = _tree[node_index]->_value->GetItemString();
+            char* loser = _tree[cmp_node_index]->_value->GetItemString();
             // Update the offset value code of the loser
-            _tree[cmp_node_index]->_offset_value_code = CalculateOffsetValueCode(&winner_str, &loser_str);
+            _tree[cmp_node_index]->_offset_value_code = CalculateOffsetValueCode(winner, loser);
         }
         cmp_node_index /= 2;
     }

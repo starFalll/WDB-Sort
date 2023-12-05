@@ -40,7 +40,7 @@ public:
 
     TreeNode* top();
 
-    void push(Item* item, int32_t run_index, int32_t element_index, std::string* baseStr);
+    void push(Item* item, int32_t run_index, int32_t element_index, std::string* base_str_ptr);
 
     void adjust(int32_t run_index);
 
