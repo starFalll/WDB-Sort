@@ -1,8 +1,12 @@
 #include "File.h"
 
 File::File(const char* path, unsigned long long max_byte, int32_t block_size, std::ios::openmode m, FileType type, RowSize row_size) : 
-    _file_path(path), _max_byte(max_byte), _block_size(block_size), _run_num(0), _type(type), _row_size(row_size){
-        // open file
+    _file_path(path), _max_byte(max_byte), _run_num(0), _type(type), _row_size(row_size){
+
+    // compute block size
+    _block_size = int(block_size / _row_size) * _row_size;
+
+    // open file
     _file_stream.open(_file_path, std::ios::in | std::ios::binary | m);
 
     if (!_file_stream.is_open()) {
@@ -27,8 +31,11 @@ File::File(const char* path, unsigned long long max_byte, int32_t block_size, st
 }
 
 
-File::File(const char* path, FileType type, RowSize row_size) : _file_path(path), _type(type), _row_size(row_size)
+File::File(const char* path, FileType type, RowSize row_size, int32_t block_size) : _file_path(path), _type(type), _row_size(row_size)
 {
+    // compute block size
+    _block_size = int(block_size / _row_size) * _row_size;
+    
     // open file
     _file_stream.open(_file_path, std::ios::in | std::ios::binary);
     if (!_file_stream.is_open()) {
@@ -37,8 +44,11 @@ File::File(const char* path, FileType type, RowSize row_size) : _file_path(path)
 }
 
 File::File(const char* path, unsigned long long max_byte, int32_t block_size, FileType type, RowSize row_size) : 
-    _file_path(path), _max_byte(max_byte), _block_size(block_size), _run_num(0), _type(type), _row_size(row_size)
+    _file_path(path), _max_byte(max_byte), _run_num(0), _type(type), _row_size(row_size)
 {
+    // compute block size
+    _block_size = int(block_size / _row_size) * _row_size;
+
     // open file
     _file_stream.open(_file_path, std::ios::out | std::ios::in | std::ios::trunc | std::ios::binary);
 

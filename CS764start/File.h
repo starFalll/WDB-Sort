@@ -27,7 +27,7 @@ private:
 
 public:
     File(const char* path, unsigned long long _max_byte, int32_t block_size, std::ios::openmode m, FileType type, RowSize row_size);
-    File(const char* path, FileType type, RowSize row_size); //open (only in)
+    File(const char* path, FileType type, RowSize row_size, int32_t block_size); //open (only in)
     File(const char* path, unsigned long long _max_byte, int32_t block_size, FileType type, RowSize row_size); //open and clear content
     ~File();
 

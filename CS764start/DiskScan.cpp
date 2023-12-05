@@ -8,8 +8,8 @@ DiskScan::DiskScan(std::vector<int>& ssd_each_group_row, std::vector<int>& hdd_e
     _hdd_each_group_row(hdd_each_group_row)
 {
     TRACE (TRACE_SWITCH);
-    SSD = new File(SSD_PATH_TEMP, FileType::SSD, _row_size);
-	HDD = new File(HDD_PATH_TEMP, FileType::HDD, _row_size);
+    SSD = new File(SSD_PATH_TEMP, FileType::SSD, _row_size, SSD_BLOCK);
+	HDD = new File(HDD_PATH_TEMP, FileType::HDD, _row_size, HDD_BLOCK);
     RES_HDD = new File(RES_HDD_PATH, __LONG_LONG_MAX__, HDD_BLOCK, FileType::HDD, _row_size);
 
     _shared_buffer = new SharedBuffer(OUTPUT_BUFFER, _row_size);
@@ -109,6 +109,7 @@ void DiskScan::RefillRow(uint32_t group_num){
     //construct _disk_run_list
     //ssd part
     if (group_num < _ssd_each_group_row.size()){
+		// 可以读下一整个batch
 		if (_ssd_each_group_row[group_num] - _group_offset[group_num] >= _batch_size){
 			BatchSize read_size;
 			char* buffer = SSD->read(group_num , _row_size, _ssd_each_group_row, _batch_size, _group_offset[group_num], &read_size);
@@ -228,6 +229,7 @@ void DiskScan::MultiwayMerge(){
 			(unsigned long) (count));	
 }
 
+// 把buffer里的数据填进disk_run_list
 void DiskScan::Bytes2DiskRecord(char* buffer, uint32_t group_num){
     int element_size = _row_size /3;
 	char* block = buffer;
