@@ -1,5 +1,11 @@
 #pragma once
 #include "defs.h"
+#include <vector>
+
+enum FileType {
+    SSD = 0,
+    HDD = 1
+};
 
 class File{
 private:
@@ -14,17 +20,21 @@ private:
     // number of runs
     int32_t _run_num;
 
+    FileType _type;
+    std::vector<int32_t> _group_lens;
+
 public:
-    File(const char* path, unsigned long long _max_byte, int32_t block_size, std::ios::openmode m);
-    File(const char* path); //open (only in)
-    File(const char* path, unsigned long long _max_byte, int32_t block_size); //open and clear content
+    File(const char* path, unsigned long long _max_byte, int32_t block_size, std::ios::openmode m, FileType type);
+    File(const char* path, FileType type); //open (only in)
+    File(const char* path, unsigned long long _max_byte, int32_t block_size, FileType type); //open and clear content
     ~File();
 
     // write file
     void write(const char* data, int32_t length);
 
     //read
-    char* read(GroupCount group_num , RowSize row_size, RowCount each_group_row_count, BatchSize batch_size, uint32_t group_offset);
+    char* read(GroupCount group_num , RowSize row_size, RowCount each_group_row_count, 
+        BatchSize batch_size, uint32_t group_offset, BatchSize* read_size);
 
     char* read(int32_t start, int32_t length);
 
@@ -33,9 +43,23 @@ public:
 
     // get file bandwidth
     int32_t getBlockSize();
+
+    void recordRunSize(int32_t size);
     
     // add number of runs
     void addRunNum();
+
+    FileType getType() {
+        return _type;
+    }
+
+    int32_t getRunNum() {
+        return _run_num;
+    }
+
+    std::vector<int32_t> getGroupLens() {
+        return _group_lens; 
+    }
 
     unsigned long long getCurByte();
 };

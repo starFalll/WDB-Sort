@@ -1,7 +1,7 @@
 #include "File.h"
 
-File::File(const char* path, unsigned long long max_byte, int32_t block_size, std::ios::openmode m) : 
-    _file_path(path), _max_byte(max_byte), _block_size(block_size), _run_num(0){
+File::File(const char* path, unsigned long long max_byte, int32_t block_size, std::ios::openmode m, FileType type) : 
+    _file_path(path), _max_byte(max_byte), _block_size(block_size), _run_num(0), _type(type){
         // open file
     _file_stream.open(_file_path, std::ios::in | std::ios::binary | m);
 
@@ -27,7 +27,7 @@ File::File(const char* path, unsigned long long max_byte, int32_t block_size, st
 }
 
 
-File::File(const char* path) : _file_path(path)
+File::File(const char* path, FileType type) : _file_path(path), _type(type)
 {
     // open file
     _file_stream.open(_file_path, std::ios::in | std::ios::binary);
@@ -36,8 +36,8 @@ File::File(const char* path) : _file_path(path)
     }
 }
 
-File::File(const char* path, unsigned long long max_byte, int32_t block_size) : 
-    _file_path(path), _max_byte(max_byte), _block_size(block_size), _run_num(0)
+File::File(const char* path, unsigned long long max_byte, int32_t block_size, FileType type) : 
+    _file_path(path), _max_byte(max_byte), _block_size(block_size), _run_num(0), _type(type)
 {
     // open file
     _file_stream.open(_file_path, std::ios::out | std::ios::in | std::ios::trunc | std::ios::binary);
@@ -81,7 +81,8 @@ void File::write(const char* data, int32_t length){
     }
 }
 
-char* File::read(GroupCount group_num, RowSize row_size, RowCount each_group_row_count, BatchSize batch_size , uint32_t group_offset){
+char* File::read(GroupCount group_num, RowSize row_size, RowCount each_group_row_count, BatchSize batch_size , 
+    uint32_t group_offset, BatchSize* read_size){
     if(_file_stream.is_open()){
         // bytes need reading
         int need_reading = batch_size * row_size ;
@@ -94,6 +95,13 @@ char* File::read(GroupCount group_num, RowSize row_size, RowCount each_group_row
 
         // read
         _file_stream.read(buffer, need_reading);
+        if (_file_stream.eof()) {
+            *read_size = _file_stream.gcount();
+        }
+        else {
+            *read_size = need_reading;
+        }
+        *read_size /= row_size;
         return buffer;
     } else{
         printf("Fail to read disk.");
@@ -124,7 +132,12 @@ int32_t File::getBlockSize(){
     return _block_size;
 }
 
+void File::recordRunSize(int32_t size) {
+    _group_lens[_run_num-1] += size;
+}
+
 void File::addRunNum(){
+    _group_lens.push_back(0);
     _run_num++;
 }
 
