@@ -1,10 +1,11 @@
 #include "LoserTree.h"
 #include "SharedBuffer.h"
+#include <vector>
 
 class DiskScan
 {
 public:
-	DiskScan(GroupCount const ssd_group_count, GroupCount const hdd_group_count, RowSize const row_size, RowCount const each_group_row_count, BatchSize const batch_size);
+	DiskScan(std::vector<int>& ssd_each_group_row, std::vector<int>& hdd_each_group_row, RowSize const row_size, BatchSize const batch_size);
 	~DiskScan();
     void ReadFromDisk();
     void MultiwayMerge();
@@ -26,6 +27,10 @@ private:
 	const uint32_t _disk_run_list_col;
     uint32_t _current_run_index;
     Item*** _disk_run_list;
+
+    //每一组数据的总行数
+    std::vector<int>& _ssd_each_group_row;
+    std::vector<int>& _hdd_each_group_row;
 
     //数组用来存每个组里的元素个数
     uint32_t* _each_group_col;

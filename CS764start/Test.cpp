@@ -30,8 +30,8 @@ int main (int argc, char * argv [])
 	}
 	printf("%d, %d, %s\n", row_count, row_size, trace_file_name);
 
-	row_count = 2000;
-	row_size = 31;
+	row_count = 2621440;
+	row_size = 50;
 	TRACE (TRACE_SWITCH);
 	Plan * const scan_plan = new ScanPlan (row_count,row_size);
 	//Plan * scan_plan = new ScanPlan(10000000);
@@ -49,12 +49,21 @@ int main (int argc, char * argv [])
     auto timestamp_later = std::chrono::time_point_cast<std::chrono::milliseconds>(later);
     long long milliseconds_later = timestamp_later.time_since_epoch().count();
 	printf("cost time: %lld ms\n", milliseconds_later - milliseconds_now);
+	auto ssd_group_lens = it->SSD_TEMP->getGroupLens();
+	auto hdd_group_lens = it->HDD_TEMP->getGroupLens();
+	for (int i = 0; i < ssd_group_lens.size(); i++) {
+		std::cout<<"ssd group:"<<i+1 <<" size:" << ssd_group_lens[i]<<std::endl;
+	}
+	for (int i = 0; i < hdd_group_lens.size(); i++) {
+		std::cout<<"hdd group:"<<i+1 <<" size:" << hdd_group_lens[i]<<std::endl;
+	}
+
 	delete it;
 	delete plan;
-
 	//need ssd总组数ssd_group_count 、hdd总组数hdd_group_count、每行大小row_size、每组总行数each_group_row_count、每组一次读多少行batch_size 按顺序输入
-	DiskScan * d_scan = new DiskScan(4,0,row_size,500,300);
+	DiskScan * d_scan = new DiskScan(ssd_group_lens, hdd_group_lens, row_size, 300);
 	d_scan->ReadFromDisk();
+	printf("end read, begin final merge...\n");
 	d_scan->MultiwayMerge();
 	delete d_scan;
 
