@@ -65,16 +65,16 @@ The techniques (see Grading) implemented by your submission and the correspondin
   b. sort order [5]
 
 A brief writeup of 
-(1) the reasons you chose to implement the specific subset of techniques, this is not expected to be a lengthy document, just to assist our understanding of your work.
+1. the reasons you chose to implement the specific subset of techniques, this is not expected to be a lengthy document, just to assist our understanding of your work.
 We use the same block size, 50MB, in SSD and HDD. The number of runs as leaf nodes is equal to the number of each 50MB block. The size of each runs in memory is calculated by 100MB (memory size) / N (numbers of 50MB-block). We chose this way because the bandwidth of SSD and HDD is the same and the latency of SSD and HDD is a 1:100 ratio. We utilized this metric, for every 100 consumptions by the SSD, a consumption operation is triggered once for the HDD. We sorted each 100MB in memory and wrote it back to SSD and HDD. Then we got a partition from each 100MB from HDD and sorted again.
 
-(2) the project's state (complete or have what kinds of bugs) 
+2. the project's state (complete or have what kinds of bugs) 
 Complete, the record is sorted. 
 
-(3) how to run your programs if they are different from the default specifications above. 
+3. how to run your programs if they are different from the default specifications above. 
 
 Each group member's contributions to the project:
-Kefan Fan: Tournament trees, Shared Buffer to spilling, Verifying
-Tianyu Huang: DiskScan file to write records back to HDD.
-Chuan Tian: Offset-value coding
-Ethan Fang: In-memory Scan-Filter-Sort
+- Kefan Fan: Tournament trees, Shared Buffer to spilling, Verifying
+- Tianyu Huang: DiskScan file to write records back to HDD
+- Chuan Tian: Offset-value coding
+- Ethan Fang: In-memory Scan-Filter-Sort
