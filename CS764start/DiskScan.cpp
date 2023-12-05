@@ -1,8 +1,11 @@
 #include "DiskScan.h"
 
-DiskScan::DiskScan(GroupCount const ssd_group_count, GroupCount const hdd_group_count, RowSize const row_size, RowCount const each_group_row_count, BatchSize const batch_size):
-    _ssd_group_count(ssd_group_count), _hdd_group_count(hdd_group_count) , _row_size(row_size) , _each_group_row_count(each_group_row_count) , _batch_size(batch_size),
-    _disk_run_list_row(ssd_group_count + hdd_group_count), _disk_run_list_col(batch_size)
+DiskScan::DiskScan(std::vector<int>& ssd_each_group_row, std::vector<int>& hdd_each_group_row, RowSize const row_size, BatchSize const batch_size):
+    _row_size(row_size) , _batch_size(batch_size),
+	_disk_run_list_row(ssd_each_group_row.size() + ssd_each_group_row.size()),
+	_disk_run_list_col(batch_size),
+	_ssd_each_group_row(ssd_each_group_row),
+    _hdd_each_group_row(hdd_each_group_row)
 {
     TRACE (TRACE_SWITCH);
     SSD = new File(SSD_PATH_TEMP);
@@ -81,7 +84,7 @@ void DiskScan::ReadFromDisk(){
     //ssd part
     for(uint32_t group_num =0; group_num < _ssd_group_count; group_num ++){
 		_each_group_col[group_num] = _batch_size;
-        char* buffer = SSD->read(group_num , _row_size, _each_group_row_count, _batch_size, _group_offset[group_num]);
+        char* buffer = SSD->read(group_num , _row_size, _ssd_each_group_row, _batch_size, _group_offset[group_num]);
 		_group_offset[group_num] += _batch_size; //记录每个组读到哪里了
         Bytes2DiskRecord(buffer , group_num);
 		_current_run_index++;
@@ -89,7 +92,7 @@ void DiskScan::ReadFromDisk(){
     //hdd part
     for(uint32_t group_num = 0; group_num < _hdd_group_count ; group_num ++){
 		_each_group_col[group_num] = _batch_size;
-        char* buffer = HDD->read(group_num , _row_size, _each_group_row_count, _batch_size, _group_offset[group_num]);
+        char* buffer = HDD->read(group_num , _row_size, _hdd_each_group_row, _batch_size, _group_offset[group_num]);
 		_group_offset[group_num] += _batch_size; //记录每个组读到哪里了
         Bytes2DiskRecord(buffer , group_num);
         _current_run_index++;
@@ -102,24 +105,24 @@ void DiskScan::RefillRow(uint32_t group_num){
     if (group_num < _ssd_group_count){
 		if (_each_group_row_count - _group_offset[group_num] >= _batch_size){
 			_each_group_col[group_num] = _batch_size;
-			char* buffer = SSD->read(group_num , _row_size, _each_group_row_count, _batch_size, _group_offset[group_num]);
+			char* buffer = SSD->read(group_num , _row_size, _ssd_each_group_row, _batch_size, _group_offset[group_num]);
 			Bytes2DiskRecord(buffer , group_num);
 			_group_offset[group_num] += _batch_size; //记录每个组读到哪里了
 		} else{
 			_each_group_col[group_num] = _each_group_row_count - _group_offset[group_num];
-			char* buffer = SSD->read(group_num , _row_size, _each_group_row_count, _each_group_row_count - _group_offset[group_num], _group_offset[group_num]);
+			char* buffer = SSD->read(group_num , _row_size, _ssd_each_group_row, _each_group_row_count - _group_offset[group_num], _group_offset[group_num]);
 			Bytes2DiskRecord(buffer , group_num);
 			_group_offset[group_num] = _each_group_row_count;
 		}
     } else{
 		if (_each_group_row_count - _group_offset[group_num] >= _batch_size){
 			_each_group_col[group_num] = _batch_size;
-			char* buffer = HDD->read(group_num , _row_size, _each_group_row_count, _batch_size, _group_offset[group_num]);
+			char* buffer = HDD->read(group_num , _row_size, _hdd_each_group_row, _batch_size, _group_offset[group_num]);
 			Bytes2DiskRecord(buffer , group_num);
 			_group_offset[group_num] += _batch_size; //记录每个组读到哪里了
 		}else{
 			_each_group_col[group_num] = _each_group_row_count - _group_offset[group_num];
-			char* buffer = HDD->read(group_num , _row_size, _each_group_row_count, _each_group_row_count - _group_offset[group_num], _group_offset[group_num]);
+			char* buffer = HDD->read(group_num , _row_size, _hdd_each_group_row, _each_group_row_count - _group_offset[group_num], _group_offset[group_num]);
 			Bytes2DiskRecord(buffer , group_num);
 			_group_offset[group_num] = _each_group_row_count;
 		}

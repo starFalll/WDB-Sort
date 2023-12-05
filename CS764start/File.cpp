@@ -81,8 +81,7 @@ void File::write(const char* data, int32_t length){
     }
 }
 
-char* File::read(GroupCount group_num, RowSize row_size, RowCount each_group_row_count, BatchSize batch_size , 
-    uint32_t group_offset, BatchSize* read_size){
+char* File::read(GroupCount group_num, RowSize row_size, std::vector<int>& each_group_row, BatchSize batch_size , uint32_t group_offset,BatchSize* read_size){
     if(_file_stream.is_open()){
         // bytes need reading
         int need_reading = batch_size * row_size ;
@@ -90,7 +89,7 @@ char* File::read(GroupCount group_num, RowSize row_size, RowCount each_group_row
         memset(buffer, 0, need_reading);
 
         // set read start from index
-        std::streampos start_index = group_num  * each_group_row_count * row_size + group_offset * row_size; 
+        std::streampos start_index = group_num  * each_group_row[group_num] * row_size + group_offset * row_size; 
         _file_stream.seekg(start_index);
 
         // read
