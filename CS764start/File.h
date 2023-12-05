@@ -24,7 +24,7 @@ public:
     void write(const char* data, int32_t length);
 
     //read
-    char* read(GroupCount group_num , RowSize row_size, RowCount each_group_row_count, BatchSize batch_size, uint32_t group_offset);
+    char* File::read(GroupCount group_num, RowSize row_size, std::vector<int>& each_group_row, BatchSize batch_size , uint32_t group_offset);
 
     char* read(int32_t start, int32_t length);
 
