@@ -51,17 +51,21 @@ int main (int argc, char * argv [])
 	printf("cost time: %lld ms\n", milliseconds_later - milliseconds_now);
 	auto ssd_group_lens = it->SSD_TEMP->getGroupLens();
 	auto hdd_group_lens = it->HDD_TEMP->getGroupLens();
+	std::vector<int> real_hdd_group_lens;
 	for (int i = 0; i < ssd_group_lens.size(); i++) {
 		std::cout<<"ssd group:"<<i+1 <<" size:" << ssd_group_lens[i]<<std::endl;
 	}
 	for (int i = 0; i < hdd_group_lens.size(); i++) {
 		std::cout<<"hdd group:"<<i+1 <<" size:" << hdd_group_lens[i]<<std::endl;
+		if (hdd_group_lens[i] > 0) {
+			real_hdd_group_lens.push_back(hdd_group_lens[i]);
+		}
 	}
 
 	delete it;
 	delete plan;
 	//need ssd总组数ssd_group_count 、hdd总组数hdd_group_count、每行大小row_size、每组总行数each_group_row_count、每组一次读多少行batch_size 按顺序输入
-	DiskScan * d_scan = new DiskScan(ssd_group_lens, hdd_group_lens, row_size, 300);
+	DiskScan * d_scan = new DiskScan(ssd_group_lens, real_hdd_group_lens, row_size, 300);
 	d_scan->ReadFromDisk();
 	printf("end read, begin final merge...\n");
 	d_scan->MultiwayMerge();

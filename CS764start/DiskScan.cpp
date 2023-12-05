@@ -2,7 +2,7 @@
 
 DiskScan::DiskScan(std::vector<int>& ssd_each_group_row, std::vector<int>& hdd_each_group_row, RowSize const row_size, BatchSize const batch_size):
     _row_size(row_size) , _batch_size(batch_size),
-	_disk_run_list_row(ssd_each_group_row.size() + ssd_each_group_row.size()),
+	_disk_run_list_row(ssd_each_group_row.size() + hdd_each_group_row.size()),
 	_disk_run_list_col(batch_size),
 	_ssd_each_group_row(ssd_each_group_row),
     _hdd_each_group_row(hdd_each_group_row)
@@ -223,6 +223,9 @@ void DiskScan::MultiwayMerge(){
 		std::cout<<"cur count:"<<count<<std::endl;
 	}
 	resConsumeThread.join();
+	for (int i = 0; i < _disk_run_list_row; i++) {
+		std::cout<<"Finished, group:"<<i<<" rows:"<<_group_offset[i]<<std::endl;
+	}
 	traceprintf ("DiskScan produced %lu \n",
 			(unsigned long) (count));	
 }
