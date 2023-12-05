@@ -6,6 +6,7 @@ SharedBuffer::SharedBuffer(int32_t buffer_capacity, RowSize row_size) :
 {
     // init buffer
     _buffer = new char[_buffer_capacity];
+    _total_write_size = 0;
 }
 
 SharedBuffer::~SharedBuffer(){
@@ -53,24 +54,31 @@ void SharedBuffer::consume(File* file){
     if(_finish){
         block_size = getValidDataLength();
     }
+    int32_t add_size = 0;
     // write file
     if(block_size != 0){
         // check data continuity
         if(_front + block_size <= _buffer_capacity){
             // write
             file->write((char*)&(_buffer[_front]), block_size);
+            _total_write_size += block_size;
+            add_size = block_size;
         }else{
             // first write
             int32_t tmp_num = _buffer_capacity - _front;
             file->write((char*)&(_buffer[_front]), tmp_num);
+            _total_write_size += tmp_num;
+            add_size += tmp_num;
             // second write
             tmp_num = block_size - tmp_num;
             file->write((char*)&(_buffer[0]), tmp_num);
+            _total_write_size += tmp_num;
+            add_size += tmp_num;
         }
         // update front
         _front = (_front + block_size) % _buffer_capacity;
     }
-    
+    file->recordRunSize(add_size);
     _not_full_cv.notify_all();
     lock.unlock();
 }
@@ -104,6 +112,8 @@ void SharedBuffer::cyclicalConsume(File* SSD, File* HDD){
             hdd_consume.join();
         }
     }
+    traceprintf ("SharedBuffer write %lu\n",
+			(unsigned long) (_total_write_size));
 }
 
 // only HDD

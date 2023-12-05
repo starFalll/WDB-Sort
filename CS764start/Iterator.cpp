@@ -23,10 +23,10 @@ Iterator::Iterator (RowSize row_size) : _row_size(row_size), _count (0)
 	_records.resize (MAX_CPU_CACHE * 2 / sizeof (Item), Item(row_size, '0'));
 	_index = 0;
 
-	SSD_INPUT = new File(SSD_PATH_INPUT, MAX_SSD, SSD_BLOCK);
-	HDD_INPUT = new File(HDD_PATH_INPUT, __LONG_LONG_MAX__, HDD_BLOCK);
-	SSD_TEMP = new File(SSD_PATH_TEMP, MAX_SSD, SSD_BLOCK);
-	HDD_TEMP = new File(HDD_PATH_TEMP, __LONG_LONG_MAX__, HDD_BLOCK);
+	SSD_INPUT = new File(SSD_PATH_INPUT, MAX_SSD, SSD_BLOCK, SSD);
+	HDD_INPUT = new File(HDD_PATH_INPUT, __LONG_LONG_MAX__, HDD_BLOCK, HDD);
+	SSD_TEMP = new File(SSD_PATH_TEMP, MAX_SSD, SSD_BLOCK, SSD);
+	HDD_TEMP = new File(HDD_PATH_TEMP, __LONG_LONG_MAX__, HDD_BLOCK, HDD);
 } // Iterator::Iterator
 
 Iterator::~Iterator ()

@@ -27,12 +27,13 @@ public:
 	virtual void GetRecords(std::vector<Item> ** records, uint32_t ** index);
 	virtual RowSize GetSize() const;
 
+	File* SSD_TEMP;
+	File* HDD_TEMP;
 protected:
 	RowSize _row_size;
 	File* SSD_INPUT;
 	File* HDD_INPUT;
-	File* SSD_TEMP;
-	File* HDD_TEMP;
+	
 private:
 	// ring queue
 	std::vector<Item> _records;

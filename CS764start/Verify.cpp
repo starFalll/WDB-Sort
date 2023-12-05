@@ -27,8 +27,8 @@ Verify::Verify(int row_size, unsigned long long file_size, unsigned long long me
     _output_bucket_size = new int[_bucket_num];
     memset(_output_bucket_size, 0, sizeof(int) * _bucket_num);
 
-    _input_file = new File(HDD_PATH_INPUT, __LONG_LONG_MAX__, HDD_BLOCK, std::ios::app);
-	_output_file = new File(RES_HDD_PATH, __LONG_LONG_MAX__, HDD_BLOCK, std::ios::app);
+    _input_file = new File(HDD_PATH_INPUT, __LONG_LONG_MAX__, HDD_BLOCK, std::ios::app, HDD);
+	_output_file = new File(RES_HDD_PATH, __LONG_LONG_MAX__, HDD_BLOCK, std::ios::app, HDD);
 
     int status = std::system(("[ -d './input_hash_table/' ]"));
     if(status == 0){
