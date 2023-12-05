@@ -16,12 +16,14 @@ DiskScan::DiskScan(GroupCount const ssd_group_count, GroupCount const hdd_group_
 	_disk_run_list = new Item**[_disk_run_list_row];
 	for(uint32_t i=0;i<_disk_run_list_row;i++){
 		_disk_run_list[i] = new Item*[_disk_run_list_col];
+		memset(_disk_run_list[i], 0, sizeof(Item*) * _disk_run_list_col);
 	}
 
 	_each_group_col = new uint32_t[_ssd_group_count + _hdd_group_count];
+	memset(_each_group_col, 0, sizeof(uint32_t) * (_ssd_group_count + _hdd_group_count));
 	//initialize group offset
 	_group_offset = new uint32_t[_ssd_group_count + _hdd_group_count];
-
+	memset(_group_offset, 0, sizeof(uint32_t) * (_ssd_group_count + _hdd_group_count));	
     // initialize loser of tree
 	_loser_tree = new LoserTree(_disk_run_list_row, _row_size);
 
@@ -44,7 +46,7 @@ DiskScan::~DiskScan ()
         for(uint32_t j=0;j<_each_group_col[i];j++){
             std::cout<<std::endl;
 		    if(_disk_run_list[i][j]!=nullptr){
-                Item temp = *_disk_run_list[i][j];
+                Item& temp = *_disk_run_list[i][j];
                 std::cout<<std::string(temp.fields[INCL])+" ";
                 std::cout<<std::string(temp.fields[MEM])+" ";
                 std::cout<<std::string(temp.fields[MGMT])+" ";
@@ -55,12 +57,19 @@ DiskScan::~DiskScan ()
 
     // release resource
 	for(uint32_t i=0;i<_disk_run_list_row;i++){
-		delete _disk_run_list[i];
+		for (uint32_t j = 0; j < _disk_run_list_col; j++) {
+			if (_disk_run_list[i][j]) delete _disk_run_list[i][j];
+		}
+		delete [] _disk_run_list[i];
 	}
 	delete [] _disk_run_list;
 
+	delete _loser_tree;
+
 	delete [] _each_group_col;
 	delete [] _group_offset;
+
+	delete _shared_buffer;
 
     delete SSD;
 	delete HDD;
@@ -183,23 +192,24 @@ void DiskScan::MultiwayMerge(){
 
 void DiskScan::Bytes2DiskRecord(char* buffer, uint32_t group_num){
     int element_size = _row_size /3;
+	char* block = buffer;
 	//重新分配该行的长度
 	// delete _disk_run_list[group_num];
 	// _disk_run_list[group_num] = new Item*[_each_group_col[group_num]];
     for (int col = 0; col< _each_group_col[group_num]; col++){
-		char* incl = new char[element_size+1];
-		memset(incl, 0, element_size+1);
-		char* mem = new char[element_size+1];
-		memset(mem, 0, element_size+1);
-		char* mgmt = new char[_row_size - element_size *2+1];
-		memset(mgmt, 0, _row_size - element_size *2+1);
-		for(int i  = 0 ; i< element_size; i ++){
+		char* incl = new char[element_size];
+		memset(incl, 0, element_size);
+		char* mem = new char[element_size];
+		memset(mem, 0, element_size);
+		char* mgmt = new char[_row_size - element_size *2];
+		memset(mgmt, 0, _row_size - element_size *2);
+		for(int i  = 0 ; i< element_size-1; i ++){
 			incl[i] = buffer[i];
 		}
-		for(int i  = 0 ; i< element_size; i ++){
+		for(int i  = 0 ; i< element_size-1; i ++){
 			mem[i] = buffer[i + element_size];
 		}
-		for(int i  = 0 ; i< _row_size - element_size *2; i ++){
+		for(int i  = 0 ; i< _row_size - element_size *2-1; i ++){
 			mgmt[i] = buffer[i+ element_size*2];
 		}
         // std::string incl(buffer, element_size);
@@ -207,7 +217,10 @@ void DiskScan::Bytes2DiskRecord(char* buffer, uint32_t group_num){
         // std::string mgmt(buffer + element_size*2 , _row_size - element_size*2);
         buffer += _row_size;
         Item * temp = new Item(incl,mem,mgmt);
-        
+		if (_disk_run_list[group_num][col])
+			delete _disk_run_list[group_num][col];
 		_disk_run_list[group_num][col] = temp;
     }
+	delete [] block;
+	block = nullptr;
 }

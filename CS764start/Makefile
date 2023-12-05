@@ -1,5 +1,5 @@
 CPPOPT=-g -D_DEBUG
-LIBS=-lstring -stdlib -liostream -lfstream
+LIBS=-lstring -stdlib -liostream -lfstream -pthread
 # -O2 -Os -Ofast
 # -fprofile-generate -fprofile-use
 CPPFLAGS=$(CPPOPT) -Wall -ansi -pedantic -std=c++11

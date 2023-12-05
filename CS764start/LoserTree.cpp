@@ -87,13 +87,13 @@ LoserTree::LoserTree (int32_t leaf_num, RowSize row_size):_leaf_num(leaf_num) {
     for(uint32_t i=0;i<2 * leaf_num;i++){
         _tree[i] = new TreeNode();
     }
-
+    _origin_leaf_num = leaf_num;
     ITEM_MIN = new Item(row_size, '0');
     ITEM_MAX = new Item(row_size, '9');
 }
 
 LoserTree::~LoserTree() {
-    for(uint32_t i=0;i<2*_leaf_num;i++){
+    for(uint32_t i=0;i<2*_origin_leaf_num;i++){
         delete _tree[i];
     }
     delete [] _tree;

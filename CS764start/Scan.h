@@ -6,7 +6,7 @@ class ScanPlan : public Plan
 	friend class ScanIterator;
 public:
 	ScanPlan (RowCount const count, RowSize const row_size);
-	~ScanPlan ();
+	virtual ~ScanPlan ();
 	Iterator * init () const;
 private:
 	RowCount const _count;
@@ -16,7 +16,7 @@ class ScanIterator : public Iterator
 {
 public:
 	ScanIterator (ScanPlan const * const plan);
-	~ScanIterator ();
+	virtual ~ScanIterator ();
 	bool next ();
 private:
 	Item GenerateOneRecord ();
