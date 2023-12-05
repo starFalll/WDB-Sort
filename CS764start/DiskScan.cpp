@@ -166,6 +166,7 @@ void DiskScan::MultiwayMerge(){
 	while (!_loser_tree->empty()) {
 		// get smallest element
 		TreeNode* cur = _loser_tree->top();
+		Item cur_item = *(cur->_value);
 
 		// get the string of current data
 		std::string tmp_base_str(cur->_value->GetItemString());
@@ -216,7 +217,7 @@ void DiskScan::MultiwayMerge(){
 		}
 		// save in results
 		count++;
-		_shared_buffer->produce(*(cur->_value), isFinish);
+		_shared_buffer->produce(cur_item, isFinish);
 		std::cout<<"cur count:"<<count<<std::endl;
 	}
 	resConsumeThread.join();
