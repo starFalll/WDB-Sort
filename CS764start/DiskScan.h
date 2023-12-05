@@ -12,10 +12,7 @@ public:
     void RefillRow(uint32_t group_num);
     void Bytes2DiskRecord(char* buffer, uint32_t group_num);
 private:
-	GroupCount const _ssd_group_count;
-    GroupCount const _hdd_group_count;
     RowSize const _row_size;
-    RowCount const _each_group_row_count;
     BatchSize const _batch_size;
 
     File* SSD;
