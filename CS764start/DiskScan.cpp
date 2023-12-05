@@ -116,29 +116,32 @@ void DiskScan::RefillRow(uint32_t group_num){
 			_each_group_col[group_num] = read_size;
 			Bytes2DiskRecord(buffer , group_num);
 			_group_offset[group_num] += read_size; //记录每个组读到哪里了
+			std::cout<< "group num:"<<group_num <<" offset:"<<_group_offset[group_num]<<std::endl; 
 		} else{
 			BatchSize read_size;
 			char* buffer = SSD->read(group_num , _row_size, _ssd_each_group_row, _ssd_each_group_row[group_num] - _group_offset[group_num], 
 				_group_offset[group_num], &read_size);
 			_each_group_col[group_num] = read_size;
 			Bytes2DiskRecord(buffer , group_num);
-			_group_offset[group_num] = read_size;
+			_group_offset[group_num] += read_size;
+			std::cout<< "group num:"<<group_num <<" offset:"<<_group_offset[group_num]<<std::endl; 
 		}
     } else{
-		group_num -= _ssd_each_group_row.size();
-		if (_hdd_each_group_row[group_num] - _group_offset[group_num] >= _batch_size){
+		if (_hdd_each_group_row[group_num-_ssd_each_group_row.size()] - _group_offset[group_num] >= _batch_size){
 			BatchSize read_size;
-			char* buffer = HDD->read(group_num , _row_size, _hdd_each_group_row, _batch_size, _group_offset[group_num], &read_size);
+			char* buffer = HDD->read(group_num-_ssd_each_group_row.size(), _row_size, _hdd_each_group_row, _batch_size, _group_offset[group_num], &read_size);
 			_each_group_col[group_num] = read_size;
 			Bytes2DiskRecord(buffer , group_num);
 			_group_offset[group_num] += read_size; //记录每个组读到哪里了
+			std::cout<< "group num:"<<group_num <<" offset:"<<_group_offset[group_num]<<std::endl; 
 		}else{
 			BatchSize read_size;
 			
-			char* buffer = HDD->read(group_num , _row_size, _hdd_each_group_row,_hdd_each_group_row[group_num] - _group_offset[group_num], _group_offset[group_num], &read_size);
+			char* buffer = HDD->read(group_num-_ssd_each_group_row.size(), _row_size, _hdd_each_group_row,_hdd_each_group_row[group_num-_ssd_each_group_row.size()] - _group_offset[group_num], _group_offset[group_num], &read_size);
 			_each_group_col[group_num] = read_size;
 			Bytes2DiskRecord(buffer , group_num);
-			_group_offset[group_num] = read_size;
+			_group_offset[group_num] += read_size;
+			std::cout<< "group num:"<<group_num <<" offset:"<<_group_offset[group_num]<<std::endl; 
 		}
     }
 }
@@ -181,21 +184,18 @@ void DiskScan::MultiwayMerge(){
 		// calculate the last index in the target run
 		//uint32_t target_element_index = _disk_run_list_col;
 		uint32_t target_element_index = _each_group_col[run_index];
-
+		std::cout<< "run group:"<<run_index<< " cur element index" << _group_offset[run_index]<<std::endl;
 		// push next data into the tree
 		if (element_index < target_element_index) {
-			std::cout<<"run_index:"<<run_index<<" element_index:"<<element_index<< " field1:" <<_disk_run_list[run_index][element_index]->fields[0]<<std::endl;
 			_loser_tree->push(_disk_run_list[run_index][element_index], run_index, element_index, base_str_ptr);
 		}else if (run_index <_ssd_each_group_row.size()){
 			if (_group_offset[run_index] < _ssd_each_group_row[run_index]){
 			RefillRow(run_index);
 			element_index = 0;
-            std::cout<<"DiskScan.cpp:"<<_disk_run_list[run_index][element_index]->fields[0]<<std::endl;
             _loser_tree->push(_disk_run_list[run_index][element_index], run_index, element_index, base_str_ptr);
 			}else{
 			// Item temp = Item(_row_size,'9');
 			// _loser_tree->push(&temp, run_index, -1, base_str_ptr);
-			std::cout<< "run group:"<<run_index<< " last element index" << _group_offset[run_index]<< " ssd group rows:"<<_ssd_each_group_row[run_index]<<std::endl; 
 			_loser_tree->push(_loser_tree->getMaxItem(), run_index, -1, base_str_ptr);
 			//_loser_tree->push(&ITEM_MAX, -1, -1);
 			}
@@ -203,12 +203,10 @@ void DiskScan::MultiwayMerge(){
 			if (_group_offset[run_index] < _hdd_each_group_row[run_index-_ssd_each_group_row.size()]){
 			RefillRow(run_index);
 			element_index = 0;
-            std::cout<<"DiskScan.cpp:"<<_disk_run_list[run_index][element_index]->fields[0]<<std::endl;
             _loser_tree->push(_disk_run_list[run_index][element_index], run_index, element_index, base_str_ptr);
 			}else{
 			// Item temp = Item(_row_size,'9');
 			// _loser_tree->push(&temp, run_index, -1, base_str_ptr);
-			std::cout<< "run group:"<<run_index<< " last element index" << _group_offset[run_index]<< " hdd group rows:"<<_hdd_each_group_row[run_index-_ssd_each_group_row.size()]<<std::endl; 
 			_loser_tree->push(_loser_tree->getMaxItem(), run_index, -1, base_str_ptr);
 			//_loser_tree->push(&ITEM_MAX, -1, -1);
 			}
