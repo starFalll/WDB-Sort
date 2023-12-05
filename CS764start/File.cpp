@@ -86,6 +86,7 @@ char* File::read(GroupCount group_num, RowSize row_size, RowCount each_group_row
         // bytes need reading
         int need_reading = batch_size * row_size ;
         char* buffer = new char[need_reading];
+        memset(buffer, 0, need_reading);
 
         // set read start from index
         std::streampos start_index = group_num  * each_group_row_count * row_size + group_offset * row_size; 
@@ -103,6 +104,7 @@ char* File::read(GroupCount group_num, RowSize row_size, RowCount each_group_row
 char* File::read(int32_t start, int32_t length){
     if(_file_stream.is_open()){
         char* buffer = new char[length];
+        memset(buffer, 0, length);
         _file_stream.seekg(start, std::ios::beg);
         // read
         _file_stream.read(buffer, length);

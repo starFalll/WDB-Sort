@@ -9,7 +9,7 @@ class SortPlan : public Plan
 	friend class SortIterator;
 public:
 	SortPlan (Plan * const input);
-	~SortPlan ();
+	virtual ~SortPlan ();
 	Iterator * init () const;
 	
 private:
@@ -20,7 +20,7 @@ class SortIterator : public Iterator
 {
 public:
 	SortIterator (SortPlan const * const plan);
-	~SortIterator ();
+	virtual ~SortIterator ();
 	bool next () override;
 	// void GetRecords(std::vector<Item> ** records, uint32_t ** index) override;
 	

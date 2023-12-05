@@ -31,7 +31,7 @@ class FilterPlan : public Plan
 	friend class FilterIterator;
 public:
 	FilterPlan (Plan * const input);
-	~FilterPlan ();
+	virtual ~FilterPlan ();
 	Iterator * init () const;
 
 	/**
@@ -57,7 +57,7 @@ class FilterIterator : public Iterator
 {
 public:
 	FilterIterator (FilterPlan const * const plan);
-	~FilterIterator ();
+	virtual ~FilterIterator ();
 	bool next () override;
 	void GetRecords(std::vector<Item> ** records, uint32_t ** index) override;
 

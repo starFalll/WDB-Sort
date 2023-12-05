@@ -20,7 +20,7 @@ Iterator::Iterator (RowSize row_size) : _row_size(row_size), _count (0)
 {
 	TRACE (TRACE_SWITCH);
 	// allocate 2MB to _records
-	_records.resize (MAX_CPU_CACHE * 2 / sizeof (Item));
+	_records.resize (MAX_CPU_CACHE * 2 / sizeof (Item), Item(row_size, '0'));
 	_index = 0;
 
 	SSD_INPUT = new File(SSD_PATH_INPUT, MAX_SSD, SSD_BLOCK);

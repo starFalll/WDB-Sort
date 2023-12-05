@@ -1,4 +1,5 @@
 #include "SharedBuffer.h"
+#include <thread>
 
 SharedBuffer::SharedBuffer(int32_t buffer_capacity, RowSize row_size) : 
     _buffer_capacity(buffer_capacity), _front(0), _rear(0), _finish(false), _row_size(row_size)
@@ -8,7 +9,7 @@ SharedBuffer::SharedBuffer(int32_t buffer_capacity, RowSize row_size) :
 }
 
 SharedBuffer::~SharedBuffer(){
-    // delete _buffer;
+    delete [] _buffer;
 }
 
 void SharedBuffer::produce(const Item& item, bool finish){

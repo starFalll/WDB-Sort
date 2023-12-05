@@ -1,10 +1,17 @@
 #include "Verify.h"
+#include <cmath>
+#include <unordered_map>
 
 Bucket::Bucket(int bucket_capacity) : _bucket_index(0) {
     _bucket = new char[bucket_capacity];
+    memset(_bucket, 0, bucket_capacity);
 }
 
-Verify::Verify(){}
+Bucket::~Bucket() {
+    delete [] _bucket;
+}
+
+Verify::Verify() {}
 
 Verify::Verify(int row_size, unsigned long long file_size, unsigned long long memory_size) : 
     _row_size(row_size), _bucket_num(file_size / (memory_size * 0.5)) {
@@ -15,7 +22,9 @@ Verify::Verify(int row_size, unsigned long long file_size, unsigned long long me
         _hash_table[i] = new Bucket(_bucket_capacity);
     }
     _input_bucket_size = new int[_bucket_num];
+    memset(_input_bucket_size, 0, sizeof(int) * _bucket_num);
     _output_bucket_size = new int[_bucket_num];
+    memset(_output_bucket_size, 0, sizeof(int) * _bucket_num);
 
     _input_file = new File(HDD_PATH_INPUT, __LONG_LONG_MAX__, HDD_BLOCK, std::ios::app);
 	_output_file = new File(RES_HDD_PATH, __LONG_LONG_MAX__, HDD_BLOCK, std::ios::app);
@@ -34,9 +43,12 @@ Verify::~Verify(){
     for(int i=0;i<_bucket_num;i++){
         delete _hash_table[i];
     }
+    delete [] _hash_table;
 
     delete [] _input_bucket_size;
     delete [] _output_bucket_size;
+    delete _input_file;
+    delete _output_file;
 }
 
 
@@ -79,6 +91,7 @@ void Verify::read_bucket(char* bucket, int bucket_id, std::string dir_path, bool
 
     int bucket_size = is_output ? _output_bucket_size[bucket_id] : _input_bucket_size[bucket_id];
     bucket = new char[bucket_size];
+    memset(bucket, 0, sizeof(bucket_size));
 
     // open file
     std::fstream bucket_file;
@@ -104,6 +117,7 @@ void Verify::create_hash_table(File* file, int batch_size, std::string dir_path,
         batch = file->read(batch_id * batch_size, batch_size);
         // traversal records in batch
         std::string batch_str(batch);
+        delete [] batch;
         for(int i=0;i<batch_str.size();i=i+_row_size){
             // get record
             std::string record = batch_str.substr(i, _row_size);
@@ -164,6 +178,7 @@ void Verify::verify(){
     // compare two hash tables
     for(int i=0;i<_bucket_num;i++){
         if(_input_bucket_size[i] != _output_bucket_size[i]){
+            std::cout<< "verifying failed, bucket:"<<i<<" input size:" << _input_bucket_size[i] <<" output_size:"<<_output_bucket_size[i]<<std::endl;
             set_status = false;
             break;
         }
@@ -175,6 +190,7 @@ void Verify::verify(){
             continue;
         }
         std::string bucket_1_str(bucket_1);
+        delete [] bucket_1;
         for(int j=0;j<bucket_1_str.size();j=j+_row_size){
             std::string record = bucket_1_str.substr(j, _row_size);
             hash_map[record]++;
@@ -183,9 +199,11 @@ void Verify::verify(){
         char* bucket_2 = nullptr;
         read_bucket(bucket_2, i, "./output_hash_table/", true);
         std::string bucket_2_str(bucket_2);
+        delete [] bucket_2;
         for(int j=0;j<bucket_2_str.size();j=j+_row_size){
             std::string record = bucket_2_str.substr(j, _row_size);
             if(hash_map.find(record) == hash_map.end()){
+                std::cout<< "verifying failed, record:" << record <<" not int input"<<std::endl;
                 set_status = false;
                 break;
             }else{

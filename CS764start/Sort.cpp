@@ -33,7 +33,7 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 	// allocate 90MB to sort
 	// _sort_records.resize (MAX_DRAM * 9 / 10 / sizeof(Item));
 	// allocate 0.5MB to sort (use CPU Cache)
-	_sort_records.resize (MAX_CPU_CACHE * 5 / 10 / sizeof(Item));
+	_sort_records.resize (MAX_CPU_CACHE * 5 / 10 / sizeof(Item), Item(plan->_input->GetSize(), '0'));
 
 	// initialize current run index
 	_current_run_index = 0;
@@ -41,6 +41,7 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 	_cache_run_list = new Item**[_cache_run_list_row];
 	for(uint32_t i=0;i<_cache_run_list_row;i++){
 		_cache_run_list[i] = new Item*[_cache_run_list_col];
+		memset(_cache_run_list[i], 0, sizeof(Item*) * _cache_run_list_col);
 	}
 
 	_sort_index = 0;
@@ -55,13 +56,18 @@ SortIterator::~SortIterator ()
 
 	// release resource
 	for(uint32_t i=0;i<_cache_run_list_row;i++){
-		delete _cache_run_list[i];
+		for (uint32_t j = 0; j < _cache_run_list_col; j++) {
+			delete _cache_run_list[i][j];
+		}
+		delete [] _cache_run_list[i];
 	}
 	delete [] _cache_run_list;
 
 	delete _input;
 
 	delete _shared_buffer;
+
+	delete _loser_tree;
 
 	traceprintf ("produced %lu of %lu rows\n",
 			(unsigned long) (_produced),

@@ -24,9 +24,10 @@ struct Item
 	Item (const FieldType incl, const FieldType mem, const FieldType mgmt);
 	FieldType fields[3]; 
 	Item (const Item& other);
+	Item& operator=(const Item& other);
 	Item ();
 	Item (RowSize row_size, char init_char = '0');
 	bool operator < (const Item & other) const;
 	char* GetItemString();
-	~Item() = default;
+	~Item();
 };
