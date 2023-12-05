@@ -36,11 +36,15 @@ Size of three Queues:
 
 After sorting, asynchronously writing buffer into SSD or HDD.
 
-Each group member's names and student IDs:
-- Kefan Zheng 
-- Tianyu Huang
-- Ethan Fang
-- Chuan Tian
+# CS 764 2023 fall
+## External Merge Sort
+### How to Run?
+1. Enter the project folder
+`cd ${workspaceFolder}`
+2. Build
+`make`
+3. Run
+`./sort -c 120000000 -s 1000 -o trace0.txt`
 
 The techniques (see Grading) implemented by your submission and the corresponding source files and lines
 1. Quicksort?: Sort.cpp (Line 138 - 163)
@@ -73,8 +77,11 @@ Complete, the record is sorted.
 
 3. how to run your programs if they are different from the default specifications above. 
 
-Each group member's contributions to the project:
-- Kefan Fan: Tournament trees, Shared Buffer to spilling, Verifying
-- Tianyu Huang: DiskScan file to write records back to HDD
-- Chuan Tian: Offset-value coding
-- Ethan Fang: In-memory Scan-Filter-Sort
+
+### Group Members & Contributions
+| Name | StudentId | Contributions |
+|---|---|---|
+| Kefan Zheng || Tournament trees, Shared Buffer to spilling, Verifying |
+| Tianyu Huang || DiskScan file to write records back to HDD |
+| Chuan Tian || Offset-value coding |
+| Ethan Fang || In-memory Scan-Filter-Sort |
