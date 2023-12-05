@@ -43,7 +43,8 @@ bool TreeNode::operator < (const TreeNode & other) const {
     if(_offset_value_code != other._offset_value_code){
         return _offset_value_code < other._offset_value_code;
     }else{
-        return strcmp(_value->fields[COMPARE_FIELD], other._value->fields[COMPARE_FIELD]) < 0;
+        // full value compare
+        return *_value < *other._value;
     }
 }
 
@@ -76,7 +77,8 @@ bool TreeNode::operator > (const TreeNode & other) const {
     if(_offset_value_code != other._offset_value_code){
         return _offset_value_code > other._offset_value_code;
     }else{
-        return strcmp(_value->fields[COMPARE_FIELD], other._value->fields[COMPARE_FIELD]) > 0;
+        // full value compare
+        return *_value > *other._value;
     }
 }
 

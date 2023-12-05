@@ -203,9 +203,8 @@ void SortIterator::MultiwayMerge (){
 		if (element_index < target_element_index) {
 			_loser_tree->push(_cache_run_list[run_index][element_index], run_index, element_index, base_str_ptr);
 		}else{
-			Item temp = Item(_row_size,'9');
-			_loser_tree->push(&temp, run_index, -1, base_str_ptr);
-			//_loser_tree->push(&ITEM_MAX, -1, -1);
+			// push infinity
+			_loser_tree->push(_loser_tree->getMaxItem(), run_index, -1, base_str_ptr);
 		}
 
 		if(_loser_tree->empty()){

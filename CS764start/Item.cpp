@@ -73,6 +73,11 @@ bool Item::operator < (const Item & other) const
 	return strcmp(fields[COMPARE_FIELD], other.fields[COMPARE_FIELD]) < 0;
 }
 
+bool Item::operator > (const Item & other) const
+{
+	return strcmp(fields[COMPARE_FIELD], other.fields[COMPARE_FIELD]) > 0;
+}
+
 // using first value to compare
 char* Item::GetItemString()
 {

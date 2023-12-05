@@ -205,7 +205,7 @@ void Verify::verify(){
         for(int j=0;j<bucket_2_str.size();j=j+_row_size){
             std::string record = bucket_2_str.substr(j, _row_size);
             if(hash_map.find(record) == hash_map.end()){
-                std::cout<< "verifying failed, record:" << record <<" not int input"<<std::endl;
+                std::cout<< "verifying failed, record: " << record <<" not int input bucket " << i <<std::endl;
                 set_status = false;
                 break;
             }else{
