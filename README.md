@@ -39,7 +39,7 @@ After sorting, asynchronously writing buffer into SSD or HDD.
 Each group member's names and student IDs:
 Kefan Zheng 
 Tianyu Huang
-Yixiang Fang
+Ethan Fang
 Chuan Tian
 
 The techniques (see Grading) implemented by your submission and the corresponding source files and lines
@@ -77,4 +77,4 @@ Each group member's contributions to the project:
 Kefan Fan: Tournament trees, Shared Buffer to spilling, Verifying
 Tianyu Huang: DiskScan file to write records back to HDD.
 Chuan Tian: Offset-value coding
-Ethan Fang: Quicksort
+Ethan Fang: In-memory Scan-Filter-Sort
