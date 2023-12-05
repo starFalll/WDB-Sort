@@ -181,7 +181,7 @@ void DiskScan::MultiwayMerge(){
 
 		// push next data into the tree
 		if (element_index < target_element_index) {
-			std::cout<<_disk_run_list[run_index][element_index]->fields[0]<<std::endl;
+			std::cout<<"run_index:"<<run_index<<" element_index:"<<element_index<< " field1:" <<_disk_run_list[run_index][element_index]->fields[0]<<std::endl;
 			_loser_tree->push(_disk_run_list[run_index][element_index], run_index, element_index, base_str_ptr);
 		}else if (run_index <_ssd_each_group_row.size()){
 			if (_group_offset[run_index] < _ssd_each_group_row[run_index]){
@@ -195,7 +195,7 @@ void DiskScan::MultiwayMerge(){
 			_loser_tree->push(_loser_tree->getMaxItem(), run_index, -1, base_str_ptr);
 			//_loser_tree->push(&ITEM_MAX, -1, -1);
 			}
-		}else if (run_index >= _ssd_each_group_row.size())
+		}else if (run_index >= _ssd_each_group_row.size()) {
 			if (_group_offset[run_index] < _hdd_each_group_row[run_index]){
 			RefillRow(run_index);
 			element_index = 0;
@@ -207,8 +207,7 @@ void DiskScan::MultiwayMerge(){
 			_loser_tree->push(_loser_tree->getMaxItem(), run_index, -1, base_str_ptr);
 			//_loser_tree->push(&ITEM_MAX, -1, -1);
 			}
-		
-
+		}
 		if(_loser_tree->empty()){
 			// for (uint32_t i = 0; i < _disk_run_list_row * 2; i++) {	
 			// 	std::cout<< _loser_tree->getvalue(i) <<std::endl;
@@ -218,6 +217,7 @@ void DiskScan::MultiwayMerge(){
 		// save in results
 		count++;
 		_shared_buffer->produce(*(cur->_value), isFinish);
+		std::cout<<"cur count:"<<count<<std::endl;
 	}
 	resConsumeThread.join();
 	traceprintf ("DiskScan produced %lu \n",
