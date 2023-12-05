@@ -40,7 +40,8 @@ bool TreeNode::operator < (const TreeNode & other) const {
     //         return *_value < *(other._value);
     //     }
     // }
-    if(_offset_value_code != other._offset_value_code){
+    if(_offset_value_code != 0 && other._offset_value_code != 0 && 
+         _offset_value_code != other._offset_value_code){
         return _offset_value_code < other._offset_value_code;
     }else{
         // full value compare
@@ -74,7 +75,8 @@ bool TreeNode::operator > (const TreeNode & other) const {
     //         return _value->fields[COMPARE_FIELD] > other._value->fields[COMPARE_FIELD];
     //     }
     // }
-    if(_offset_value_code != other._offset_value_code){
+    if(_offset_value_code != 0 && other._offset_value_code != 0 && 
+        _offset_value_code != other._offset_value_code){
         return _offset_value_code > other._offset_value_code;
     }else{
         // full value compare
@@ -119,7 +121,10 @@ void LoserTree::push(Item* item, int32_t run_index, int32_t element_index, std::
 
     uint32_t offsetValueCode = 0; 
     // Every push needs to calculate the offset value code, based on the node that was just topped.
-    offsetValueCode = CalculateOffsetValueCode((*base_str_ptr).c_str(), item->GetItemString());
+    if (base_str_ptr) {
+        offsetValueCode = CalculateOffsetValueCode((*base_str_ptr).c_str(), item->GetItemString());
+    }
+        
 
     // update node value
     _tree[_leaf_num + run_index]->_value = item;

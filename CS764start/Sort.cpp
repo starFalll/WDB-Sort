@@ -171,8 +171,7 @@ void SortIterator::MultiwayMerge (){
 	_loser_tree->reset(_current_run_index, _loser_tree->getMinItem());
 
 	// 初始基准字符串为空
-	std::string ovc_negative_infinity(_row_size/3, '0');
-	std::string* base_str_ptr = &ovc_negative_infinity; 
+	std::string* base_str_ptr = nullptr; 
 
 	// Initialize with the first element of each sorted sequence
 	for (uint32_t i = 0; i < _current_run_index; i++) {	

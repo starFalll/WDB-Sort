@@ -159,6 +159,7 @@ void DiskScan::MultiwayMerge(){
 	// Initialize with the first element of each sorted sequence
 	for (uint32_t i = 0; i < _disk_run_list_row; i++) {	
 		auto item = _disk_run_list[i][0];
+		std::cout<< "push : group:"<<i << " col:"<<0<< " field1:"<<item->fields[INCL]<< " field2:"<<item->fields[MEM]<< std::endl;
 		_loser_tree->push(_disk_run_list[i][0], i, 0, base_str_ptr);
 	}
 	// for (uint32_t i = 0; i < _disk_run_list_row * 2; i++) {	
