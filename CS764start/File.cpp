@@ -37,7 +37,7 @@ File::File(const char* path) : _file_path(path)
 }
 
 File::File(const char* path, unsigned long long max_byte, int32_t block_size) : 
-    _file_path(path), _max_byte(max_byte), _cur_byte(0), _block_size(block_size), _run_num(0)
+    _file_path(path), _max_byte(max_byte), _block_size(block_size), _run_num(0)
 {
     // open file
     _file_stream.open(_file_path, std::ios::out | std::ios::in | std::ios::trunc | std::ios::binary);
@@ -86,6 +86,7 @@ char* File::read(GroupCount group_num, RowSize row_size, RowCount each_group_row
         // bytes need reading
         int need_reading = batch_size * row_size ;
         char* buffer = new char[need_reading];
+        memset(buffer, 0, need_reading);
 
         // set read start from index
         std::streampos start_index = group_num  * each_group_row_count * row_size + group_offset * row_size; 
@@ -103,6 +104,7 @@ char* File::read(GroupCount group_num, RowSize row_size, RowCount each_group_row
 char* File::read(int32_t start, int32_t length){
     if(_file_stream.is_open()){
         char* buffer = new char[length];
+        memset(buffer, 0, length);
         _file_stream.seekg(start, std::ios::beg);
         // read
         _file_stream.read(buffer, length);

@@ -8,6 +8,7 @@ struct Bucket{
     int _bucket_index;
 
     Bucket(int bucket_capacity);
+    ~Bucket();
 };
 
 class Verify{
@@ -22,6 +23,8 @@ private:
     int _bucket_capacity;
     // bucket size
     int _bucket_num;
+    //
+    int _batch_size;
     // memory hashtable
     Bucket** _hash_table;
     // record each bucket's size
@@ -41,7 +44,7 @@ public:
 
     void read_bucket(char* bucket, int bucket_id, std::string dir_path, bool is_output);
 
-    void create_hash_table(File* file, int batch_size, std::string dir_path, bool& order_status, bool is_output);
+    void create_hash_table(File* file, std::string dir_path, bool& order_status, bool is_output);
 
     void verify();
 };

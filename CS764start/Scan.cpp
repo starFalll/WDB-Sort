@@ -73,9 +73,10 @@ Item ScanIterator::GenerateOneRecord ()
 char* ScanIterator::GeneratRandomStr(int count){
 	char* str = new char[count];
 	char c;
-	for(int idx = 0; idx < count ; idx++){
+	for(int idx = 0; idx < count-1 ; idx++){
 		c = '0' + std::rand()%10;
 		str[idx] = c;
 	}
+	str[count-1] = '\0';
 	return str;
 }

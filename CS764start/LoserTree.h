@@ -23,6 +23,7 @@ class LoserTree {
 private:
     // number of merge runs
     int32_t _leaf_num;
+    int32_t _origin_leaf_num;
     // loser tree (implemented by array)
     TreeNode** _tree;
     // max item

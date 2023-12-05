@@ -66,7 +66,7 @@ FilterIterator::FilterIterator (FilterPlan const * const plan) :
 	TRACE (TRACE_SWITCH);
 
 	// allocate 1MB to filter
-	_filter_records.resize(MAX_CPU_CACHE * 1 / sizeof(Item));
+	_filter_records.resize(MAX_CPU_CACHE * 1 / sizeof(Item), Item(plan->_input->GetSize(), '0'));
 	_filter_index = 0;
 } // FilterIterator::FilterIterator
 
