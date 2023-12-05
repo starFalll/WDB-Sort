@@ -83,9 +83,10 @@ void DiskScan::ReadFromDisk(){
     //construct _disk_run_list
     //ssd part
     for(uint32_t group_num =0; group_num < _ssd_each_group_row.size(); group_num ++){
-		printf("read sdd:%u\n", group_num);
+		
 		BatchSize read_size;
         char* buffer = SSD->read(group_num , _row_size, _ssd_each_group_row, _batch_size, _group_offset[group_num], &read_size);
+		printf("read sdd:%u  read lines:%u\n", group_num, read_size);
 		_each_group_col[group_num] = read_size;
 		_group_offset[group_num] += read_size; //记录每个组读到哪里了
         Bytes2DiskRecord(buffer , group_num);
@@ -93,9 +94,10 @@ void DiskScan::ReadFromDisk(){
     }
     //hdd part
     for(uint32_t group_num = 0; group_num < _hdd_each_group_row.size() ; group_num ++){
-		printf("read hdd:%u\n", group_num+_ssd_each_group_row.size());
+		
 		BatchSize read_size;
         char* buffer = HDD->read(group_num , _row_size, _hdd_each_group_row, _batch_size, _group_offset[group_num + _ssd_each_group_row.size()], &read_size);
+		printf("read hdd:%u read lines:%u\n", group_num+_ssd_each_group_row.size(), read_size);
 		_each_group_col[group_num + _ssd_each_group_row.size()] = read_size;
 		_group_offset[group_num + _ssd_each_group_row.size()] += read_size; //记录每个组读到哪里了
         Bytes2DiskRecord(buffer , group_num + _ssd_each_group_row.size());

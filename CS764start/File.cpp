@@ -87,9 +87,12 @@ char* File::read(GroupCount group_num, RowSize row_size, std::vector<int>& each_
         int need_reading = batch_size * row_size ;
         char* buffer = new char[need_reading];
         memset(buffer, 0, need_reading);
-
+        uint64_t total_rows = 0;
+        for (int i = 0; i < group_num; i++) {
+            total_rows += each_group_row[i];
+        }
         // set read start from index
-        std::streampos start_index = group_num  * each_group_row[group_num] * row_size + group_offset * row_size; 
+        std::streampos start_index = total_rows * row_size + group_offset * row_size; 
         _file_stream.seekg(start_index);
 
         // read
