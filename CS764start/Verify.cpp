@@ -75,6 +75,7 @@ void Verify::write_bucket(char* data, int length, int bucket_id, std::string dir
     // open file
     std::fstream bucket_file;
     bucket_file.open(dir_path+file_name, std::ios::out | std::ios::in | std::ios::app | std::ios::binary);
+    printf("write bucket dir_path:%s bucket_id:%d len:%d\n", dir_path.c_str(), bucket_id, length);
     // write data
     bucket_file.write(data, length);
     // close file
@@ -113,11 +114,13 @@ void Verify::create_hash_table(File* file, std::string dir_path, bool& order_sta
     // scan input/output in batched, 100M per batch
     char* batch;
     int batch_num = ceil(file->getCurByte() / double(_batch_size));
+    printf("cur:%s total_size:%llu batch_num:%d\n", dir_path.c_str(), file->getCurByte(), batch_num);
     int batch_id = 0;
     while(batch_id < batch_num){
-        batch = file->read(batch_id * _batch_size, _batch_size);
+        int32_t read_size = 0;
+        batch = file->read(batch_id * _batch_size, _batch_size, &read_size);
         // traversal records in batch
-        std::string batch_str(batch);
+        std::string batch_str(batch, read_size);
         delete [] batch;
         for(int i=0;i<batch_str.size();i=i+_row_size){
             // get record
@@ -126,6 +129,7 @@ void Verify::create_hash_table(File* file, std::string dir_path, bool& order_sta
             if(is_output){
                 if(prev > record){
                     order_status = false;
+                    printf("order is not correct, prev:%s, cur:%s\n", prev.c_str(), record.c_str());
                     // break;
                 }
                 prev = record;

@@ -37,7 +37,7 @@ public:
     //read
     char* read(GroupCount group_num, RowSize row_size, std::vector<int>& each_group_row, BatchSize batch_size , uint32_t group_offset, BatchSize* read_size);
 
-    char* read(int32_t start, int32_t length);
+    char* read(int32_t start, int32_t length, int32_t* read_size);
 
     // check if file is full(important for SSD)
     bool isFull();
