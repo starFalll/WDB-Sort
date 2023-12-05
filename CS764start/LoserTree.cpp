@@ -146,7 +146,8 @@ void LoserTree::adjust(int32_t run_index) {
         if (*_tree[node_index] > *_tree[cmp_node_index]){
             swap(_tree[node_index], _tree[cmp_node_index]);
         }
-        if (_tree[node_index]->_offset_value_code == _tree[cmp_node_index]->_offset_value_code) {
+        if (_tree[node_index]->_offset_value_code == 0 || _tree[cmp_node_index]->_offset_value_code == 0 || 
+            _tree[node_index]->_offset_value_code == _tree[cmp_node_index]->_offset_value_code) {
             // _tree[node_index] is loser，update its ovc
             char* winner = _tree[node_index]->_value->GetItemString();
             char* loser = _tree[cmp_node_index]->_value->GetItemString();

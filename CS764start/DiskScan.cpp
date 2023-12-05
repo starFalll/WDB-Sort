@@ -153,13 +153,12 @@ void DiskScan::MultiwayMerge(){
 	_loser_tree->reset(_current_run_index, _loser_tree->getMinItem());
 
 	// 初始基准字符串为空
-	std::string ovc_negative_infinity(_row_size/3, '0');
-	std::string* base_str_ptr = &ovc_negative_infinity; 
+	// std::string ovc_negative_infinity(_row_size/3, '0');
+	std::string* base_str_ptr = nullptr; 
 
 	// Initialize with the first element of each sorted sequence
 	for (uint32_t i = 0; i < _disk_run_list_row; i++) {	
 		auto item = _disk_run_list[i][0];
-		std::cout<< "push : group:"<<i << " col:"<<0<< " field1:"<<item->fields[INCL]<< " field2:"<<item->fields[MEM]<< std::endl;
 		_loser_tree->push(_disk_run_list[i][0], i, 0, base_str_ptr);
 	}
 	// for (uint32_t i = 0; i < _disk_run_list_row * 2; i++) {	
@@ -185,7 +184,7 @@ void DiskScan::MultiwayMerge(){
 		// calculate the last index in the target run
 		//uint32_t target_element_index = _disk_run_list_col;
 		uint32_t target_element_index = _each_group_col[run_index];
-		std::cout<< "run group:"<<run_index<< " cur element index" << _group_offset[run_index]<<std::endl;
+		// std::cout<< "run group:"<<run_index<< " cur element index" << _group_offset[run_index]<<std::endl;
 		// push next data into the tree
 		if (element_index < target_element_index) {
 			_loser_tree->push(_disk_run_list[run_index][element_index], run_index, element_index, base_str_ptr);
@@ -221,7 +220,7 @@ void DiskScan::MultiwayMerge(){
 		// save in results
 		count++;
 		_shared_buffer->produce(cur_item, isFinish);
-		std::cout<<"cur count:"<<count<<std::endl;
+		// std::cout<<"cur count:"<<count<<std::endl;
 	}
 	resConsumeThread.join();
 	for (int i = 0; i < _disk_run_list_row; i++) {
