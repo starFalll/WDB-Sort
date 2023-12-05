@@ -1,7 +1,7 @@
 #include "File.h"
 
-File::File(const char* path, unsigned long long max_byte, int32_t block_size, std::ios::openmode m, FileType type) : 
-    _file_path(path), _max_byte(max_byte), _block_size(block_size), _run_num(0), _type(type){
+File::File(const char* path, unsigned long long max_byte, int32_t block_size, std::ios::openmode m, FileType type, RowSize row_size) : 
+    _file_path(path), _max_byte(max_byte), _block_size(block_size), _run_num(0), _type(type), _row_size(row_size){
         // open file
     _file_stream.open(_file_path, std::ios::in | std::ios::binary | m);
 
@@ -27,7 +27,7 @@ File::File(const char* path, unsigned long long max_byte, int32_t block_size, st
 }
 
 
-File::File(const char* path, FileType type) : _file_path(path), _type(type)
+File::File(const char* path, FileType type, RowSize row_size) : _file_path(path), _type(type), _row_size(row_size)
 {
     // open file
     _file_stream.open(_file_path, std::ios::in | std::ios::binary);
@@ -36,8 +36,8 @@ File::File(const char* path, FileType type) : _file_path(path), _type(type)
     }
 }
 
-File::File(const char* path, unsigned long long max_byte, int32_t block_size, FileType type) : 
-    _file_path(path), _max_byte(max_byte), _block_size(block_size), _run_num(0), _type(type)
+File::File(const char* path, unsigned long long max_byte, int32_t block_size, FileType type, RowSize row_size) : 
+    _file_path(path), _max_byte(max_byte), _block_size(block_size), _run_num(0), _type(type), _row_size(row_size)
 {
     // open file
     _file_stream.open(_file_path, std::ios::out | std::ios::in | std::ios::trunc | std::ios::binary);
@@ -91,6 +91,7 @@ char* File::read(GroupCount group_num, RowSize row_size, std::vector<int>& each_
         for (int i = 0; i < group_num; i++) {
             total_rows += each_group_row[i];
         }
+        printf("group:%u before rows:%llu cur offset:%u\n", group_num, total_rows, group_offset);
         // set read start from index
         std::streampos start_index = total_rows * row_size + group_offset * row_size; 
         _file_stream.seekg(start_index);
@@ -135,7 +136,7 @@ int32_t File::getBlockSize(){
 }
 
 void File::recordRunSize(int32_t size) {
-    _group_lens[_run_num-1] += size;
+    _group_lens[_run_num-1] += size / _row_size;
 }
 
 void File::addRunNum(){

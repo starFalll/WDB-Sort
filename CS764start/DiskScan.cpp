@@ -8,9 +8,9 @@ DiskScan::DiskScan(std::vector<int>& ssd_each_group_row, std::vector<int>& hdd_e
     _hdd_each_group_row(hdd_each_group_row)
 {
     TRACE (TRACE_SWITCH);
-    SSD = new File(SSD_PATH_TEMP, FileType::SSD);
-	HDD = new File(HDD_PATH_TEMP, FileType::HDD);
-    RES_HDD = new File(RES_HDD_PATH, __LONG_LONG_MAX__, HDD_BLOCK, FileType::HDD);
+    SSD = new File(SSD_PATH_TEMP, FileType::SSD, _row_size);
+	HDD = new File(HDD_PATH_TEMP, FileType::HDD, _row_size);
+    RES_HDD = new File(RES_HDD_PATH, __LONG_LONG_MAX__, HDD_BLOCK, FileType::HDD, _row_size);
 
     _shared_buffer = new SharedBuffer(OUTPUT_BUFFER, _row_size);
     // initialize current run index

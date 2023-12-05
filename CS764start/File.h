@@ -20,13 +20,15 @@ private:
     // number of runs
     int32_t _run_num;
 
+    RowSize _row_size;
+
     FileType _type;
     std::vector<int32_t> _group_lens;
 
 public:
-    File(const char* path, unsigned long long _max_byte, int32_t block_size, std::ios::openmode m, FileType type);
-    File(const char* path, FileType type); //open (only in)
-    File(const char* path, unsigned long long _max_byte, int32_t block_size, FileType type); //open and clear content
+    File(const char* path, unsigned long long _max_byte, int32_t block_size, std::ios::openmode m, FileType type, RowSize row_size);
+    File(const char* path, FileType type, RowSize row_size); //open (only in)
+    File(const char* path, unsigned long long _max_byte, int32_t block_size, FileType type, RowSize row_size); //open and clear content
     ~File();
 
     // write file
