@@ -138,7 +138,7 @@ bool SharedBuffer::isBufferEmpty(){
 }
 
 bool SharedBuffer::isBufferFull(){
-    return getAvailableSpace() < _row_size;
+    return getAvailableSpace() <= _row_size;
     // todo: 判断状态数组
 }
 
