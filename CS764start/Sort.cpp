@@ -94,7 +94,7 @@ bool SortIterator::next ()
 	printf("next:%d ret:%d _sort_index:%d _last_consumed:%d\n", _consumed, ret, _sort_index, _last_consumed);
 	TRACE (TRACE_SWITCH);
 	// _sort_records is fulled
-	if (_consumed>_last_consumed && (!ret || 0 == _sort_index)) {
+	if (_consumed>_last_consumed && (!ret || (0 == _sort_index))) {
 		printf("_last_consumed:%d comsumed:%d\n", _last_consumed, _consumed);
 		uint32_t add_num = _sort_index == 0 ? (RowCount)_sort_records.size() : _sort_index+1;
 		// when not full, valid value from index 1
@@ -113,6 +113,7 @@ bool SortIterator::next ()
 		_current_run_index++;
 
 		_produced += add_num;
+		_last_consumed = _consumed;
 		TRACE (TRACE_SWITCH);
 		// printf("_current_run_index:%d max_element_index:%d test index:%u\n", _current_run_index, m, _sort_index);
 		// for (int i = begin_num; i < add_num; i++) {
@@ -129,7 +130,6 @@ bool SortIterator::next ()
 		MultiwayMerge();
 		_current_run_index = 0;
 	}
-	_last_consumed = _consumed;
 	// ++ _produced;
 	return ret;
 } // SortIterator::next
