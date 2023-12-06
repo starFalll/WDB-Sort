@@ -36,7 +36,7 @@ private:
 	std::vector<Item> _sort_records;
 	SortPlan const * const _plan;
 	Iterator * const _input;
-	RowCount _consumed, _produced;
+	RowCount _consumed, _produced, _last_consumed;
 	// merge cache run
 	const uint32_t _cache_run_list_row;
 	const uint32_t _cache_run_list_col;
