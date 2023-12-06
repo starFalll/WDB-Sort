@@ -122,19 +122,19 @@ char* File::read(GroupCount group_num, RowSize row_size, std::vector<int>& each_
     return nullptr;
 }
 
-char* File::read(int32_t start, int32_t length, int32_t* read_size){
+char* File::read(uint64_t start, int32_t length, int32_t* read_size){
     if(_file_stream.is_open()){
         char* buffer = new char[length];
         memset(buffer, 0, length);
         _file_stream.seekg(start, std::ios::beg);
         // read
         _file_stream.read(buffer, length);
-        if (_file_stream.eof()) {
+        // if (_file_stream.eof()) {
             *read_size = _file_stream.gcount();
-        }
-        else {
-            *read_size = length;
-        }
+        // }
+        // else {
+            *read_size = _file_stream.gcount();
+        // }
 
         return buffer;
     }else{
