@@ -116,7 +116,7 @@ void Verify::read_bucket(char* bucket, int bucket_id, std::string dir_path, bool
 }
 
 void Verify::create_hash_table(File* file, std::string dir_path, bool& order_status, bool is_output){
-    // previous record (for check order)
+    // previous record key(for check order)
     std::string prev;
     
     // scan input/output in batched, 100M per batch
@@ -139,12 +139,12 @@ void Verify::create_hash_table(File* file, std::string dir_path, bool& order_sta
             if (bucket_id < 0) continue;
             // check order
             if(is_output){
-                if(prev > record){
+                if(prev > record.substr(0, _row_size / 3)){
                     order_status = false;
                     printf("order is not correct, prev:%s, cur:%s\n", prev.c_str(), record.c_str());
                     // break;
                 }
-                prev = record;
+                prev = record.substr(0, _row_size / 3);
             }
             
             Bucket* bucket = _hash_table[bucket_id];
@@ -240,8 +240,10 @@ void Verify::verify(){
 
     }
 
+    std::string order_res = order_status ? "True" : "False";
+    std::string set_res = set_status ? "True" : "False";
     std::cout<< "Verify Results:" << std::endl;
-    std::cout<< "Sort Order: " << order_status << std::endl;
-    std::cout<< "Sets of Rows & Values: " << set_status << std::endl;
+    std::cout<< "Sort Order: " << order_res << std::endl;
+    std::cout<< "Sets of Rows & Values: " << set_res << std::endl;
 
 }
