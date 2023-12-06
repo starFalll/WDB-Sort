@@ -38,7 +38,7 @@ public:
 
     ~Verify();
 
-    int hash(std::string record);
+    int hash(std::string record, bool print = false);
 
     void write_bucket(char* data, int length, int bucket_id, std::string dir_path);
 

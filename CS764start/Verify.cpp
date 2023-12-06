@@ -53,9 +53,17 @@ Verify::~Verify(){
 }
 
 
-int Verify::hash(std::string record){
-    // generate buckets id
-    return std::stoi(record.substr(0, 7)) % _bucket_num;
+int Verify::hash(std::string record, bool print){
+    if(print) {
+        printf("cur ascii1:%d ascii2:%d ascii3:%d str:%s \n", record[0], record[1], record[2],record.c_str());
+    }
+    try {
+        int value = std::stoi(record.substr(0, 7));
+        return value % _bucket_num;
+    } catch (const std::invalid_argument& e) {
+        std::cerr << "Invalid argument: " << e.what() << std::endl;
+    }
+    return -1;
 }
 
 void Verify::write_bucket(char* data, int length, int bucket_id, std::string dir_path){
@@ -118,13 +126,17 @@ void Verify::create_hash_table(File* file, std::string dir_path, bool& order_sta
     int batch_id = 0;
     while(batch_id < batch_num){
         int32_t read_size = 0;
-        batch = file->read(batch_id * _batch_size, _batch_size, &read_size);
+        batch = file->read((uint64_t)batch_id * (uint64_t)_batch_size, _batch_size, &read_size);
+        printf("bucket:%d read_size:%d\n", batch_id, read_size);
         // traversal records in batch
         std::string batch_str(batch, read_size);
         delete [] batch;
         for(int i=0;i<batch_str.size();i=i+_row_size){
             // get record
             std::string record = batch_str.substr(i, _row_size);
+            // hash
+            int bucket_id = hash(record);
+            if (bucket_id < 0) continue;
             // check order
             if(is_output){
                 if(prev > record){
@@ -134,8 +146,7 @@ void Verify::create_hash_table(File* file, std::string dir_path, bool& order_sta
                 }
                 prev = record;
             }
-            // hash
-            int bucket_id = hash(record);
+            
             Bucket* bucket = _hash_table[bucket_id];
             if(is_output){
                 _output_bucket_size[bucket_id] += _row_size;
