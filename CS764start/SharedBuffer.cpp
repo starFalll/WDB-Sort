@@ -26,11 +26,9 @@ void SharedBuffer::produce(const Item& item, bool finish){
             // strcpy(&(_buffer[_rear]), item.fields[i]);
             memcpy(&(_buffer[_rear]), item.fields[i], str_length);
             // printf("test1\n");
-            printf("cur:%s\n", &(_buffer[_rear]));
             _total_read_size += str_length;
         }else{
             int32_t tmp_length = _buffer_capacity - _rear;
-            printf("change size1:%d\n", tmp_length);
             memcpy(&(_buffer[_rear]), item.fields[i], tmp_length);
             _total_read_size += tmp_length;
             // strcpy(&(_buffer[_rear]), tmp_str.substr(0, tmp_length).c_str());
@@ -39,7 +37,6 @@ void SharedBuffer::produce(const Item& item, bool finish){
             tmp_length = str_length - tmp_length;
             memcpy(&(_buffer[0]), tmp_str.substr(start_idx, tmp_length-1).c_str(), tmp_length);
             _total_read_size += tmp_length;
-            printf("change size2:%d\n", tmp_length);
             // strcpy(&(_buffer[0]), );
         }
         // update rear
@@ -74,7 +71,6 @@ void SharedBuffer::consume(File* file){
             file->write((char*)&(_buffer[_front]), block_size);
             _total_write_size += block_size;
             add_size = block_size;
-            printf("write1:%s\n", (char*)&(_buffer[_front]));
         }else{
             // first write
             int32_t tmp_num = _buffer_capacity - _front;
@@ -86,7 +82,6 @@ void SharedBuffer::consume(File* file){
             file->write((char*)&(_buffer[0]), tmp_num);
             _total_write_size += tmp_num;
             add_size += tmp_num;
-            printf("write2:%s\n", (char*)&(_buffer[_front]));
         }
         // update front
         _front = (_front + block_size) % _buffer_capacity;

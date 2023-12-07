@@ -129,7 +129,7 @@ void Verify::create_hash_table(File* file, std::string dir_path, bool& order_sta
     while(batch_id < batch_num){
         int32_t read_size = 0;
         batch = file->read((uint64_t)batch_id * (uint64_t)_batch_size, _batch_size, &read_size);
-        printf("bucket:%d read_size:%d\n", batch_id, read_size);
+        // printf("bucket:%d read_size:%d\n", batch_id, read_size);
         // traversal records in batch
         batch_str = std::string(batch, read_size);
         delete [] batch;
@@ -144,7 +144,7 @@ void Verify::create_hash_table(File* file, std::string dir_path, bool& order_sta
                 if(prev > record.substr(0, _row_size / 3)){
                     order_status = false;
                     printf("order is not correct, prev:%s, cur:%s\n", prev.c_str(), record.c_str());
-                    // break;
+                    break;
                 }
                 prev = record.substr(0, _row_size / 3);
             }
@@ -219,7 +219,6 @@ void Verify::verify(){
         // load two buckets   
         bucket_1_str = read_bucket(i, "./input_hash_table/", false);
         if(bucket_1_str == ""){
-            printf("read bucket %d failed\n", i);
             continue;
         }
         for(int j=0;j<bucket_1_str.size();j=j+_row_size){
@@ -229,7 +228,6 @@ void Verify::verify(){
         // compare
         bucket_2_str = read_bucket(i, "./output_hash_table/", true);
         if(bucket_2_str == ""){
-            printf("read out bucket %d failed\n", i);
             continue;
         }
         // delete [] bucket_2;
