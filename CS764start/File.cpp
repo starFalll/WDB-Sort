@@ -101,7 +101,7 @@ char* File::read(GroupCount group_num, RowSize row_size, std::vector<int>& each_
         for (int i = 0; i < group_num; i++) {
             total_rows += each_group_row[i];
         }
-        printf("group:%u before rows:%llu cur offset:%u\n", group_num, total_rows, group_offset);
+        // printf("group:%u before rows:%llu cur offset:%u\n", group_num, total_rows, group_offset);
         // set read start from index
         std::streampos start_index = total_rows * row_size + group_offset * row_size; 
         _file_stream.seekg(start_index);
