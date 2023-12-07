@@ -1,7 +1,7 @@
 #include "File.h"
 
 File::File(const char* path, unsigned long long max_byte, int32_t block_size, std::ios::openmode m, FileType type, RowSize row_size) : 
-    _file_path(path), _max_byte(max_byte), _run_num(0), _type(type), _row_size(row_size){
+    _file_path(path), _max_byte(max_byte), _cur_byte(0), _run_num(0), _type(type), _row_size(row_size){
 
     // compute block size
     _block_size = int(block_size / _row_size) * _row_size;
@@ -84,7 +84,7 @@ void File::write(const char* data, int32_t length){
         // write
         _file_stream.write(data, length);
         // record file size
-        // _cur_byte += length;
+        _cur_byte += length;
 
     }else{
         printf("Fail to write SSD.");
@@ -144,7 +144,7 @@ char* File::read(uint64_t start, int32_t length, int32_t* read_size){
 }
 
 bool File::isFull(){
-    return getCurByte() >= _max_byte; 
+    return _cur_byte >= _max_byte; 
 }
 
 int32_t File::getBlockSize(){
@@ -158,9 +158,4 @@ void File::recordRunSize(int32_t size) {
 void File::addRunNum(){
     _group_lens.push_back(0);
     _run_num++;
-}
-
-unsigned long long File::getCurByte(){
-    _file_stream.seekg(0, std::ios::end);
-    return _file_stream.tellg();
 }

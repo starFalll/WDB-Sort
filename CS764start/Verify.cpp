@@ -14,7 +14,7 @@ Bucket::~Bucket() {
 Verify::Verify() {}
 
 Verify::Verify(int row_size, unsigned long long file_size, unsigned long long memory_size) : 
-    _row_size(row_size), _bucket_num(ceil(file_size / (memory_size * 0.5))) {
+    _row_size(row_size), _file_size(file_size), _bucket_num(ceil(file_size / (memory_size * 0.5))) {
 
     _batch_size = (memory_size / 2)/_row_size * _row_size;
     _bucket_capacity = _batch_size / _bucket_num;
@@ -31,9 +31,9 @@ Verify::Verify(int row_size, unsigned long long file_size, unsigned long long me
 	_output_file = new File(RES_HDD_PATH, __LONG_LONG_MAX__, HDD_BLOCK, std::ios::app, HDD, _row_size);
 
     int status = std::system(("[ -d './temp/' ]"));
-    if(status == 0){
-        status = std::system(("rm -rf ./temp/" ));
-    }
+    // if(status == 0){
+    //     status = std::system(("rm -rf ./temp/" ));
+    // }
     status = std::system(("[ -d './input_hash_table/' ]"));
     if(status == 0){
         status = std::system(("rm -rf ./input_hash_table/" ));
@@ -127,7 +127,7 @@ void Verify::create_hash_table(File* file, std::string dir_path, bool& order_sta
     
     // scan input/output in batched, 100M per batch
     char* batch;
-    int batch_num = ceil(file->getCurByte() / double(_batch_size));
+    int batch_num = ceil(_file_size / double(_batch_size));
     // printf("cur:%s total_size:%llu batch_num:%d\n", dir_path.c_str(), file->getCurByte(), batch_num);
     int batch_id = 0;
     while(batch_id < batch_num){
