@@ -53,10 +53,7 @@ Verify::~Verify(){
 }
 
 
-int Verify::hash(std::string record, bool print){
-    if(print) {
-        printf("cur ascii1:%d ascii2:%d ascii3:%d str:%s \n", record[0], record[1], record[2],record.c_str());
-    }
+int Verify::hash(std::string record){
     try {
         int value = std::stoi(record.substr(0, 7));
         return value % _bucket_num;
@@ -83,57 +80,61 @@ void Verify::write_bucket(char* data, int length, int bucket_id, std::string dir
     // open file
     std::fstream bucket_file;
     bucket_file.open(dir_path+file_name, std::ios::out | std::ios::in | std::ios::app | std::ios::binary);
-    printf("write bucket dir_path:%s bucket_id:%d len:%d\n", dir_path.c_str(), bucket_id, length);
+    // printf("write bucket dir_path:%s bucket_id:%d len:%d\n", dir_path.c_str(), bucket_id, length);
     // write data
     bucket_file.write(data, length);
     // close file
     bucket_file.close();
 }
 
-void Verify::read_bucket(char* bucket, int bucket_id, std::string dir_path, bool is_output){
+std::string Verify::read_bucket(int bucket_id, std::string dir_path, bool is_output){
     // check if bucket exists
     std::string file_path = dir_path + std::to_string(bucket_id) + ".txt";
     // check if hash table dir exists
     int status = std::system(("[ -f '" + file_path + "' ]").c_str());
     if(status != 0){
-        return;
+        return "";
     }
 
     int bucket_size = is_output ? _output_bucket_size[bucket_id] : _input_bucket_size[bucket_id];
-    bucket = new char[bucket_size];
+    char* bucket = new char[bucket_size];
     memset(bucket, 0, sizeof(bucket_size));
 
     // open file
     std::fstream bucket_file;
-    bucket_file.open(file_path, std::ios::in | std::ios::ate | std::ios::binary);
+    bucket_file.open(file_path, std::ios::in | std::ios::binary);
     // write data
     bucket_file.seekg(0, std::ios::beg);
     bucket_file.read(bucket, bucket_size);
     // close file
     bucket_file.close();
 
-    return;
+    auto str = std::string(bucket, bucket_size);
+    delete [] bucket;
+    return str;
 }
 
 void Verify::create_hash_table(File* file, std::string dir_path, bool& order_status, bool is_output){
     // previous record key(for check order)
     std::string prev;
+    std::string record;
+    std::string batch_str;
     
     // scan input/output in batched, 100M per batch
     char* batch;
     int batch_num = ceil(file->getCurByte() / double(_batch_size));
-    printf("cur:%s total_size:%llu batch_num:%d\n", dir_path.c_str(), file->getCurByte(), batch_num);
+    // printf("cur:%s total_size:%llu batch_num:%d\n", dir_path.c_str(), file->getCurByte(), batch_num);
     int batch_id = 0;
     while(batch_id < batch_num){
         int32_t read_size = 0;
         batch = file->read((uint64_t)batch_id * (uint64_t)_batch_size, _batch_size, &read_size);
         printf("bucket:%d read_size:%d\n", batch_id, read_size);
         // traversal records in batch
-        std::string batch_str(batch, read_size);
+        batch_str = std::string(batch, read_size);
         delete [] batch;
         for(int i=0;i<batch_str.size();i=i+_row_size){
             // get record
-            std::string record = batch_str.substr(i, _row_size);
+            record = batch_str.substr(i, _row_size);
             // hash
             int bucket_id = hash(record);
             if (bucket_id < 0) continue;
@@ -158,12 +159,12 @@ void Verify::create_hash_table(File* file, std::string dir_path, bool& order_sta
                 // write file first;
                 write_bucket(bucket->_bucket, bucket->_bucket_index, bucket_id, dir_path);
                 // save in bucket
-                strcpy(bucket->_bucket, record.c_str());
+                memcpy(bucket->_bucket, record.c_str(), _row_size);
                 // update bucket index
                 bucket->_bucket_index = _row_size;
             }else{
                 // save in bucket
-                strcpy(&(bucket->_bucket[bucket->_bucket_index]), record.c_str());
+                memcpy(&(bucket->_bucket[bucket->_bucket_index]), record.c_str(), _row_size);
                 // update bucket index
                 bucket->_bucket_index += _row_size;
             }
@@ -192,6 +193,15 @@ void Verify::verify(){
     // scan output file
     create_hash_table(_output_file, "./output_hash_table/", order_status, true);
 
+    // current record
+    std::string record;
+    // bucket in input
+    std::string bucket_1_str;
+    // bucket in output
+    std::string bucket_2_str;
+    // hash map
+    std::unordered_map<std::string, int> hash_map;
+
     // compare two hash tables
     for(int i=0;i<_bucket_num;i++){
         if(_input_bucket_size[i] != _output_bucket_size[i]){
@@ -199,26 +209,31 @@ void Verify::verify(){
             set_status = false;
             break;
         }
-        std::unordered_map<std::string, int> hash_map;
-        // load two buckets
-        char* bucket_1 = nullptr;
-        read_bucket(bucket_1, i, "./input_hash_table/", false);
-        if(bucket_1 == nullptr){
+        
+        // clear hash map
+        hash_map.clear();
+        bucket_1_str.clear();
+        bucket_2_str.clear();
+
+        // load two buckets   
+        bucket_1_str = read_bucket(i, "./input_hash_table/", false);
+        if(bucket_1_str == ""){
+            printf("read bucket %d failed\n", i);
             continue;
         }
-        std::string bucket_1_str(bucket_1);
-        delete [] bucket_1;
         for(int j=0;j<bucket_1_str.size();j=j+_row_size){
-            std::string record = bucket_1_str.substr(j, _row_size);
+            record = bucket_1_str.substr(j, _row_size);
             hash_map[record]++;
         }
         // compare
-        char* bucket_2 = nullptr;
-        read_bucket(bucket_2, i, "./output_hash_table/", true);
-        std::string bucket_2_str(bucket_2);
-        delete [] bucket_2;
+        bucket_2_str = read_bucket(i, "./output_hash_table/", true);
+        if(bucket_2_str == ""){
+            printf("read out bucket %d failed\n", i);
+            continue;
+        }
+        // delete [] bucket_2;
         for(int j=0;j<bucket_2_str.size();j=j+_row_size){
-            std::string record = bucket_2_str.substr(j, _row_size);
+            record = bucket_2_str.substr(j, _row_size);
             if(hash_map.find(record) == hash_map.end()){
                 std::cout<< "verifying failed, record: " << record <<" not int input bucket " << i <<std::endl;
                 set_status = false;
