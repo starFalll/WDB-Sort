@@ -30,7 +30,12 @@ Verify::Verify(int row_size, unsigned long long file_size, unsigned long long me
     _input_file = new File(HDD_PATH_INPUT, __LONG_LONG_MAX__, HDD_BLOCK, std::ios::app, HDD, _row_size);
 	_output_file = new File(RES_HDD_PATH, __LONG_LONG_MAX__, HDD_BLOCK, std::ios::app, HDD, _row_size);
 
-    int status = std::system(("[ -d './input_hash_table/' ]"));
+    int status = std::system(("[ -d './temp/' ]"));
+    if(status == 0){
+        status = std::system(("rm -rf ./temp/" ));
+    }
+
+    status = std::system(("[ -d './input_hash_table/' ]"));
     if(status == 0){
         status = std::system(("rm -rf ./input_hash_table/" ));
     }
