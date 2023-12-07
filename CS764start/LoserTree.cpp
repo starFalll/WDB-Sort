@@ -14,7 +14,12 @@ TreeNode::TreeNode (){
 	_element_index = -1;
 }
 
-TreeNode::~TreeNode() {}
+TreeNode::~TreeNode() {
+    // if (_value) {
+    //     delete _value;
+    //     _value = nullptr;
+    // }
+}
 
 // override operator
 bool TreeNode::operator < (const TreeNode & other) const {
@@ -92,18 +97,23 @@ LoserTree::LoserTree (int32_t leaf_num, RowSize row_size):_leaf_num(leaf_num) {
         _tree[i] = new TreeNode();
     }
     _origin_leaf_num = leaf_num;
-    ITEM_MIN = new Item(row_size, '0');
-    ITEM_MAX = new Item(row_size, '9');
+    _row_size = row_size;
+    // ITEM_MIN = new Item(row_size, '0');
+    // ITEM_MAX = new Item(row_size, '9');
 }
 
 LoserTree::~LoserTree() {
     for(uint32_t i=0;i<2*_origin_leaf_num;i++){
+        if (_tree[i]->_element_index == -1) {
+            delete _tree[i]->_value;
+        }
         delete _tree[i];
+        _tree[i] = nullptr;
     }
     delete [] _tree;
 
-    delete ITEM_MIN;
-    delete ITEM_MAX;
+    // delete ITEM_MIN;
+    // delete ITEM_MAX;
 }
 
 // check if loser tree is empty (no valid node)
@@ -127,6 +137,10 @@ void LoserTree::push(Item* item, int32_t run_index, int32_t element_index, std::
         
 
     // update node value
+    // if (_tree[_leaf_num + run_index]->_value) {
+    //     delete _tree[_leaf_num + run_index]->_value;
+    //     _tree[_leaf_num + run_index]->_value = nullptr;
+    // }
     _tree[_leaf_num + run_index]->_value = item;
     _tree[_leaf_num + run_index]->_run_index = run_index;
     _tree[_leaf_num + run_index]->_element_index = element_index;
@@ -165,6 +179,10 @@ void LoserTree::adjust(int32_t run_index) {
 void LoserTree::reset(int32_t num_of_reset_nodes, Item* value) {
     _leaf_num = num_of_reset_nodes;
     for(int32_t i=0;i<num_of_reset_nodes;i++){
+        if (_tree[i]->_value) {
+            delete _tree[i]->_value;
+            _tree[i]->_value = nullptr;
+        }
         _tree[i]->_value = value;
         _tree[i]->_run_index = -1;
         _tree[i]->_element_index = -1;
@@ -177,9 +195,9 @@ std::string LoserTree::getvalue(int i){
 }
 
 Item* LoserTree::getMinItem(){
-    return ITEM_MIN;
+    return new Item(_row_size, '0');
 }
 
 Item* LoserTree::getMaxItem(){
-    return ITEM_MAX;
+    return new Item(_row_size, '9');
 }

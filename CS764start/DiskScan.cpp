@@ -40,7 +40,7 @@ DiskScan::DiskScan(std::vector<int>& ssd_each_group_row, std::vector<int>& hdd_e
 
 DiskScan::~DiskScan ()
 {
-    traceprintf ("diskscanssd %lu,scanhdd %lu",
+    traceprintf ("diskscanssd %lu,scanhdd %lu\n",
         (unsigned long) (_ssd_each_group_row.size()),
         (unsigned long) (_hdd_each_group_row.size()));
 	TRACE (TRACE_SWITCH);
@@ -61,7 +61,10 @@ DiskScan::~DiskScan ()
     // release resource
 	for(uint32_t i=0;i<_disk_run_list_row;i++){
 		for (uint32_t j = 0; j < _disk_run_list_col; j++) {
-			if (_disk_run_list[i][j]) delete _disk_run_list[i][j];
+			if (_disk_run_list[i][j]) {
+				delete _disk_run_list[i][j];
+				_disk_run_list[i][j] = nullptr;
+			}
 		}
 		delete [] _disk_run_list[i];
 	}
@@ -86,7 +89,7 @@ void DiskScan::ReadFromDisk(){
 		
 		BatchSize read_size;
         char* buffer = SSD->read(group_num , _row_size, _ssd_each_group_row, _batch_size, _group_offset[group_num], &read_size);
-		printf("read sdd:%u  read lines:%u\n", group_num, read_size);
+		// printf("read sdd:%u  read lines:%u\n", group_num, read_size);
 		_each_group_col[group_num] = read_size;
 		_group_offset[group_num] += read_size; //记录每个组读到哪里了
         Bytes2DiskRecord(buffer , group_num);
@@ -97,7 +100,7 @@ void DiskScan::ReadFromDisk(){
 		
 		BatchSize read_size;
         char* buffer = HDD->read(group_num , _row_size, _hdd_each_group_row, _batch_size, _group_offset[group_num + _ssd_each_group_row.size()], &read_size);
-		printf("read hdd:%u read lines:%u\n", group_num+_ssd_each_group_row.size(), read_size);
+		// printf("read hdd:%u read lines:%u\n", group_num+_ssd_each_group_row.size(), read_size);
 		_each_group_col[group_num + _ssd_each_group_row.size()] = read_size;
 		_group_offset[group_num + _ssd_each_group_row.size()] += read_size; //记录每个组读到哪里了
         Bytes2DiskRecord(buffer , group_num + _ssd_each_group_row.size());
@@ -116,7 +119,7 @@ void DiskScan::RefillRow(uint32_t group_num){
 			_each_group_col[group_num] = read_size;
 			Bytes2DiskRecord(buffer , group_num);
 			_group_offset[group_num] += read_size; //记录每个组读到哪里了
-			std::cout<< "group num:"<<group_num <<" offset:"<<_group_offset[group_num]<<std::endl; 
+			// std::cout<< "group num:"<<group_num <<" offset:"<<_group_offset[group_num]<<std::endl; 
 		} else{
 			BatchSize read_size;
 			char* buffer = SSD->read(group_num , _row_size, _ssd_each_group_row, _ssd_each_group_row[group_num] - _group_offset[group_num], 
@@ -124,7 +127,7 @@ void DiskScan::RefillRow(uint32_t group_num){
 			_each_group_col[group_num] = read_size;
 			Bytes2DiskRecord(buffer , group_num);
 			_group_offset[group_num] += read_size;
-			std::cout<< "group num:"<<group_num <<" offset:"<<_group_offset[group_num]<<std::endl; 
+			// std::cout<< "group num:"<<group_num <<" offset:"<<_group_offset[group_num]<<std::endl; 
 		}
     } else{
 		if (_hdd_each_group_row[group_num-_ssd_each_group_row.size()] - _group_offset[group_num] >= _batch_size){
@@ -133,7 +136,7 @@ void DiskScan::RefillRow(uint32_t group_num){
 			_each_group_col[group_num] = read_size;
 			Bytes2DiskRecord(buffer , group_num);
 			_group_offset[group_num] += read_size; //记录每个组读到哪里了
-			std::cout<< "group num:"<<group_num <<" offset:"<<_group_offset[group_num]<<std::endl; 
+			// std::cout<< "group num:"<<group_num <<" offset:"<<_group_offset[group_num]<<std::endl; 
 		}else{
 			BatchSize read_size;
 			
@@ -141,7 +144,7 @@ void DiskScan::RefillRow(uint32_t group_num){
 			_each_group_col[group_num] = read_size;
 			Bytes2DiskRecord(buffer , group_num);
 			_group_offset[group_num] += read_size;
-			std::cout<< "group num:"<<group_num <<" offset:"<<_group_offset[group_num]<<std::endl; 
+			// std::cout<< "group num:"<<group_num <<" offset:"<<_group_offset[group_num]<<std::endl; 
 		}
     }
 }
@@ -224,7 +227,7 @@ void DiskScan::MultiwayMerge(){
 	}
 	resConsumeThread.join();
 	for (int i = 0; i < _disk_run_list_row; i++) {
-		std::cout<<"Finished, group:"<<i<<" rows:"<<_group_offset[i]<<std::endl;
+		// std::cout<<"Finished, group:"<<i<<" rows:"<<_group_offset[i]<<std::endl;
 	}
 	traceprintf ("DiskScan produced %lu \n",
 			(unsigned long) (count));	
@@ -262,7 +265,7 @@ void DiskScan::Bytes2DiskRecord(char* buffer, uint32_t group_num){
 			delete _disk_run_list[group_num][col];
 		_disk_run_list[group_num][col] = temp;
 		if (col == 0) {
-			std::cout<< "disk: group:"<<group_num << " col:"<<col<< " field1:"<<temp->fields[INCL]<< " field2:"<<temp->fields[MEM]<< std::endl;
+			// std::cout<< "disk: group:"<<group_num << " col:"<<col<< " field1:"<<temp->fields[INCL]<< " field2:"<<temp->fields[MEM]<< std::endl;
 		}
     }
 	delete [] block;

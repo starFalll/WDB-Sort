@@ -30,8 +30,6 @@ int main (int argc, char * argv [])
 	}
 	printf("%d, %d, %s\n", row_count, row_size, trace_file_name);
 
-	row_count = 2621440;
-	row_size = 50;
 	TRACE (TRACE_SWITCH);
 	Plan * const scan_plan = new ScanPlan (row_count,row_size);
 	//Plan * scan_plan = new ScanPlan(10000000);
@@ -48,15 +46,15 @@ int main (int argc, char * argv [])
 	auto later = std::chrono::high_resolution_clock::now();
     auto timestamp_later = std::chrono::time_point_cast<std::chrono::milliseconds>(later);
     long long milliseconds_later = timestamp_later.time_since_epoch().count();
-	printf("cost time: %lld ms\n", milliseconds_later - milliseconds_now);
+	printf("sort cost time: %lld ms\n", milliseconds_later - milliseconds_now);
 	auto ssd_group_lens = it->SSD_TEMP->getGroupLens();
 	auto hdd_group_lens = it->HDD_TEMP->getGroupLens();
 	std::vector<int> real_hdd_group_lens;
-	for (int i = 0; i < ssd_group_lens.size(); i++) {
-		std::cout<<"ssd group:"<<i+1 <<" size:" << ssd_group_lens[i]<<std::endl;
-	}
+	// for (int i = 0; i < ssd_group_lens.size(); i++) {
+	// 	std::cout<<"ssd group:"<<i+1 <<" size:" << ssd_group_lens[i]<<std::endl;
+	// }
 	for (int i = 0; i < hdd_group_lens.size(); i++) {
-		std::cout<<"hdd group:"<<i+1 <<" size:" << hdd_group_lens[i]<<std::endl;
+		// std::cout<<"hdd group:"<<i+1 <<" size:" << hdd_group_lens[i]<<std::endl;
 		if (hdd_group_lens[i] > 0) {
 			real_hdd_group_lens.push_back(hdd_group_lens[i]);
 		}
@@ -71,9 +69,19 @@ int main (int argc, char * argv [])
 	d_scan->MultiwayMerge();
 	delete d_scan;
 
-	Verify* v = new Verify(row_size, row_count*row_size, MAX_DRAM);
+	auto later1 = std::chrono::high_resolution_clock::now();
+    auto timestamp_later1 = std::chrono::time_point_cast<std::chrono::milliseconds>(later1);
+    long long milliseconds_later1 = timestamp_later1.time_since_epoch().count();
+	printf("merge cost time: %lld ms\n", milliseconds_later1 - milliseconds_later);
+
+	Verify* v = new Verify(row_size, (unsigned long long)row_count*(unsigned long long)row_size, MAX_DRAM);
 	v->verify();
 	delete v;
+
+	auto later2 = std::chrono::high_resolution_clock::now();
+    auto timestamp_later2 = std::chrono::time_point_cast<std::chrono::milliseconds>(later2);
+    long long milliseconds_later2 = timestamp_later2.time_since_epoch().count();
+	printf("verify cost time: %lld ms\n", milliseconds_later2 - milliseconds_later1);
 
 	return 0;
 } // main

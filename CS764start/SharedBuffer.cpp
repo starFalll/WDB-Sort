@@ -7,6 +7,7 @@ SharedBuffer::SharedBuffer(int32_t buffer_capacity, RowSize row_size) :
     // init buffer
     _buffer = new char[_buffer_capacity];
     _total_write_size = 0;
+    _total_read_size = 0;
 }
 
 SharedBuffer::~SharedBuffer(){
@@ -22,14 +23,24 @@ void SharedBuffer::produce(const Item& item, bool finish){
     for(int i=0;i<3;i++){
         int32_t str_length = (i==2) ? _row_size-2*(_row_size/3) : _row_size/3;
         if(_buffer_capacity - _rear >= str_length){
-            strcpy(&(_buffer[_rear]), item.fields[i]);
+            // strcpy(&(_buffer[_rear]), item.fields[i]);
+            memcpy(&(_buffer[_rear]), item.fields[i], str_length);
+            // printf("test1\n");
+            printf("cur:%s\n", &(_buffer[_rear]));
+            _total_read_size += str_length;
         }else{
             int32_t tmp_length = _buffer_capacity - _rear;
+            printf("change size1:%d\n", tmp_length);
+            memcpy(&(_buffer[_rear]), item.fields[i], tmp_length);
+            _total_read_size += tmp_length;
+            // strcpy(&(_buffer[_rear]), tmp_str.substr(0, tmp_length).c_str());
             std::string tmp_str(item.fields[i]);
-            strcpy(&(_buffer[_rear]), tmp_str.substr(0, tmp_length).c_str());
             int32_t start_idx = tmp_length;
             tmp_length = str_length - tmp_length;
-            strcpy(&(_buffer[0]), tmp_str.substr(start_idx, tmp_length).c_str());
+            memcpy(&(_buffer[0]), tmp_str.substr(start_idx, tmp_length-1).c_str(), tmp_length);
+            _total_read_size += tmp_length;
+            printf("change size2:%d\n", tmp_length);
+            // strcpy(&(_buffer[0]), );
         }
         // update rear
         _rear = (_rear + str_length) % _buffer_capacity;
@@ -63,6 +74,7 @@ void SharedBuffer::consume(File* file){
             file->write((char*)&(_buffer[_front]), block_size);
             _total_write_size += block_size;
             add_size = block_size;
+            printf("write1:%s\n", (char*)&(_buffer[_front]));
         }else{
             // first write
             int32_t tmp_num = _buffer_capacity - _front;
@@ -74,6 +86,7 @@ void SharedBuffer::consume(File* file){
             file->write((char*)&(_buffer[0]), tmp_num);
             _total_write_size += tmp_num;
             add_size += tmp_num;
+            printf("write2:%s\n", (char*)&(_buffer[_front]));
         }
         // update front
         _front = (_front + block_size) % _buffer_capacity;
@@ -112,7 +125,7 @@ void SharedBuffer::cyclicalConsume(File* SSD, File* HDD){
             hdd_consume.join();
         }
     }
-    traceprintf ("SharedBuffer write %lu\n",
+    traceprintf ("SharedBuffer read %llu write %lu\n", _total_read_size,
 			(unsigned long) (_total_write_size));
 }
 

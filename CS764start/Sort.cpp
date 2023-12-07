@@ -82,7 +82,7 @@ bool SortIterator::next ()
 	bool ret = false;
 	// if (_produced >= _consumed)  return false;
 	if ((ret = _input->next ())) {
-		printf("consumed:%d\n", _consumed);
+		// printf("consumed:%d\n", _consumed);
 		std::vector<Item> * filter_records;
 		uint32_t * filter_index;
 		_input->GetRecords(&filter_records, &filter_index);
@@ -91,11 +91,11 @@ bool SortIterator::next ()
 		TRACE_ITEM (TRACE_SWITCH, _sort_records [_sort_index].fields[INCL], _sort_records [_sort_index].fields[MEM], _sort_records [_sort_index].fields[MGMT]);
 		++ _consumed;
 	}
-	printf("next:%d ret:%d _sort_index:%d _last_consumed:%d\n", _consumed, ret, _sort_index, _last_consumed);
+	// printf("next:%d ret:%d _sort_index:%d _last_consumed:%d\n", _consumed, ret, _sort_index, _last_consumed);
 	TRACE (TRACE_SWITCH);
 	// _sort_records is fulled
 	if (_consumed>_last_consumed && (!ret || (0 == _sort_index))) {
-		printf("_last_consumed:%d comsumed:%d\n", _last_consumed, _consumed);
+		// printf("_last_consumed:%d comsumed:%d\n", _last_consumed, _consumed);
 		uint32_t add_num = _sort_index == 0 ? (RowCount)_sort_records.size() : _sort_index+1;
 		// when not full, valid value from index 1
 		uint32_t begin_num = _sort_index == 0 ? 0 : 1;
@@ -108,11 +108,15 @@ bool SortIterator::next ()
 		
 		// save sorted 0.5M data in memory
 		for(uint32_t i=0, j = begin_num;j<add_num;i++, j++){
+			if (_cache_run_list[_current_run_index][i]) {
+				delete _cache_run_list[_current_run_index][i];
+				_cache_run_list[_current_run_index][i] = nullptr;
+			}
 			_cache_run_list[_current_run_index][i] = new Item(_sort_records[j]);
 		}
 		_current_run_index++;
 
-		_produced += add_num;
+		_produced += add_num - begin_num;
 		_last_consumed = _consumed;
 		TRACE (TRACE_SWITCH);
 		// printf("_current_run_index:%d max_element_index:%d test index:%u\n", _current_run_index, m, _sort_index);
@@ -126,7 +130,7 @@ bool SortIterator::next ()
 
 	// run list is full or finish, start to merge
 	if((_current_run_index >= _cache_run_list_row) || (_consumed > 0 && !ret)){
-		_loser_tree->reset(_cache_run_list_row, _loser_tree->getMaxItem());
+		// _loser_tree->reset(_cache_run_list_row, _loser_tree->getMaxItem());
 		MultiwayMerge();
 		_current_run_index = 0;
 	}
@@ -192,7 +196,7 @@ void SortIterator::MultiwayMerge (){
 	while (!_loser_tree->empty()) {
 		// get smallest element
 		TreeNode* cur = _loser_tree->top();
-		printf("pop node value:%s, ovc:%u\n", cur->_value->fields[INCL], cur->_offset_value_code);
+		// printf("pop node value:%s, ovc:%u\n", cur->_value->fields[INCL], cur->_offset_value_code);
 
 		// get the string of current data
 		std::string tmp_base_str(cur->_value->GetItemString());
@@ -219,9 +223,10 @@ void SortIterator::MultiwayMerge (){
 		// _results[res_index] = *(cur->_value);
 		count++;
 		_shared_buffer->produce(*(cur->_value), isFinish);
+		// delete cur;
 	}
 	cyclicalConsumeThread.join();
-	traceprintf ("LoserTree produced %lu of %lu rows\n",
-			(unsigned long) (count),
-			(unsigned long) (_consumed));	
+	// traceprintf ("LoserTree produced %lu of %lu rows\n",
+	// 		(unsigned long) (count),
+	// 		(unsigned long) (_consumed));	
 }
