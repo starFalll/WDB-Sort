@@ -1,8 +1,8 @@
-CPPOPT=-g -D_DEBUG
-LIBS=-lstring -stdlib -liostream -lfstream -pthread
+CPPOPT=-g -Og -D_DEBUG
+LIBS=-lstring -stdlib -liostream -lfstream -pthread -lpthread
 # -O2 -Os -Ofast
 # -fprofile-generate -fprofile-use
-CPPFLAGS=$(CPPOPT) -Wall -ansi -pedantic -std=c++11
+CPPFLAGS=$(CPPOPT) -Wall -ansi -pedantic -lpthread -pthread -std=c++11
 # -Wparentheses -Wno-unused-parameter -Wformat-security
 # -fno-rtti -std=c++11 -std=c++98
 

@@ -120,8 +120,8 @@ void SharedBuffer::cyclicalConsume(File* SSD, File* HDD){
             hdd_consume.join();
         }
     }
-    traceprintf ("SharedBuffer read %llu write %lu\n", _total_read_size,
-			(unsigned long) (_total_write_size));
+    // traceprintf ("SharedBuffer read %llu write %lu\n", _total_read_size,
+	// 		(unsigned long) (_total_write_size));
 }
 
 // only HDD
