@@ -16,7 +16,7 @@ Verify::Verify() {}
 Verify::Verify(int row_size, unsigned long long file_size, unsigned long long memory_size) : 
     _row_size(row_size), _bucket_num(ceil(file_size / (memory_size * 0.5))) {
 
-    _batch_size = 0.5 * memory_size;
+    _batch_size = (memory_size * 5 / 10)/_row_size * _row_size;
     _bucket_capacity = _batch_size / _bucket_num;
     _hash_table = new Bucket*[_bucket_num];
     for(int i=0;i<_bucket_num;i++){
@@ -77,6 +77,7 @@ void Verify::write_bucket(char* data, int length, int bucket_id, std::string dir
         }
     }
 
+    // std::cout << "bucket id: "<< bucket_id << " bucket data: " << std::string(data, length) << std::endl;
     // open file
     std::fstream bucket_file;
     bucket_file.open(dir_path+file_name, std::ios::out | std::ios::in | std::ios::app | std::ios::binary);
