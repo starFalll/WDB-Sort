@@ -40,23 +40,23 @@ bool FilterPlan::ApplyPredicate (Item & item) const
 	// if do not have conditions, don't do filter
 	if (_predicates.empty()) return true;
 
-	for (const auto & field : ITEM_FIELDS) {
-		auto it = _predicates.find (field);
-		if (it != _predicates.end ()) {
-			for (const auto & predicate : it->second) {
-				// if ((predicate.predicate == EQ && stoull(item.fields [field]) == stoull(predicate.value))
-				// 	|| (predicate.predicate == GT && stoull(item.fields [field]) > stoull(predicate.value))
-				// 	|| (predicate.predicate == LT && stoull(item.fields [field]) < stoull(predicate.value))
-				// 	|| (predicate.predicate == GE && stoull(item.fields [field]) >= stoull(predicate.value))
-				// 	|| (predicate.predicate == LE && stoull(item.fields [field]) <= stoull(predicate.value))) {
-				// 	return true;
-				// }
-				return true;
-			}
-		}
+	// for (const auto & field : ITEM_FIELDS) {
+	// 	auto it = _predicates.find (field);
+	// 	if (it != _predicates.end ()) {
+	// 		for (const auto & predicate : it->second) {
+	// 			// if ((predicate.predicate == EQ && stoull(item.fields [field]) == stoull(predicate.value))
+	// 			// 	|| (predicate.predicate == GT && stoull(item.fields [field]) > stoull(predicate.value))
+	// 			// 	|| (predicate.predicate == LT && stoull(item.fields [field]) < stoull(predicate.value))
+	// 			// 	|| (predicate.predicate == GE && stoull(item.fields [field]) >= stoull(predicate.value))
+	// 			// 	|| (predicate.predicate == LE && stoull(item.fields [field]) <= stoull(predicate.value))) {
+	// 			// 	return true;
+	// 			// }
+	// 			return true;
+	// 		}
+	// 	}
 		
-	}
-	return false;
+	// }
+	return true;
 }
 
 FilterIterator::FilterIterator (FilterPlan const * const plan) :
