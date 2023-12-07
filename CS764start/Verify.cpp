@@ -16,7 +16,7 @@ Verify::Verify() {}
 Verify::Verify(int row_size, unsigned long long file_size, unsigned long long memory_size) : 
     _row_size(row_size), _bucket_num(ceil(file_size / (memory_size * 0.5))) {
 
-    _batch_size = (memory_size * 5 / 10)/_row_size * _row_size;
+    _batch_size = (memory_size / 2)/_row_size * _row_size;
     _bucket_capacity = _batch_size / _bucket_num;
     _hash_table = new Bucket*[_bucket_num];
     for(int i=0;i<_bucket_num;i++){
