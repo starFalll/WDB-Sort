@@ -23,7 +23,7 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 	Iterator(plan->GetSize()), _plan (plan), 
 	_input (plan->_input->init ()), _consumed (0), _produced (0), 
 	_cache_run_list_row((MAX_DRAM * 5 / 10) / (MAX_CPU_CACHE * 5 / 10)),
-	_cache_run_list_col(MAX_CPU_CACHE * 5 / 10 / sizeof(Item))
+	_cache_run_list_col(MAX_CPU_CACHE * 5 / 10 / _row_size)
 {
 	TRACE (TRACE_SWITCH);
 
@@ -33,7 +33,7 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 	// allocate 90MB to sort
 	// _sort_records.resize (MAX_DRAM * 9 / 10 / sizeof(Item));
 	// allocate 0.5MB to sort (use CPU Cache)
-	_sort_records.resize (MAX_CPU_CACHE * 5 / 10 / sizeof(Item), Item(plan->_input->GetSize(), '0'));
+	_sort_records.resize (MAX_CPU_CACHE * 5 / 10 / _row_size, Item(plan->_input->GetSize(), '0'));
 
 	// initialize current run index
 	_current_run_index = 0;
@@ -45,6 +45,7 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 	}
 
 	_sort_index = 0;
+	_last_consumed = 0;
 
 	// initialize loser of tree
 	_loser_tree = new LoserTree(_cache_run_list_row, _row_size);
@@ -77,39 +78,46 @@ SortIterator::~SortIterator ()
 bool SortIterator::next ()
 {
 	TRACE (TRACE_SWITCH);
-
+	
 	bool ret = false;
 	// if (_produced >= _consumed)  return false;
 	if ((ret = _input->next ())) {
+		// printf("consumed:%d\n", _consumed);
 		std::vector<Item> * filter_records;
 		uint32_t * filter_index;
 		_input->GetRecords(&filter_records, &filter_index);
-		_sort_records [_sort_index] = filter_records->at (*filter_index);
 		_sort_index = (++ _sort_index) % _sort_records.size ();
-		// TRACE_ITEM (TRACE_SWITCH, _sort_records [_sort_index].fields[INCL], _sort_records [_sort_index].fields[MEM], _sort_records [_sort_index].fields[MGMT]);
+		_sort_records [_sort_index] = filter_records->at (*filter_index);
+		TRACE_ITEM (TRACE_SWITCH, _sort_records [_sort_index].fields[INCL], _sort_records [_sort_index].fields[MEM], _sort_records [_sort_index].fields[MGMT]);
 		++ _consumed;
 	}
+	// printf("next:%d ret:%d _sort_index:%d _last_consumed:%d\n", _consumed, ret, _sort_index, _last_consumed);
 	TRACE (TRACE_SWITCH);
 	// _sort_records is fulled
-	if ((!ret && _consumed > 0) || 0 == _sort_index) {
-		uint32_t add_num = _sort_index == 0 ? (RowCount)_sort_records.size() : _sort_index;
+	if (_consumed>_last_consumed && (!ret || (0 == _sort_index))) {
+		// printf("_last_consumed:%d comsumed:%d\n", _last_consumed, _consumed);
+		uint32_t add_num = _sort_index == 0 ? (RowCount)_sort_records.size() : _sort_index+1;
 		// when not full, valid value from index 1
-		// uint32_t begin_num = _sort_index == 0 ? 0 : 1;
+		uint32_t begin_num = _sort_index == 0 ? 0 : 1;
 		// because quicksort's sequential and localized memory references work well with a cache
-		QuickSort(_sort_records.begin(), _sort_records.begin() + add_num, [] (const Item & a, const Item & b) {
+		QuickSort(_sort_records.begin() + begin_num, _sort_records.begin() + add_num, [] (const Item & a, const Item & b) {
 			// TODO supporting group by
 			// temporarily sorting by first field
 			return a < b;
 		});
 		
 		// save sorted 0.5M data in memory
-		for(uint32_t i=0;i<add_num;i++){
-			_cache_run_list[_current_run_index][i] = new Item(_sort_records[i]);
+		for(uint32_t i=0, j = begin_num;j<add_num;i++, j++){
+			if (_cache_run_list[_current_run_index][i]) {
+				delete _cache_run_list[_current_run_index][i];
+				_cache_run_list[_current_run_index][i] = nullptr;
+			}
+			_cache_run_list[_current_run_index][i] = new Item(_sort_records[j]);
 		}
-		// count current run index
 		_current_run_index++;
 
-		_produced += add_num;
+		_produced += add_num - begin_num;
+		_last_consumed = _consumed;
 		TRACE (TRACE_SWITCH);
 		// printf("_current_run_index:%d max_element_index:%d test index:%u\n", _current_run_index, m, _sort_index);
 		// for (int i = begin_num; i < add_num; i++) {
@@ -121,12 +129,11 @@ bool SortIterator::next ()
 	}
 
 	// run list is full or finish, start to merge
-	if((_current_run_index >= _cache_run_list_row) || (!ret && _consumed > 0)){
-		_loser_tree->reset(_cache_run_list_row, _loser_tree->getMaxItem());
+	if((_current_run_index >= _cache_run_list_row) || (_consumed > 0 && !ret)){
+		// _loser_tree->reset(_cache_run_list_row, _loser_tree->getMaxItem());
 		MultiwayMerge();
 		_current_run_index = 0;
 	}
-
 	// ++ _produced;
 	return ret;
 } // SortIterator::next
@@ -171,13 +178,14 @@ void SortIterator::MultiwayMerge (){
 	_loser_tree->reset(_current_run_index, _loser_tree->getMinItem());
 
 	// 初始基准字符串为空
-	std::string ovc_negative_infinity(_row_size/3, '0');
-	std::string* base_str_ptr = &ovc_negative_infinity; 
+	std::string* base_str_ptr = nullptr; 
 
 	// Initialize with the first element of each sorted sequence
 	for (uint32_t i = 0; i < _current_run_index; i++) {	
 		_loser_tree->push(_cache_run_list[i][0], i, 0, base_str_ptr);
 	}
+
+	uint64_t count = 0;
 
 	// merge finish symbol
 	bool isFinish = false;
@@ -188,6 +196,7 @@ void SortIterator::MultiwayMerge (){
 	while (!_loser_tree->empty()) {
 		// get smallest element
 		TreeNode* cur = _loser_tree->top();
+		// printf("pop node value:%s, ovc:%u\n", cur->_value->fields[INCL], cur->_offset_value_code);
 
 		// get the string of current data
 		std::string tmp_base_str(cur->_value->GetItemString());
@@ -203,9 +212,8 @@ void SortIterator::MultiwayMerge (){
 		if (element_index < target_element_index) {
 			_loser_tree->push(_cache_run_list[run_index][element_index], run_index, element_index, base_str_ptr);
 		}else{
-			Item temp = Item(_row_size,'9');
-			_loser_tree->push(&temp, run_index, -1, base_str_ptr);
-			//_loser_tree->push(&ITEM_MAX, -1, -1);
+			// push infinity
+			_loser_tree->push(_loser_tree->getMaxItem(), run_index, -1, base_str_ptr);
 		}
 
 		if(_loser_tree->empty()){
@@ -213,7 +221,12 @@ void SortIterator::MultiwayMerge (){
 		}
 		// save in results
 		// _results[res_index] = *(cur->_value);
+		count++;
 		_shared_buffer->produce(*(cur->_value), isFinish);
+		// delete cur;
 	}
 	cyclicalConsumeThread.join();
+	// traceprintf ("LoserTree produced %lu of %lu rows\n",
+	// 		(unsigned long) (count),
+	// 		(unsigned long) (_consumed));	
 }

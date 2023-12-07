@@ -2,4 +2,4 @@
 #include "defs.h"
 
 
-uint32_t CalculateOffsetValueCode(std::string* base, std::string* compare);
+uint32_t CalculateOffsetValueCode(const char* winner, const char* loser);

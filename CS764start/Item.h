@@ -28,6 +28,7 @@ struct Item
 	Item ();
 	Item (RowSize row_size, char init_char = '0');
 	bool operator < (const Item & other) const;
+	bool operator > (const Item & other) const;
 	char* GetItemString();
 	~Item();
 };

@@ -8,6 +8,7 @@
 #include <fstream>
 #include <regex>
 #include <vector>
+#include <pthread.h>
 
 typedef uint8_t byte;
 typedef char*  FieldType;

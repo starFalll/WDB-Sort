@@ -42,7 +42,7 @@ public:
 
     void write_bucket(char* data, int length, int bucket_id, std::string dir_path);
 
-    void read_bucket(char* bucket, int bucket_id, std::string dir_path, bool is_output);
+    std::string read_bucket(int bucket_id, std::string dir_path, bool is_output);
 
     void create_hash_table(File* file, std::string dir_path, bool& order_status, bool is_output);
 

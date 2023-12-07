@@ -11,6 +11,8 @@ private:
     const int32_t _buffer_capacity;
     int32_t _front;
     int32_t _rear;
+    uint64_t _total_write_size;
+    uint64_t _total_read_size;
     // mutex
     std::mutex _mtx;
     std::condition_variable _not_full_cv;

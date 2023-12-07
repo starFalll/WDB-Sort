@@ -26,10 +26,11 @@ private:
     int32_t _origin_leaf_num;
     // loser tree (implemented by array)
     TreeNode** _tree;
+    RowSize _row_size;
     // max item
-    Item* ITEM_MIN;
-    // min item
-    Item* ITEM_MAX;
+    // Item* ITEM_MIN;
+    // // min item
+    // Item* ITEM_MAX;
 
 public:
     LoserTree(int32_t leaf_num, RowSize row_size);
@@ -40,7 +41,7 @@ public:
 
     TreeNode* top();
 
-    void push(Item* item, int32_t run_index, int32_t element_index, std::string* baseStr);
+    void push(Item* item, int32_t run_index, int32_t element_index, std::string* base_str_ptr);
 
     void adjust(int32_t run_index);
 
