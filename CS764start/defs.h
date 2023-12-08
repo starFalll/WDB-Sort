@@ -42,22 +42,22 @@ typedef uint32_t RowSize;
 #define RES_HDD_PATH "./output/RES_HDD.csv"
 
 // SSD Block per access
-#define SSD_BLOCK 10 * 1024
+#define SSD_BLOCK (int32_t) 10 * 1024
 
 // HDD Block per access
-#define HDD_BLOCK 1 * 1024 * 1024
+#define HDD_BLOCK (int32_t) 1 * 1024 * 1024
 
 // CPU cache 1 MB
-#define MAX_CPU_CACHE 1024 * 1024
+#define MAX_CPU_CACHE (uint32_t) 1024 * 1024
 
 // DRAM 100 MB
-#define MAX_DRAM 100 * 1024 * 1024
+#define MAX_DRAM (uint32_t) 100 * 1024 * 1024
 
 // SSD 10 GB
-#define MAX_SSD 10 * 1024 * 1024 * 1024
+#define MAX_SSD (unsigned long long) 10 * 1024 * 1024 * 1024
 
 // Output buffer
-#define OUTPUT_BUFFER 10 * 1024 * 1024
+#define OUTPUT_BUFFER (int32_t) 10 * 1024 * 1024
 
 // call-through to assert() from <assert.h>
 //
