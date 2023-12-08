@@ -151,7 +151,6 @@ void DiskScan::RefillRow(uint32_t group_num){
 
 void DiskScan::MultiwayMerge(){
 	// check full or finish and get the column number in the last row
-	uint32_t last_row_col =  _disk_run_list_col;
 	// reset loser tree
 	_loser_tree->reset(_current_run_index, _loser_tree->getMinItem());
 
@@ -161,7 +160,6 @@ void DiskScan::MultiwayMerge(){
 
 	// Initialize with the first element of each sorted sequence
 	for (uint32_t i = 0; i < _disk_run_list_row; i++) {	
-		auto item = _disk_run_list[i][0];
 		_loser_tree->push(_disk_run_list[i][0], i, 0, base_str_ptr);
 	}
 	// for (uint32_t i = 0; i < _disk_run_list_row * 2; i++) {	

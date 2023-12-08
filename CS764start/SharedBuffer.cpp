@@ -128,7 +128,6 @@ void SharedBuffer::cyclicalConsume(File* SSD, File* HDD){
 
 // only HDD
 void SharedBuffer::resConsume(File* RES_HDD){
-    int32_t count=0;
     // update file run number
     RES_HDD->addRunNum();
     // loop until merge finish
@@ -137,7 +136,6 @@ void SharedBuffer::resConsume(File* RES_HDD){
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         // hdd consume
         std::thread hdd_consume([this, &RES_HDD](){this->consume(RES_HDD);});
-        count = 0;
         // join thread
         hdd_consume.join();
     }

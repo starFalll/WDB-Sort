@@ -22,9 +22,9 @@ private:
     // number of runs
     int32_t _run_num;
 
-    RowSize _row_size;
-
     FileType _type;
+    RowSize _row_size;
+ 
     std::vector<int32_t> _group_lens;
 
 public:

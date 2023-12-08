@@ -185,7 +185,6 @@ void SortIterator::MultiwayMerge (){
 		_loser_tree->push(_cache_run_list[i][0], i, 0, base_str_ptr);
 	}
 
-	uint64_t count = 0;
 
 	// merge finish symbol
 	bool isFinish = false;
@@ -221,7 +220,6 @@ void SortIterator::MultiwayMerge (){
 		}
 		// save in results
 		// _results[res_index] = *(cur->_value);
-		count++;
 		_shared_buffer->produce(*(cur->_value), isFinish);
 		// delete cur;
 	}
