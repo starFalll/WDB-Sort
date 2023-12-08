@@ -17,7 +17,8 @@ typedef uint32_t BatchSize;
 typedef uint64_t RowCount;
 typedef uint32_t RowSize;
 
-#define TRACE_SWITCH false
+//#define TRACE_SWITCH false
+#define TRACE_SWITCH true
 
 #define slotsof(a)	(sizeof (a) / sizeof (a[0]))
 

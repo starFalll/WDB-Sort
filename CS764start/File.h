@@ -60,6 +60,10 @@ public:
         return _run_num;
     }
 
+    unsigned long long getCurByte() {
+        return _cur_byte;
+    }
+
     std::vector<int32_t> getGroupLens() {
         return _group_lens; 
     }

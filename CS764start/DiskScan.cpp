@@ -7,7 +7,7 @@ DiskScan::DiskScan(std::vector<int>& ssd_each_group_row, std::vector<int>& hdd_e
 	_ssd_each_group_row(ssd_each_group_row),
     _hdd_each_group_row(hdd_each_group_row)
 {
-    TRACE (TRACE_SWITCH);
+    ////TRACE (TRACE_SWITCH);
     SSD = new File(SSD_PATH_TEMP, FileType::SSD, _row_size, SSD_BLOCK);
 	HDD = new File(HDD_PATH_TEMP, FileType::HDD, _row_size, HDD_BLOCK);
     RES_HDD = new File(RES_HDD_PATH, __LONG_LONG_MAX__, HDD_BLOCK, FileType::HDD, _row_size);
@@ -40,10 +40,13 @@ DiskScan::DiskScan(std::vector<int>& ssd_each_group_row, std::vector<int>& hdd_e
 
 DiskScan::~DiskScan ()
 {
-    traceprintf ("diskscanssd %lu,scanhdd %lu\n",
-        (unsigned long) (_ssd_each_group_row.size()),
-        (unsigned long) (_hdd_each_group_row.size()));
-	TRACE (TRACE_SWITCH);
+    // traceprintf ("diskscanssd %lu,scanhdd %lu\n",
+    //     (unsigned long) (_ssd_each_group_row.size()),
+    //     (unsigned long) (_hdd_each_group_row.size()));
+
+	traceprintf ("\n%lu bytes data are written into output HDD.\n",
+	(unsigned long) (RES_HDD->getCurByte()));
+	////TRACE (TRACE_SWITCH);
 
     // for(uint32_t i=0;i<_disk_run_list_row;i++){
     //     for(uint32_t j=0;j<_each_group_col[i];j++){
@@ -227,8 +230,8 @@ void DiskScan::MultiwayMerge(){
 	for (int i = 0; i < _disk_run_list_row; i++) {
 		// std::cout<<"Finished, group:"<<i<<" rows:"<<_group_offset[i]<<std::endl;
 	}
-	traceprintf ("DiskScan produced %lu \n",
-			(unsigned long) (count));	
+	// traceprintf ("DiskScan produced %lu \n",
+	// 		(unsigned long) (count));	
 }
 
 // 把buffer里的数据填进disk_run_list

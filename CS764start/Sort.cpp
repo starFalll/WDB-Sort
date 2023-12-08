@@ -3,18 +3,18 @@
 
 SortPlan::SortPlan (Plan * const input) : Plan(input->GetSize()), _input (input)
 {
-	TRACE (TRACE_SWITCH);
+	//TRACE (TRACE_SWITCH);
 } // SortPlan::SortPlan
 
 SortPlan::~SortPlan ()
 {
-	TRACE (TRACE_SWITCH);
+	//TRACE (TRACE_SWITCH);
 	delete _input;
 } // SortPlan::~SortPlan
 
 Iterator * SortPlan::init () const
 {
-	TRACE (TRACE_SWITCH);
+	//TRACE (TRACE_SWITCH);
 	return new SortIterator (this);
 } // SortPlan::init
 
@@ -25,7 +25,7 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 	_cache_run_list_row((MAX_DRAM * 5 / 10) / (MAX_CPU_CACHE * 5 / 10)),
 	_cache_run_list_col(MAX_CPU_CACHE * 5 / 10 / _row_size)
 {
-	TRACE (TRACE_SWITCH);
+	//TRACE (TRACE_SWITCH);
 
 	// init producer consumer
 	_shared_buffer = new SharedBuffer(OUTPUT_BUFFER, _row_size);
@@ -44,6 +44,9 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 		memset(_cache_run_list[i], 0, sizeof(Item*) * _cache_run_list_col);
 	}
 
+	traceprintf ("\nDRAM allocated size: %lu MBytes\n\n",
+		(unsigned long) (_cache_run_list_row) * _cache_run_list_col * _row_size / 1024 /1024);
+
 	_sort_index = 0;
 	_last_consumed = 0;
 
@@ -53,7 +56,7 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 
 SortIterator::~SortIterator ()
 {
-	TRACE (TRACE_SWITCH);
+	//TRACE (TRACE_SWITCH);
 
 	// release resource
 	for(uint32_t i=0;i<_cache_run_list_row;i++){
@@ -70,14 +73,14 @@ SortIterator::~SortIterator ()
 
 	delete _loser_tree;
 
-	traceprintf ("produced %lu of %lu rows\n",
+	traceprintf ("\nproduced %lu of %lu rows\n\n",
 			(unsigned long) (_produced),
 			(unsigned long) (_consumed));
 } // SortIterator::~SortIterator
 
 bool SortIterator::next ()
 {
-	TRACE (TRACE_SWITCH);
+	//TRACE (TRACE_SWITCH);
 	
 	bool ret = false;
 	// if (_produced >= _consumed)  return false;
@@ -88,11 +91,11 @@ bool SortIterator::next ()
 		_input->GetRecords(&filter_records, &filter_index);
 		_sort_index = (++ _sort_index) % _sort_records.size ();
 		_sort_records [_sort_index] = filter_records->at (*filter_index);
-		TRACE_ITEM (TRACE_SWITCH, _sort_records [_sort_index].fields[INCL], _sort_records [_sort_index].fields[MEM], _sort_records [_sort_index].fields[MGMT]);
+		//TRACE_ITEM (TRACE_SWITCH, _sort_records [_sort_index].fields[INCL], _sort_records [_sort_index].fields[MEM], _sort_records [_sort_index].fields[MGMT]);
 		++ _consumed;
 	}
 	// printf("next:%d ret:%d _sort_index:%d _last_consumed:%d\n", _consumed, ret, _sort_index, _last_consumed);
-	TRACE (TRACE_SWITCH);
+	//TRACE (TRACE_SWITCH);
 	// _sort_records is fulled
 	if (_consumed>_last_consumed && (!ret || (0 == _sort_index))) {
 		// printf("_last_consumed:%d comsumed:%d\n", _last_consumed, _consumed);
@@ -118,7 +121,7 @@ bool SortIterator::next ()
 
 		_produced += add_num - begin_num;
 		_last_consumed = _consumed;
-		TRACE (TRACE_SWITCH);
+		//TRACE (TRACE_SWITCH);
 		// printf("_current_run_index:%d max_element_index:%d test index:%u\n", _current_run_index, m, _sort_index);
 		// for (int i = begin_num; i < add_num; i++) {
 		// 	const auto& item = _sort_records[i];

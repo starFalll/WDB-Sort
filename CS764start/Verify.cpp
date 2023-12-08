@@ -187,7 +187,6 @@ void Verify::create_hash_table(File* file, std::string dir_path, bool& order_sta
 }
 
 void Verify::verify(){
-    std::cout << std::endl << "Start Verifying..." << std::endl;
     // check if the correct ascending order
     bool order_status = true;
     // check if the same set
@@ -263,5 +262,4 @@ void Verify::verify(){
     std::cout<< "Verify Results:" << std::endl;
     std::cout<< "Sort Order: " << order_res << std::endl;
     std::cout<< "Sets of Rows & Values: " << set_res << std::endl;
-
 }
