@@ -28,12 +28,12 @@ int main (int argc, char * argv [])
 				return 1;
 		}
 	}
-	//将标准输出重定向到 out.txt文件
+	//将标准输出重定向到 trace_file_name文件
     freopen(trace_file_name, "w", stdout); 
 
-	traceprintf("Lines of records need generating:%d lines, Every record's length:%d bytes, Trace file name:%s\n\n", row_count, row_size, trace_file_name);
+	traceprintf("Lines of records need generating:%d lines\nEvery record's length:%d bytes\nTrace file name:%s\n\n", row_count, row_size, trace_file_name);
 
-	traceprintf("--------------------Generate data, filter and Sort phase start--------------------\n");
+	traceprintf("--------------------Generate data, filter and sort phase start--------------------\n");
 	//TRACE (TRACE_SWITCH);
 	Plan * const scan_plan = new ScanPlan (row_count,row_size);
 	//Plan * scan_plan = new ScanPlan(10000000);
@@ -63,7 +63,7 @@ int main (int argc, char * argv [])
 	auto later = std::chrono::high_resolution_clock::now();
     auto timestamp_later = std::chrono::time_point_cast<std::chrono::milliseconds>(later);
     long long milliseconds_later = timestamp_later.time_since_epoch().count();
-	traceprintf("---------------Generate data, filter and Sort phase end, time cost: %lld ms---------------\n\n", milliseconds_later - milliseconds_now);
+	traceprintf("---------------Generate data, filter and sort phase end, time cost: %lld ms---------------\n\n", milliseconds_later - milliseconds_now);
 	
 	traceprintf("--------------------External merge sort phase start--------------------\n");
 	//need ssd总组数ssd_group_count 、hdd总组数hdd_group_count、每行大小row_size、每组总行数each_group_row_count、每组一次读多少行batch_size 按顺序输入
@@ -85,7 +85,7 @@ int main (int argc, char * argv [])
 	auto later2 = std::chrono::high_resolution_clock::now();
     auto timestamp_later2 = std::chrono::time_point_cast<std::chrono::milliseconds>(later2);
     long long milliseconds_later2 = timestamp_later2.time_since_epoch().count();
-	traceprintf("---------------verify phase cost time: %lld ms---------------\n", milliseconds_later2 - milliseconds_later1);
+	traceprintf("---------------Verify phase cost time: %lld ms---------------\n", milliseconds_later2 - milliseconds_later1);
 
 	return 0;
 } // main
