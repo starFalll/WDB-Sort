@@ -3,12 +3,12 @@
 Plan::Plan (RowSize row_size)
 {
 	_row_size = row_size;
-	TRACE (TRACE_SWITCH);
+	////TRACE (TRACE_SWITCH);
 } // Plan::Plan
 
 Plan::~Plan ()
 {
-	TRACE (TRACE_SWITCH);
+	////TRACE (TRACE_SWITCH);
 } // Plan::~Plan
 
 RowSize Plan::GetSize() const
@@ -18,7 +18,7 @@ RowSize Plan::GetSize() const
 
 Iterator::Iterator (RowSize row_size) : _row_size(row_size), _count (0) 
 {
-	TRACE (TRACE_SWITCH);
+	////TRACE (TRACE_SWITCH);
 	// allocate 2MB to _records
 	_records.resize (MAX_CPU_CACHE * 2 / sizeof (Item), Item(row_size, '0'));
 	_index = 0;
@@ -33,18 +33,23 @@ Iterator::~Iterator ()
 {
 	delete SSD_INPUT;
 	delete HDD_INPUT;
+	if (SSD_TEMP->getCurByte()!= 0){
+		traceprintf ("\n%lu bytes data are written into SSD.\n%lu bytes data are written into HDD.\n",
+			(unsigned long) (SSD_TEMP->getCurByte()),
+			(unsigned long) (HDD_TEMP->getCurByte()));
+	}
 	delete SSD_TEMP;
 	delete HDD_TEMP;
-	TRACE (TRACE_SWITCH);
+	////TRACE (TRACE_SWITCH);
 } // Iterator::~Iterator
 
 void Iterator::run ()
 {
-	TRACE (TRACE_SWITCH);
+	////TRACE (TRACE_SWITCH);
 
 	while (next ())  ++ _count;
 
-	traceprintf ("entire plan produced %lu rows\n",
+	traceprintf ("\nentire plan produced %lu rows\n\n",
 			(unsigned long) _count);
 } // Iterator::run
 

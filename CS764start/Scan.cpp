@@ -4,32 +4,32 @@
 
 ScanPlan::ScanPlan (RowCount const count, RowSize const row_size) : Plan(row_size), _count (count)
 {
-	TRACE (TRACE_SWITCH);
+	////TRACE (TRACE_SWITCH);
 } // ScanPlan::ScanPlan
 
 ScanPlan::~ScanPlan ()
 {
-	TRACE (TRACE_SWITCH);
+	////TRACE (TRACE_SWITCH);
 } // ScanPlan::~ScanPlan
 
 Iterator * ScanPlan::init () const
 {
-	TRACE (TRACE_SWITCH);
+	////TRACE (TRACE_SWITCH);
 	return new ScanIterator (this);
 } // ScanPlan::init
 
 ScanIterator::ScanIterator (ScanPlan const * const plan) : Iterator(plan->GetSize()), 
 	_plan (plan), _count (0)
 {
-	TRACE (TRACE_SWITCH);
+	////TRACE (TRACE_SWITCH);
 	std::srand (static_cast <unsigned int> (std::time (NULL)));
 
 } // ScanIterator::ScanIterator
 
 ScanIterator::~ScanIterator ()
 {
-	TRACE (TRACE_SWITCH);
-	traceprintf ("produced %lu of %lu rows\n",
+	//TRACE (TRACE_SWITCH);
+	traceprintf ("\nproduced %lu of %lu rows\n\n",
 			(unsigned long) (_count),
 			(unsigned long) (_plan->_count));
 } // ScanIterator::~ScanIterator
@@ -53,7 +53,7 @@ bool ScanIterator::next ()
 	GetRecords(&records, &index);
 	*index = (++ (*index)) % records->size ();
 	records->at (*index) = item;
-	TRACE_ITEM (TRACE_SWITCH, item.fields[INCL], item.fields[MEM], item.fields[MGMT]);
+	//TRACE_ITEM (TRACE_SWITCH, item.fields[INCL], item.fields[MEM], item.fields[MGMT]);
 	++ _count;
 	return true;
 } // ScanIterator::next

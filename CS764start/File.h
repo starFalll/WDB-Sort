@@ -15,6 +15,8 @@ private:
     std::fstream _file_stream;
     // file size
     unsigned long long _max_byte;
+    // current size
+    unsigned long long _cur_byte;
     // block size (one access)
     int32_t _block_size;
     // number of runs
@@ -58,9 +60,11 @@ public:
         return _run_num;
     }
 
+    unsigned long long getCurByte() {
+        return _cur_byte;
+    }
+
     std::vector<int32_t> getGroupLens() {
         return _group_lens; 
     }
-
-    unsigned long long getCurByte();
 };

@@ -21,6 +21,8 @@ private:
     int _row_size;
     // bucket capacity
     int _bucket_capacity;
+    // file size
+    unsigned long long _file_size;
     // bucket size
     int _bucket_num;
     //

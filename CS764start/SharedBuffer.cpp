@@ -59,7 +59,7 @@ void SharedBuffer::consume(File* file){
     
     // convert the number of bytes to the number of elements
     // int32_t item_num = block_size / sizeof(Item); // todo: 获取item的实际大小
-    if(_finish){
+    if(_finish && !isBufferBigEnoughToConsume(block_size)){
         block_size = getValidDataLength();
     }
     int32_t add_size = 0;
@@ -103,16 +103,18 @@ void SharedBuffer::cyclicalConsume(File* SSD, File* HDD){
     // loop until merge finish
     while (!isBufferEmpty()) {
         // sleep 0.1ms
-        std::this_thread::sleep_for(std::chrono::microseconds(100));
+        // std::this_thread::sleep_for(std::chrono::microseconds(100));
         count++;
         // 0.1ms = 100us
         if(!SSD->isFull()){
+            // std::cout << "ssd consume curbyte: " << SSD->_cur_byte << " maxbyte: " << SSD->_max_byte << std::endl;
             // ssd consume
             std::thread ssd_consume([this, &SSD](){this->consume(SSD);});
             // join thread
             ssd_consume.join();
         }
         if(count % 100 == 0){
+            // std::cout << "hdd consume curbyte: " << HDD->_cur_byte << " maxbyte: " << HDD->_max_byte << std::endl;
             // hdd consume
             std::thread hdd_consume([this, &HDD](){this->consume(HDD);});
             count = 0;

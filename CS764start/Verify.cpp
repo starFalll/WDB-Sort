@@ -14,7 +14,7 @@ Bucket::~Bucket() {
 Verify::Verify() {}
 
 Verify::Verify(int row_size, unsigned long long file_size, unsigned long long memory_size) : 
-    _row_size(row_size), _bucket_num(ceil(file_size / (memory_size * 0.5))) {
+    _row_size(row_size), _file_size(file_size), _bucket_num(ceil(file_size / (memory_size * 0.5))) {
 
     _batch_size = (memory_size / 2)/_row_size * _row_size;
     _bucket_capacity = _batch_size / _bucket_num;
@@ -127,7 +127,7 @@ void Verify::create_hash_table(File* file, std::string dir_path, bool& order_sta
     
     // scan input/output in batched, 100M per batch
     char* batch;
-    int batch_num = ceil(file->getCurByte() / double(_batch_size));
+    int batch_num = ceil(_file_size / double(_batch_size));
     // printf("cur:%s total_size:%llu batch_num:%d\n", dir_path.c_str(), file->getCurByte(), batch_num);
     int batch_id = 0;
     while(batch_id < batch_num){
@@ -187,7 +187,6 @@ void Verify::create_hash_table(File* file, std::string dir_path, bool& order_sta
 }
 
 void Verify::verify(){
-    std::cout << std::endl << "Start Verifying..." << std::endl;
     // check if the correct ascending order
     bool order_status = true;
     // check if the same set
@@ -263,5 +262,4 @@ void Verify::verify(){
     std::cout<< "Verify Results:" << std::endl;
     std::cout<< "Sort Order: " << order_res << std::endl;
     std::cout<< "Sets of Rows & Values: " << set_res << std::endl;
-
 }
