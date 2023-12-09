@@ -32,35 +32,35 @@ make
 Where "-c" gives the total number of records, "-s" is the individual record size, and "-o" is the trace of the program run. The size of the input data can be adjusted by changing the command line parameters.
 
 ## Features
-1. [x] Quicksort
-2. [x] Tournament trees [5]
-3. [ ] Replacement selection
-4. [ ] Run size > memory size
-5. [x] Offset-value coding
-6. [x] Variable-size records
-7. [ ] Compression
-8. [ ] Prefix truncation
-9. [x] Minimum count of row & column comparisons [5]
-10. [x] Cache-size mini runs [5]
-11. [x] Device-optimized page sizes [5]
-12. [x] Spilling memory-to-SSD [5]
-13. [x] Spilling from SSD to disk [5]
-14. [x] Graceful degradation
+- [x] 1. Quicksort
+- [x] 2. Tournament trees [5]
+- [ ] 3. Replacement selection
+- [ ] 4. Run size > memory size
+- [x] 5. Offset-value coding [5]
+- [x] 6. Variable-size records
+- [ ] 7. Compression
+- [ ] 8. Prefix truncation
+- [x] 9. Minimum count of row & column comparisons [5]
+- [x] 10. Cache-size mini runs [5]
+- [x] 11. Device-optimized page sizes [5]
+- [x] 12. Spilling memory-to-SSD [5]
+- [x] 13. Spilling from SSD to disk [5]
+- [x] 14. Graceful degradation
 - [x] a. into merging [5]
 - [x] b. beyond one merge step [5]
-15. [x] Optimized merge patterns [5]
-16. [x] Verifying
+- [x] 15. Optimized merge patterns [5]
+- [x] 16. Verifying
 - [x] a. sets of rows & values [5]
 - [x] b. sort order [5]
 
 ## Implemented Techniques & Instructions
-### Quicksort
+### Quicksort [Sort.cpp line 151]
 For a sequence with $N$ distinct key values, the theoretical time complexity limit is $\log_2(N) \approx N*log_2(N/e)$ based on Stirling Formula. Because Quicksort has an average time complexity of $O(n\log_2n)$, which is usually the most efficient sorting algorithm, and its sequential and localized memory references properties work well with a cache, Quicksort is an ideal in-memory sorting algorithm in our project. 
-### Tournament Trees
+### Tournament Trees [LoserTree.cpp]
 The tournament tree is a data structure commonly used in sorting algorithms to quickly find the minimum or maximum value. Its main advantage is the ability to find the smallest or largest element in a faster time and retain information from previous comparisons to efficiently search for subsequent elements. A loser tree is used in this project to maximize the performance of internal and external merges.
-### Offset-Value Coding
+### Offset-Value Coding [LoserTree.cpp & ovc.cpp]
 Offset-value coding is an encoding method for sort keywords, which reduces comparison overhead in sorting by avoiding full-string comparison of keywords.
-### Variable-Size Records
+### Variable-Size Records [Scan.cpp line 62]
 The size of the record is controlled by the input.  
 Additionally, one record has three columns and each column is of type character array to control record size easily:
 | Field Name | Index | Type  |        Size       |
@@ -68,12 +68,12 @@ Additionally, one record has three columns and each column is of type character 
 |    Incl    |   0   | char* | $size_{record}/3$ |
 |    Mem     |   1   | char* | $size_{record}/3$ |
 |    Mgmt    |   2   | char* | $size_{record}-2*size_{record}/3$ |
-### Minimum Count of Row & Column Comparisons
+### Minimum Count of Row & Column Comparisons [LoserTree.cpp & ovc.cpp]
 The Loser-Tree and Offset-value coding work together to minimize the count of comparisons between record rows and columns. The loser tree minimizes the number of comparisons of data rows to $O(M*logN)$ by retaining previous comparison information, which is close to the limit, while offset-value encoding quickly compares two strings through only one ovc comparison, minimizing the number of column comparisons.
-### Cache-Size Mini Runs
+### Cache-Size Mini Runs [Sort.cpp line 36]
 Modern computers have multiple levels of storage structures: Registers, Cache, RAM, Hard Disk (SSD, HDD). Among them, Cache is located between CPU and RAM. It is faster than RAM but has smaller capacity.
 In order to maximize the usage of cpu cache, it is necessary to ensure that all data to be sorted is in the cache, so mini cache size runs (1MB) are generated first at the beginning of sorting.
-### Device-Optimized Page Sizes
+### Device-Optimized Page Sizes [defs.h line 46-49]
 In this project, SSD and HDD have different latencies and bandwidths. According to the calculation formula of data I/O time:
 $$
 I/O\ time = 
@@ -83,11 +83,11 @@ latency*\lceil data/(latency*bandwidth) \rceil, & data > (latency*bandwidth)
 \end{cases}
 $$
 , the optimal device-based I/O page size is calculated (SSD 10KB, HDD 1MB) and applied in the project.  
-### Spilling Memory-to-SSD
+### Spilling Memory-to-SSD [SharedBuffer.cpp line 96]
 Because the data to be sorted is much larger than the size of RAM, after generating memory-size runs, the data will spill into the SSD, freeing up memory space to other data for internal sorting.
-### Spilling from SSD to Disk
+### Spilling from SSD to Disk [SharedBuffer.cpp line 130]
 Because the capacity of the SSD is not enough to accommodate all the data, when the SSD capacity is full, the data will spill to the HDD to ensure that all data will be processed.
-### Graceful Degradation
+### Graceful Degradation [Sort.cpp line 92 & 118 & 181 DiskScan.cpp line 238]
 Graceful degradation means that when an input is just a little too large to be sorted in memory, there is no need to spill the entire input to disk. A better policy is to spill only as much as absolutely necessary so as to make space for extra input records, to minimize the total I/O cost.  
 #### a. into merging
 In the project, it is possible that the data to be sorted is a little larger than the storage capacity (Cache, RAM, SSD), so graceful degradation is necessary.  
@@ -95,7 +95,7 @@ Taking the generation of cache size run as an example, the solution is to use a 
 In addition, taking loser tree merging as an example, when the data to be merged is slightly larger than the memory size, graceful degradation is also implemented using a circular queue. Only the extra data overwrites the memory, while most of the rest of the data remains in memory.
 #### b. beyond one merge step
 This project contains multiple merge steps. In each step, we use the circular queue method mentioned above to achieve graceful degradation.
-### Verifying
+### Verifying [Verify.cpp]
 In the verification phase, the order of output records and the consistency of input and output sets are two aspects that need to be checked. The main challenge is how to load data that is much larger than the memory size into memory for verification. The method used here is partition hashing.
 - Step 0: Calculate the number of buckets (hash value space) based on the size of the memory and input and output files to ensure that a single bucket can be read into the memory.  
 - Step 1: Read the output files into memory in batches.
