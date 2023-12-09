@@ -11,7 +11,7 @@ Our project contains four modules.
 | Verify | Verify the output file to ensure the sort is successful and valid |
 ### Run Generation
 In order to make full use of the CPU Cache, quicksort is first used to generate cache-size mini runs. Until the memory is exhausted, use loser tree merge cache-size runs into memory-size runs and save into SSD. Here we design a shared buffer based on the Producer-Consumer model so that when cache-size run merging produce sorted results, SSD can consume the sorted data simultaneously by asynchronous IO without interrupting cpu, which optimize performance.  
-Based on the premise that the bandwidth of SSD and HDD are the same, we treat HDD as the second SSD and write the SSD and HDD at the same time to double the overall bandwidth of IO.
+Based on the premise that the bandwidth of SSD and HDD are the same and the idea from the paper [AlphaSort: A Cache-Sensitive Parallel External Sort](https://sci-hub.se/10.1007/bf01354877), we treat HDD as the second SSD and write the SSD and HDD at the same time to double the overall bandwidth of IO.
 ### External Merge Sort
 Since there are memory-size runs on SSD and HDD, the first part of each run is read into memory to merge using a loser tree, and each run is continuously refilled until the merge ends. The total fan-in equals to:$size_{input}/size_{memory}$. Sharedbuffer is used again to achieve memory-size runs merging and final result output simultaneously.   
  
