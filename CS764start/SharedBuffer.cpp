@@ -133,7 +133,7 @@ void SharedBuffer::resConsume(File* RES_HDD){
     // loop until merge finish
     while (!isBufferEmpty()) {
         // sleep 10ms
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        // std::this_thread::sleep_for(std::chrono::milliseconds(10));
         // hdd consume
         std::thread hdd_consume([this, &RES_HDD](){this->consume(RES_HDD);});
         // join thread
