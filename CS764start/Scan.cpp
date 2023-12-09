@@ -43,11 +43,6 @@ bool ScanIterator::next ()
 	HDD_INPUT->write(item.fields[0], _row_size / 3);
 	HDD_INPUT->write(item.fields[1], _row_size / 3);
 	HDD_INPUT->write(item.fields[2], _row_size - 2 * (_row_size / 3));
-
-	// // scan too quickly, wait writing
-	// if (_index < _records.size() && !_records[_index].write) {
-
-	// }
 	std::vector<Item> * records;
 	uint32_t * index;
 	GetRecords(&records, &index);

@@ -23,28 +23,6 @@ TreeNode::~TreeNode() {
 
 // override operator
 bool TreeNode::operator < (const TreeNode & other) const {
-	//return _value->fields[COMPARE_FIELD] < other._value->fields[COMPARE_FIELD];
-    // int this_offset = _offset_value_code / 100;
-    // int other_offset = other._offset_value_code / 100;
-
-    // if (this_offset != other_offset) {
-    //     return this_offset < other_offset;
-    // } else {
-    //     // if offset is same，extract offset_Data to compare
-    //     int this_offset= _offset_value_code % 100;
-    //     int other_offset = other._offset_value_code % 100;
-    //     if (this_offset != other_offset) {
-    //         return this_offset < other_offset;
-    //     } else {
-    //         int this_offsert_data = _offset_value_code % 10;
-    //         int other_offsert_data = other._offset_value_code % 10;
-    //         if (this_offsert_data != other_offsert_data) {
-    //             return this_offsert_data < other_offsert_data;
-    //         }
-    //         // if OVC is same，then compare the whole string
-    //         return *_value < *(other._value);
-    //     }
-    // }
     if(_offset_value_code != 0 && other._offset_value_code != 0 && 
          _offset_value_code != other._offset_value_code){
         return _offset_value_code < other._offset_value_code;
@@ -55,31 +33,6 @@ bool TreeNode::operator < (const TreeNode & other) const {
 }
 
 bool TreeNode::operator > (const TreeNode & other) const {
-	//return _value->fields[COMPARE_FIELD] > other._value->fields[COMPARE_FIELD];
-
-    // int this_offset = _offset_value_code / 100;
-    // int other_offset = other._offset_value_code / 100;
-    
-    // // compare offset
-    // if (this_offset != other_offset) {
-    //     return this_offset > other_offset;
-    // } else {
-    //     // if offset is same，extract offset_Data to compare
-    //     int this_offset = _offset_value_code % 100;
-    //     int other_offset = other._offset_value_code % 100;
-                
-    //     if (this_offset != other_offset) {
-    //         return this_offset > other_offset;
-    //     } else {
-    //         int this_offsert_data = _offset_value_code % 10;
-    //         int other_offsert_data = other._offset_value_code % 10;
-    //         if (this_offsert_data != other_offsert_data) {
-    //             return this_offsert_data > other_offsert_data;
-    //         }
-    //         // if OVC is same，then compare the whole string
-    //         return _value->fields[COMPARE_FIELD] > other._value->fields[COMPARE_FIELD];
-    //     }
-    // }
     if(_offset_value_code != 0 && other._offset_value_code != 0 && 
         _offset_value_code != other._offset_value_code){
         return _offset_value_code > other._offset_value_code;
@@ -98,8 +51,6 @@ LoserTree::LoserTree (int32_t leaf_num, RowSize row_size):_leaf_num(leaf_num) {
     }
     _origin_leaf_num = leaf_num;
     _row_size = row_size;
-    // ITEM_MIN = new Item(row_size, '0');
-    // ITEM_MAX = new Item(row_size, '9');
 }
 
 LoserTree::~LoserTree() {
@@ -112,8 +63,6 @@ LoserTree::~LoserTree() {
     }
     delete [] _tree;
 
-    // delete ITEM_MIN;
-    // delete ITEM_MAX;
 }
 
 // check if loser tree is empty (no valid node)
@@ -137,10 +86,6 @@ void LoserTree::push(Item* item, int32_t run_index, int32_t element_index, std::
         
 
     // update node value
-    // if (_tree[_leaf_num + run_index]->_value) {
-    //     delete _tree[_leaf_num + run_index]->_value;
-    //     _tree[_leaf_num + run_index]->_value = nullptr;
-    // }
     _tree[_leaf_num + run_index]->_value = item;
     _tree[_leaf_num + run_index]->_run_index = run_index;
     _tree[_leaf_num + run_index]->_element_index = element_index;

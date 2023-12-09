@@ -23,27 +23,21 @@ void SharedBuffer::produce(const Item& item, bool finish){
     for(int i=0;i<3;i++){
         int32_t str_length = (i==2) ? _row_size-2*(_row_size/3) : _row_size/3;
         if(_buffer_capacity - _rear >= str_length){
-            // strcpy(&(_buffer[_rear]), item.fields[i]);
             memcpy(&(_buffer[_rear]), item.fields[i], str_length);
-            // printf("test1\n");
             _total_read_size += str_length;
         }else{
             int32_t tmp_length = _buffer_capacity - _rear;
             memcpy(&(_buffer[_rear]), item.fields[i], tmp_length);
             _total_read_size += tmp_length;
-            // strcpy(&(_buffer[_rear]), tmp_str.substr(0, tmp_length).c_str());
             std::string tmp_str(item.fields[i]);
             int32_t start_idx = tmp_length;
             tmp_length = str_length - tmp_length;
             memcpy(&(_buffer[0]), tmp_str.substr(start_idx, tmp_length-1).c_str(), tmp_length);
             _total_read_size += tmp_length;
-            // strcpy(&(_buffer[0]), );
         }
         // update rear
         _rear = (_rear + str_length) % _buffer_capacity;
     }
-    // _buffer[_rear] = item;
-    // _rear = (_rear + 1) % _buffer_capacity;
 
     _finish = finish;
 
@@ -58,7 +52,6 @@ void SharedBuffer::consume(File* file){
     _not_empty_cv.wait(lock, [this, block_size]{ return isBufferBigEnoughToConsume(block_size) || _finish; });
     
     // convert the number of bytes to the number of elements
-    // int32_t item_num = block_size / sizeof(Item); // todo: 获取item的实际大小
     if(_finish && !isBufferBigEnoughToConsume(block_size)){
         block_size = getValidDataLength();
     }
@@ -102,19 +95,15 @@ void SharedBuffer::cyclicalConsume(File* SSD, File* HDD){
     HDD->addRunNum();
     // loop until merge finish
     while (!isBufferEmpty()) {
-        // sleep 0.1ms
-        // std::this_thread::sleep_for(std::chrono::microseconds(100));
         count++;
         // 0.1ms = 100us
         if(!SSD->isFull()){
-            // std::cout << "ssd consume curbyte: " << SSD->_cur_byte << " maxbyte: " << SSD->_max_byte << std::endl;
             // ssd consume
             std::thread ssd_consume([this, &SSD](){this->consume(SSD);});
             // join thread
             ssd_consume.join();
         }
         if(count % 100 == 0){
-            // std::cout << "hdd consume curbyte: " << HDD->_cur_byte << " maxbyte: " << HDD->_max_byte << std::endl;
             // hdd consume
             std::thread hdd_consume([this, &HDD](){this->consume(HDD);});
             count = 0;
@@ -122,8 +111,6 @@ void SharedBuffer::cyclicalConsume(File* SSD, File* HDD){
             hdd_consume.join();
         }
     }
-    // traceprintf ("SharedBuffer read %llu write %lu\n", _total_read_size,
-	// 		(unsigned long) (_total_write_size));
 }
 
 // only HDD
@@ -132,8 +119,6 @@ void SharedBuffer::resConsume(File* RES_HDD){
     RES_HDD->addRunNum();
     // loop until merge finish
     while (!isBufferEmpty()) {
-        // sleep 10ms
-        // std::this_thread::sleep_for(std::chrono::milliseconds(10));
         // hdd consume
         std::thread hdd_consume([this, &RES_HDD](){this->consume(RES_HDD);});
         // join thread
@@ -147,12 +132,10 @@ bool SharedBuffer::isBufferEmpty(){
 
 bool SharedBuffer::isBufferFull(){
     return getAvailableSpace() <= _row_size;
-    // todo: 判断状态数组
 }
 
 bool SharedBuffer::isBufferBigEnoughToConsume(int32_t length){
     return getValidDataLength() >= length;
-    // todo：判断状态数组
 }
 
 int32_t SharedBuffer::getValidDataLength(){

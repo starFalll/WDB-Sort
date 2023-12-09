@@ -7,7 +7,6 @@ compare: 3461
 403: 3@0
 */
 uint32_t CalculateOffsetValueCode(const char* winner, const char* loser) {
-    //TODO: check if string have same length
     std::string base(winner);
     std::string compare(loser);
     // check the max of two string length

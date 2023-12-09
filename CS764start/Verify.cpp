@@ -81,11 +81,9 @@ void Verify::write_bucket(char* data, int length, int bucket_id, std::string dir
         }
     }
 
-    // std::cout << "bucket id: "<< bucket_id << " bucket data: " << std::string(data, length) << std::endl;
     // open file
     std::fstream bucket_file;
     bucket_file.open(dir_path+file_name, std::ios::out | std::ios::in | std::ios::app | std::ios::binary);
-    // printf("write bucket dir_path:%s bucket_id:%d len:%d\n", dir_path.c_str(), bucket_id, length);
     // write data
     bucket_file.write(data, length);
     // close file
@@ -128,12 +126,10 @@ void Verify::create_hash_table(File* file, std::string dir_path, bool& order_sta
     // scan input/output in batched, 100M per batch
     char* batch;
     int batch_num = ceil(_file_size / double(_batch_size));
-    // printf("cur:%s total_size:%llu batch_num:%d\n", dir_path.c_str(), file->getCurByte(), batch_num);
     int batch_id = 0;
     while(batch_id < batch_num){
         int32_t read_size = 0;
         batch = file->read((uint64_t)batch_id * (uint64_t)_batch_size, _batch_size, &read_size);
-        // printf("bucket:%d read_size:%d\n", batch_id, read_size);
         // traversal records in batch
         batch_str = std::string(batch, read_size);
         delete [] batch;

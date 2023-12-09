@@ -49,11 +49,7 @@ int main (int argc, char * argv [])
 	auto ssd_group_lens = it->SSD_TEMP->getGroupLens();
 	auto hdd_group_lens = it->HDD_TEMP->getGroupLens();
 	std::vector<int> real_hdd_group_lens;
-	// for (int i = 0; i < ssd_group_lens.size(); i++) {
-	// 	std::cout<<"ssd group:"<<i+1 <<" size:" << ssd_group_lens[i]<<std::endl;
-	// }
 	for (int i = 0; i < hdd_group_lens.size(); i++) {
-		// std::cout<<"hdd group:"<<i+1 <<" size:" << hdd_group_lens[i]<<std::endl;
 		if (hdd_group_lens[i] > 0) {
 			real_hdd_group_lens.push_back(hdd_group_lens[i]);
 		}
