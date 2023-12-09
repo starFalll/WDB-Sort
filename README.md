@@ -10,10 +10,10 @@ Our project contains four modules.
 | Sort | External sort the input records, which is divided into Run Generation and External Merge Sort two parts |
 | Verify | Verify the output file to ensure the sort is successful and valid |
 ### Run Generation
-In order to make full use of the CPU Cache, quicksort is first used to generate cache-size mini runs. Until the memory is exhausted, use loser tree merge cache-size runs into memory-size runs and save into SSD. Here we design a shared buffer based on the Producer-Consumer model so that when cache-size run merging produce sorted results, SSD can consume the sorted data simultaneously by asynchronous IO without interrupting cpu, which optimize performance.  
-Based on the premise that the bandwidth of SSD and HDD are the same and the idea from the paper [AlphaSort: A Cache-Sensitive Parallel External Sort](https://sci-hub.se/10.1007/bf01354877), we treat HDD as the second SSD and write the SSD and HDD at the same time to double the overall bandwidth of IO.
+In order to make full use of the CPU Cache, quicksort is first used to generate cache-size mini runs. Until the memory is exhausted, use the loser tree to merge cache-size runs into memory-size runs and save them into SSD. Here we design a shared buffer based on the Producer-Consumer model so that when cache-size run merging produces sorted results, SSD can consume the sorted data simultaneously by asynchronous IO without interrupting the CPU, which optimizes performance.  
+Based on the premise that the bandwidth of SSD and HDD are the same and the idea from the paper [AlphaSort: A Cache-Sensitive Parallel External Sort](https://sci-hub.se/10.1007/bf01354877), we treat HDD as an extension of SSD, that is the second SSD, and write the SSD and HDD at the same time to double the overall bandwidth of IO.
 ### External Merge Sort
-Since there are memory-size runs on SSD and HDD, the first part of each run is read into memory to merge using a loser tree, and each run is continuously refilled until the merge ends. The total fan-in equals to:$size_{input}/size_{memory}$. Sharedbuffer is used again to achieve memory-size runs merging and final result output simultaneously.   
+Since there are memory-size runs on SSD and HDD, the first part of each run is read into memory to merge using a loser tree, and each run is continuously refilled until the merge ends. The total fan-in equals to: $size_{input}/size_{memory}$ . Sharedbuffer is used again to achieve memory-size runs merging and final result output simultaneously.   
  
 
 ## Run
@@ -71,17 +71,17 @@ Additionally, one record has three columns and each column is of type character 
 ### Minimum Count of Row & Column Comparisons [LoserTree.cpp & ovc.cpp]
 The Loser-Tree and Offset-value coding work together to minimize the count of comparisons between record rows and columns. The loser tree minimizes the number of comparisons of data rows to $O(M*logN)$ by retaining previous comparison information, which is close to the limit, while offset-value encoding quickly compares two strings through only one ovc comparison, minimizing the number of column comparisons.
 ### Cache-Size Mini Runs [Sort.cpp line 36]
-Modern computers have multiple levels of storage structures: Registers, Cache, RAM, Hard Disk (SSD, HDD). Among them, Cache is located between CPU and RAM. It is faster than RAM but has smaller capacity.
-In order to maximize the usage of cpu cache, it is necessary to ensure that all data to be sorted is in the cache, so mini cache size runs (1MB) are generated first at the beginning of sorting.
+Modern computers have multiple levels of storage structures: Registers, Cache, RAM, and Hard Disk (SSD, HDD). Among them, the Cache is located between the CPU and RAM. It is faster than RAM but has a smaller capacity.
+In order to maximize the usage of CPU cache, it is necessary to ensure that all data to be sorted is in the cache, so mini cache size runs (1MB) are generated first at the beginning of sorting.
 ### Device-Optimized Page Sizes [defs.h line 46-49]
-In this project, SSD and HDD have different latencies and bandwidths. According to the calculation formula of data I/O time:
+In this project, SSD and HDD have different latencies and bandwidths. According to the calculation formula of data I/O time:  
 $$
 I/O\ time = 
 \begin{cases} 
 latency, & data \leq (latency*bandwidth) \\
 latency*\lceil data/(latency*bandwidth) \rceil, & data > (latency*bandwidth)
 \end{cases}
-$$
+$$  
 , the optimal device-based I/O page size is calculated (SSD 10KB, HDD 1MB) and applied in the project.  
 ### Spilling Memory-to-SSD [SharedBuffer.cpp line 96]
 Because the data to be sorted is much larger than the size of RAM, after generating memory-size runs, the data will spill into the SSD, freeing up memory space to other data for internal sorting.
@@ -99,13 +99,13 @@ This project contains multiple merge steps. In each step, we use the circular qu
 In the verification phase, the order of output records and the consistency of input and output sets are two aspects that need to be checked. The main challenge is how to load data that is much larger than the memory size into memory for verification. The method used here is partition hashing.
 - Step 0: Calculate the number of buckets (hash value space) based on the size of the memory and input and output files to ensure that a single bucket can be read into the memory.  
 - Step 1: Read the output files into memory in batches.
-- Step 2: Hash every record in current batch of data, distribute the records into different buckets based on the hash results, and flush the bucket to the disk at last.
+- Step 2: Hash every record in the current batch of data, distribute the records into different buckets based on the hash results, and flush the bucket to the disk at last.
 - Step 3: Repeat steps 1 and 2 until the whole output file is processed. Get the hash result (bucket on disk) of the output file.
 - Step 4: Do step 1,2,3 for the input file. Get the hash bucket result of the input file.
 #### a. sets of rows & values
 Load the two bucket files with the same hash value of the input file and the output file into the memory, and determine whether the data on both sides match. Because the hash values are the same, they should correspond to the same block of original data. If there is a data mismatch, it means that the output is inconsistent with the input.
 #### b. sort order
-The verification of order can be done during scanning of the output file. Just use a variable to store the previous record and determine whether the current variable is not less than the previous variable.
+The verification of the order can be done during scanning of the output file. Just use a variable to store the previous record and determine whether the current variable is not less than the previous variable.
 
 ### Group Members & Contributions
 | Name | StudentId | Contributions |
