@@ -29,7 +29,7 @@ int main (int argc, char * argv [])
 		}
 	}
 	//将标准输出重定向到 trace_file_name文件
-    freopen(trace_file_name, "w", stdout); 
+    FILE* fp = freopen(trace_file_name, "w", stdout); 
 
 	traceprintf("Lines of records need generating:%d lines\nEvery record's length:%d bytes\nTrace file name:%s\n\n", row_count, row_size, trace_file_name);
 
@@ -86,6 +86,6 @@ int main (int argc, char * argv [])
     auto timestamp_later2 = std::chrono::time_point_cast<std::chrono::milliseconds>(later2);
     long long milliseconds_later2 = timestamp_later2.time_since_epoch().count();
 	traceprintf("---------------Verify phase cost time: %lld ms---------------\n", milliseconds_later2 - milliseconds_later1);
-
+	fclose(fp);
 	return 0;
 } // main
