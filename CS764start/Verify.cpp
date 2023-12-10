@@ -255,7 +255,21 @@ void Verify::verify(){
 
     std::string order_res = order_status ? "True" : "False";
     std::string set_res = set_status ? "True" : "False";
-    std::cout<< "Verify Results:" << std::endl;
-    std::cout<< "Sort Order: " << order_res << std::endl;
-    std::cout<< "Sets of Rows & Values: " << set_res << std::endl;
+
+	printf (
+	"||---------------------[Hash Table Status]----------------------||\n"
+	"||%-25s|   %33d||\n"
+    "||%-25s|   %33d||\n"
+	"||------------------------Verify Results------------------------||\n"
+	"||%-50s| %10s||\n"
+	"||%-50s| %10s||\n",
+	"Number of input buckets", _bucket_num,
+    "Number of output buckets", _bucket_num,
+    "Is output file ordered?", order_res.c_str(),
+    "Are records in input match with output?",set_res.c_str());
+    
+
+    // std::cout<< "Verify Results:" << std::endl;
+    // std::cout<< "Sort Order: " << order_res << std::endl;
+    // std::cout<< "Sets of Rows & Values: " << set_res << std::endl;
 }

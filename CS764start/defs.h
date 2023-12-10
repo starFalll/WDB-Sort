@@ -45,8 +45,16 @@ typedef uint32_t RowSize;
 // SSD Block per access
 #define SSD_BLOCK (int32_t) 10 * 1024
 
+#define SSD_LATENCY (float) 0.1
+
+#define SSD_BANDWIDTH (unsigned long) 100*1024*1024
+
 // HDD Block per access
 #define HDD_BLOCK (int32_t) 1 * 1024 * 1024
+
+#define HDD_LATENCY (float) 10.0
+
+#define HDD_BANDWIDTH (unsigned long) 100*1024*1024
 
 // CPU cache 1 MB
 #define MAX_CPU_CACHE (uint32_t) 1024 * 1024

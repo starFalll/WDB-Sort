@@ -42,9 +42,6 @@ SortIterator::SortIterator (SortPlan const * const plan) :
 		memset(_cache_run_list[i], 0, sizeof(Item*) * _cache_run_list_col);
 	}
 
-	traceprintf ("\nDRAM allocated size: %lu MBytes\n\n",
-		(unsigned long) (_cache_run_list_row) * _cache_run_list_col * _row_size / 1024 /1024);
-
 	_sort_index = 0;
 	_last_consumed = 0;
 
@@ -71,9 +68,12 @@ SortIterator::~SortIterator ()
 
 	delete _loser_tree;
 
-	traceprintf ("\nproduced %lu of %lu rows\n\n",
-			(unsigned long) (_produced),
-			(unsigned long) (_consumed));
+	printf ("||------------------------In-memory Sort------------------------||\n"
+		"||%-25s| %12lu of%12lu Records||\n",
+		"Records sorted",(unsigned long) (_produced),(unsigned long) (_consumed));
+	// traceprintf ("\nproduced %lu of %lu rows\n\n",
+	// 		(unsigned long) (_produced),
+	// 		(unsigned long) (_consumed));
 } // SortIterator::~SortIterator
 
 bool SortIterator::next ()

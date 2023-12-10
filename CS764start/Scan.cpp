@@ -29,9 +29,9 @@ ScanIterator::ScanIterator (ScanPlan const * const plan) : Iterator(plan->GetSiz
 ScanIterator::~ScanIterator ()
 {
 	//TRACE (TRACE_SWITCH);
-	traceprintf ("\nproduced %lu of %lu rows\n\n",
-			(unsigned long) (_count),
-			(unsigned long) (_plan->_count));
+	printf ("||---------------------Generate & Scan Data---------------------||\n"
+		"||%-25s| %12lu of%12lu Records||\n",
+		"Records scanned",(unsigned long) (_count),(unsigned long) (_plan->_count));
 } // ScanIterator::~ScanIterator
 
 bool ScanIterator::next ()
