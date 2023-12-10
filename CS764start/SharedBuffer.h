@@ -21,7 +21,6 @@ private:
     bool _finish;
     //
     RowSize _row_size;
-    //todo：添加状态数组
 
 public:
     SharedBuffer(int32_t buffer_capacity, RowSize row_size);

@@ -40,10 +40,40 @@ DiskScan::DiskScan(std::vector<int>& ssd_each_group_row, std::vector<int>& hdd_e
 
 DiskScan::~DiskScan ()
 {
+	unsigned long ssd_size = 0;
+	for(int i =0 ;i <_ssd_each_group_row.size();i++){
+		ssd_size += (unsigned long)_ssd_each_group_row[i]*_row_size;
+	}
+	unsigned long hdd_size = 0;
+	for(int i =0 ;i <_hdd_each_group_row.size();i++){
+		hdd_size += (unsigned long)_hdd_each_group_row[i]*_row_size;
+	}
 
-	traceprintf ("\n%lu bytes data are written into output HDD.\n",
-	(unsigned long) (RES_HDD->getCurByte()));
-	////TRACE (TRACE_SWITCH);
+	printf (
+	"||-----------------------[Memory Status]------------------------||\n"
+	"||%-25s|%33lu MB||\n"
+	"||----------------------[Read Disk Status]----------------------||\n"
+	"||%-25s| %15lu Bytes ≈%9lu MB||\n"
+	"||%-25s|                           %6.2f ms||\n"
+	"||%-25s|                      %9lu MB/s||\n"
+	"||                         |                                    ||\n"
+	"||%-25s| %15lu Bytes ≈%9lu MB||\n"
+	"||%-25s|                           %6.2f ms||\n"
+	"||%-25s|                      %9lu MB/s||\n"
+	"||---------------------[Write Disk Status]----------------------||\n"
+	"||%-25s| %15lu Bytes ≈%9lu MB||\n"
+	"||%-25s|                           %6.2f ms||\n"
+	"||%-25s|                      %9lu MB/s||\n",
+	"DRAM allocated size", (unsigned long)MAX_DRAM /1024 /1024,
+	"Data read from SSD",ssd_size,(unsigned long) (ssd_size/(double)1000/1000),
+	"SSD read latency",SSD_LATENCY,
+	"SSD read bandwidth",SSD_BANDWIDTH/1024/1024,
+	"Data read from HDD",(unsigned long) (hdd_size),(unsigned long) (hdd_size/(double)1000/1000),
+	"HDD read latency",HDD_LATENCY,
+	"HDD read bandwidth",HDD_BANDWIDTH/1024/1024,
+	"Data written into HDD",(unsigned long) (RES_HDD->getCurByte()),(unsigned long) (RES_HDD->getCurByte()/(double)1000/1000),
+	"HDD write latency",HDD_LATENCY,
+	"HDD write bandwidth",HDD_BANDWIDTH/1024/1024);
 
     // release resource
 	for(uint32_t i=0;i<_disk_run_list_row;i++){

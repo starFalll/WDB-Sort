@@ -28,12 +28,19 @@ int main (int argc, char * argv [])
 				return 1;
 		}
 	}
-	//将标准输出重定向到 trace_file_name文件
+	//redirect stdout to trace_file_name
     FILE* fp = freopen(trace_file_name, "w", stdout); 
 
-	traceprintf("Lines of records need generating:%d lines\nEvery record's length:%d bytes\nTrace file name:%s\n\n", row_count, row_size, trace_file_name);
+	printf(
+	"\n|------------------------Input Arguments-------------------------|\n"
+	"|%-26s|%29d Records|\n"
+	"|%-26s|%31d Bytes|\n"
+	"|%-26s|%37s|\n"
+	"|----------------------------------------------------------------|\n\n\n",
+	"Records need generating", row_count,"Every record's length", row_size,"Trace file name", trace_file_name);
 
-	traceprintf("--------------------Generate data, filter and sort phase start--------------------\n");
+	printf("|----------------------------------------------------------------|\n");
+	printf("|Scan & Filter & In-memory sort phase                            |\n");
 	//TRACE (TRACE_SWITCH);
 	Plan * const scan_plan = new ScanPlan (row_count,row_size);
 	//Plan * scan_plan = new ScanPlan(10000000);
@@ -59,10 +66,16 @@ int main (int argc, char * argv [])
 	auto later = std::chrono::high_resolution_clock::now();
     auto timestamp_later = std::chrono::time_point_cast<std::chrono::milliseconds>(later);
     long long milliseconds_later = timestamp_later.time_since_epoch().count();
-	traceprintf("---------------Generate data, filter and sort phase end, time cost: %lld ms---------------\n\n", milliseconds_later - milliseconds_now);
+	printf(
+	"||--------------------------------------------------------------||\n"
+	"|Scan & Filter & In-memory sort phase end                        |\n"
+	"|%-19s%10lld ms                                |\n"
+	"|----------------------------------------------------------------|\n\n\n",
+	"Total time cost:",milliseconds_later - milliseconds_now);
 	
-	traceprintf("--------------------External merge sort phase start--------------------\n");
-	//need ssd总组数ssd_group_count 、hdd总组数hdd_group_count、每行大小row_size、每组总行数each_group_row_count、每组一次读多少行batch_size 按顺序输入
+	printf("|----------------------------------------------------------------|\n");
+	printf("|External merge sort phase                                       |\n");
+	//need ssd_group_count 、hdd_group_count、row_size、each_group_row_count、batch_size
 	DiskScan * d_scan = new DiskScan(ssd_group_lens, real_hdd_group_lens, row_size, 300);
 	d_scan->ReadFromDisk();
 	d_scan->MultiwayMerge();
@@ -71,9 +84,16 @@ int main (int argc, char * argv [])
 	auto later1 = std::chrono::high_resolution_clock::now();
     auto timestamp_later1 = std::chrono::time_point_cast<std::chrono::milliseconds>(later1);
     long long milliseconds_later1 = timestamp_later1.time_since_epoch().count();
-	traceprintf("---------------External merge sort phase cost time: %lld ms---------------\n\n", milliseconds_later1 - milliseconds_later);
+	printf(
+	"||--------------------------------------------------------------||\n"
+	"|External merge sort phase end                                   |\n"
+	"|%-19s%10lld ms                                |\n"
+	"|----------------------------------------------------------------|\n\n\n",
+	"Total time cost:",milliseconds_later1 - milliseconds_later);
+	// traceprintf("---------------External merge sort phase cost time: %lld ms------------------\n\n", milliseconds_later1 - milliseconds_later);
 
-	traceprintf("--------------------Verify phase start--------------------\n");
+	printf("|----------------------------------------------------------------|\n");
+	printf("|Result Verify phase                                             |\n");
 	Verify* v = new Verify(row_size, (unsigned long long)row_count*(unsigned long long)row_size, MAX_DRAM);
 	v->verify();
 	delete v;
@@ -81,7 +101,14 @@ int main (int argc, char * argv [])
 	auto later2 = std::chrono::high_resolution_clock::now();
     auto timestamp_later2 = std::chrono::time_point_cast<std::chrono::milliseconds>(later2);
     long long milliseconds_later2 = timestamp_later2.time_since_epoch().count();
-	traceprintf("---------------Verify phase cost time: %lld ms---------------\n", milliseconds_later2 - milliseconds_later1);
+	printf(
+	"||--------------------------------------------------------------||\n"
+	"|Result Verify phase end                                         |\n"
+	"|%-19s%10lld ms                                |\n"
+	"|----------------------------------------------------------------|\n\n\n",
+	"Total time cost:",milliseconds_later2 - milliseconds_later1);
+	
+	// traceprintf("---------------Verify phase cost time: %lld ms------------------\n", milliseconds_later2 - milliseconds_later1);
 	fclose(fp);
 	return 0;
 } // main

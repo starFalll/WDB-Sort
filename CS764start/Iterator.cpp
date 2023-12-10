@@ -3,12 +3,10 @@
 Plan::Plan (RowSize row_size)
 {
 	_row_size = row_size;
-	////TRACE (TRACE_SWITCH);
 } // Plan::Plan
 
 Plan::~Plan ()
 {
-	////TRACE (TRACE_SWITCH);
 } // Plan::~Plan
 
 RowSize Plan::GetSize() const
@@ -18,7 +16,6 @@ RowSize Plan::GetSize() const
 
 Iterator::Iterator (RowSize row_size) : _row_size(row_size), _count (0) 
 {
-	////TRACE (TRACE_SWITCH);
 	// allocate 2MB to _records
 	_records.resize (MAX_CPU_CACHE * 2 / sizeof (Item), Item(row_size, '0'));
 	_index = 0;
@@ -34,9 +31,26 @@ Iterator::~Iterator ()
 	delete SSD_INPUT;
 	delete HDD_INPUT;
 	if (SSD_TEMP->getCurByte()!= 0){
-		traceprintf ("\n%lu bytes data are written into SSD.\n%lu bytes data are written into HDD.\n",
-			(unsigned long) (SSD_TEMP->getCurByte()),
-			(unsigned long) (HDD_TEMP->getCurByte()));
+		printf(
+		"||--------------------[CPU & Memory Status]---------------------||\n"
+		"||%-25s|%33lu MB||\n"
+		"||%-25s|%33lu MB||\n",
+		"CPU Cache used size", (unsigned long)MAX_CPU_CACHE /1024 /1024, "DRAM used size", (unsigned long)MAX_DRAM /1024 /1024);
+		printf (
+		"||------------------------[Disk Status]-------------------------||\n"
+		"||%-25s| %15lu Bytes ≈%9lu MB||\n"
+		"||%-25s|                           %6.2f ms||\n"
+		"||%-25s|                      %9lu MB/s||\n"
+		"||                         |                                    ||\n"
+		"||%-25s| %15lu Bytes ≈%9lu MB||\n"
+		"||%-25s|                           %6.2f ms||\n"
+		"||%-25s|                      %9lu MB/s||\n",
+		"Data written into SSD",(unsigned long) (SSD_TEMP->getCurByte()),(unsigned long) (SSD_TEMP->getCurByte()/(double)1000/1000),
+		"SSD write latency",SSD_LATENCY,
+		"SSD write bandwidth",SSD_BANDWIDTH/1024/1024,
+		"Data written into HDD",(unsigned long) (HDD_TEMP->getCurByte()),(unsigned long) (HDD_TEMP->getCurByte()/(double)1000/1000),
+		"HDD write latency",HDD_LATENCY,
+		"HDD write bandwidth",HDD_BANDWIDTH/1024/1024);
 	}
 	delete SSD_TEMP;
 	delete HDD_TEMP;
@@ -49,8 +63,8 @@ void Iterator::run ()
 
 	while (next ())  ++ _count;
 
-	traceprintf ("\nentire plan produced %lu rows\n\n",
-			(unsigned long) _count);
+	// printf ("\n|%-35s|%15lu lines|\n"
+	// "Entire plan produced",(unsigned long) _count);
 } // Iterator::run
 
 void Iterator::GetRecords(std::vector<Item> ** records, uint32_t ** index)

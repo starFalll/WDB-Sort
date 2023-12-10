@@ -7,7 +7,8 @@ Our project contains four modules.
 | -- | -- |
 | Scan | Generate the input records, save them in the input directory and scan them |
 | Filter (Not required but still implemented)| Add filter conditions to generated data to select specific data |
-| Sort | External sort the input records, which is divided into Run Generation and External Merge Sort two parts |
+| In-memory Sort | Quick sort the input records, and write these sorted data groups into memory, then read data from memory in groups, and use loser tree to reorder these groups of data into a large ordered array. which is divided into Run Generation and spill datas to SSD and HDD in batches |
+| External Merge Sort | From the file generated in the previous step, read the groups of data into memory and use the loser tree to sort, and write the final sorted results back to HDD|
 | Verify | Verify the output file to ensure the sort is successful and valid |
 ### Run Generation
 In order to make full use of the CPU Cache, quicksort is first used to generate cache-size mini runs. Until the memory is exhausted, use the loser tree to merge cache-size runs into memory-size runs and save them into SSD. Here we design a shared buffer based on the Producer-Consumer model so that when cache-size run merging produces sorted results, SSD can consume the sorted data simultaneously by asynchronous IO without interrupting the CPU, which optimizes performance.  
@@ -88,11 +89,11 @@ Because the data to be sorted is much larger than the size of RAM, after generat
 ### Spilling from SSD to Disk [SharedBuffer.cpp line 130]
 Because the capacity of the SSD is not enough to accommodate all the data, when the SSD capacity is full, the data will spill to the HDD to ensure that all data will be processed.
 ### Graceful Degradation [Sort.cpp line 92 & 118 & 181 DiskScan.cpp line 238]
-Graceful degradation means that when an input is just a little too large to be sorted in memory, there is no need to spill the entire input to disk. A better policy is to spill only as much as absolutely necessary so as to make space for extra input records, to minimize the total I/O cost.  
+Graceful degradation means that when an input is just a little too large to be sorted in memory, there is no need to spill the entire input to disk. A better policy is to spill only as much as absolutely necessary so as to make space for extra input records, to minimize the total I/O cost. 
 #### a. into merging
 In the project, it is possible that the data to be sorted is a little larger than the storage capacity (Cache, RAM, SSD), so graceful degradation is necessary.  
 Taking the generation of cache size run as an example, the solution is to use a fixed-size circular queue. When encountering data slightly larger than the queue length, the excess data will only cover part of the data at the head of the queue, which means that only a small amount of data spills, and the remaining data remains in the queue, meeting the conditions for graceful degradation.  
-In addition, taking loser tree merging as an example, when the data to be merged is slightly larger than the memory size, graceful degradation is also implemented using a circular queue. Only the extra data overwrites the memory, while most of the rest of the data remains in memory.
+In addition, taking loser tree merging as an example, when the data to be merged is slightly larger than the memory size, graceful degradation is also implemented using a circular queue. Only the extra data overwrites the memory, while most of the rest of the data remains in memory. In our project, when the in-memory data group corresponding to a leaf node is exhausted, we immediately read the next batch of data from the corresponding group in the disk instead of waiting for all the data in the memory to be consumed. This method takes advantage of graceful degredation.
 #### b. beyond one merge step
 This project contains multiple merge steps. In each step, we use the circular queue method mentioned above to achieve graceful degradation.
 ### Verifying [Verify.cpp]
@@ -110,7 +111,7 @@ The verification of the order can be done during scanning of the output file. Ju
 ### Group Members & Contributions
 | Name | StudentId | Contributions |
 |---|---|---|
-| Kefan Zheng || Tournament trees, Shared Buffer to spilling, Verifying |
-| Tianyu Huang || DiskScan file to write records back to HDD |
-| Chuan Tian || Offset-value coding |
-| Ethan Fang || In-memory Scan-Filter-Sort |
+| Kefan Zheng |9086175008| Tournament trees, Shared Buffer to spill data from memory to disks, Verifying, Readme|
+| Tianyu Huang |9082483687| Scan SSD&HDD and do external merge sort, Write data back to HDD, Trace|
+| Chuan Tian |9084964825| Offset-value coding, Readme|
+| Ethan Fang |9085844158| Base structure, In-memory Scan&Filter&Quick Sort, Whole process debug |

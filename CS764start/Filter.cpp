@@ -76,9 +76,12 @@ FilterIterator::~FilterIterator ()
 
 	delete _input;
 
-	traceprintf ("\nproduced %lu of %lu rows\n\n",
-			(unsigned long) (_produced),
-			(unsigned long) (_consumed));
+	printf ("||-------------------------Filter Data--------------------------||\n"
+		"||%-25s| %12lu of%12lu Records||\n",
+		"Records filtered",(unsigned long) (_produced),(unsigned long) (_consumed));
+	// traceprintf ("\nproduced %lu of %lu rows\n\n",
+	// 		(unsigned long) (_produced),
+	// 		(unsigned long) (_consumed));
 } // FilterIterator::~FilterIterator
 
 bool FilterIterator::next ()
