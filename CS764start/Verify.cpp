@@ -269,7 +269,4 @@ void Verify::verify(){
     "Are records in input match with output?",set_res.c_str());
     
 
-    // std::cout<< "Verify Results:" << std::endl;
-    // std::cout<< "Sort Order: " << order_res << std::endl;
-    // std::cout<< "Sets of Rows & Values: " << set_res << std::endl;
 }

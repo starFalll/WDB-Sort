@@ -74,9 +74,6 @@ DiskScan::~DiskScan ()
 	"Data written into HDD",(unsigned long) (RES_HDD->getCurByte()),(unsigned long) (RES_HDD->getCurByte()/(double)1000/1000),
 	"HDD write latency",HDD_LATENCY,
 	"HDD write bandwidth",HDD_BANDWIDTH/1024/1024);
-	// traceprintf ("\n%lu bytes data are written into output HDD.\n",
-	// (unsigned long) (RES_HDD->getCurByte()));
-	////TRACE (TRACE_SWITCH);
 
     // release resource
 	for(uint32_t i=0;i<_disk_run_list_row;i++){

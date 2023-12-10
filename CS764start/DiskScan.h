@@ -25,11 +25,10 @@ private:
     uint32_t _current_run_index;
     Item*** _disk_run_list;
 
-    //每一组数据的总行数
+    //each group's rows
     std::vector<int>& _ssd_each_group_row;
     std::vector<int>& _hdd_each_group_row;
 
-    //数组用来存每个组里的元素个数
     uint32_t* _each_group_col;
 
     //group offset

@@ -4,12 +4,10 @@
 
 ScanPlan::ScanPlan (RowCount const count, RowSize const row_size) : Plan(row_size), _count (count)
 {
-	////TRACE (TRACE_SWITCH);
 } // ScanPlan::ScanPlan
 
 ScanPlan::~ScanPlan ()
 {
-	////TRACE (TRACE_SWITCH);
 } // ScanPlan::~ScanPlan
 
 Iterator * ScanPlan::init () const

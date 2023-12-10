@@ -110,7 +110,7 @@ The verification of the order can be done during scanning of the output file. Ju
 ### Group Members & Contributions
 | Name | StudentId | Contributions |
 |---|---|---|
-| Kefan Zheng || Tournament trees, Shared Buffer to spilling, Verifying |
-| Tianyu Huang || DiskScan file to write records back to HDD |
-| Chuan Tian || Offset-value coding |
-| Ethan Fang || In-memory Scan-Filter-Sort |
+| Kefan Zheng || Tournament trees, Shared Buffer to spilling, Verifying, Readme |
+| Tianyu Huang || Scan SSD&HDD and do external merge sort, Write data back to HDD, Trace|
+| Chuan Tian || Offset-value coding, Readme|
+| Ethan Fang || In-memory Scan&Filter&Quick Sort, Whole process debugging |

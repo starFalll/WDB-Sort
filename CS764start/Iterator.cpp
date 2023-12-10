@@ -3,12 +3,10 @@
 Plan::Plan (RowSize row_size)
 {
 	_row_size = row_size;
-	////TRACE (TRACE_SWITCH);
 } // Plan::Plan
 
 Plan::~Plan ()
 {
-	////TRACE (TRACE_SWITCH);
 } // Plan::~Plan
 
 RowSize Plan::GetSize() const
@@ -18,7 +16,6 @@ RowSize Plan::GetSize() const
 
 Iterator::Iterator (RowSize row_size) : _row_size(row_size), _count (0) 
 {
-	////TRACE (TRACE_SWITCH);
 	// allocate 2MB to _records
 	_records.resize (MAX_CPU_CACHE * 2 / sizeof (Item), Item(row_size, '0'));
 	_index = 0;
