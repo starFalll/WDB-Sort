@@ -109,9 +109,9 @@ Load the two bucket files with the same hash value of the input file and the out
 The verification of the order can be done during scanning of the output file. Just use a variable to store the previous record and determine whether the current variable is not less than the previous variable.
 
 ### Group Members & Contributions
-| Name | StudentId | Contributions |
-|---|---|---|
-| Kefan Zheng || Tournament trees, Shared Buffer to spill data from memory to disks, Verifying, Readme|
-| Tianyu Huang || Scan SSD&HDD and do external merge sort, Write data back to HDD, Trace|
-| Chuan Tian || Offset-value coding, Readme|
-| Ethan Fang || Base structure, In-memory Scan&Filter&Quick Sort, Whole process debug |
+| Name | Contributions |
+|---|---|
+| Kefan Zheng | Tournament trees, Shared Buffer to spill data from memory to disks, Verifying, Readme|
+| Tianyu Huang | Scan SSD&HDD and do external merge sort, Write data back to HDD, Trace|
+| Chuan Tian | Offset-value coding, Readme|
+| Ethan Fang | Base structure, In-memory Scan&Filter&Quick Sort, Whole process debug |
