@@ -3,12 +3,10 @@
 
 SortPlan::SortPlan (Plan * const input) : Plan(input->GetSize()), _input (input)
 {
-	//TRACE (TRACE_SWITCH);
 } // SortPlan::SortPlan
 
 SortPlan::~SortPlan ()
 {
-	//TRACE (TRACE_SWITCH);
 	delete _input;
 } // SortPlan::~SortPlan
 
@@ -71,9 +69,6 @@ SortIterator::~SortIterator ()
 	printf ("||------------------------In-memory Sort------------------------||\n"
 		"||%-25s| %12lu of%12lu Records||\n",
 		"Records sorted",(unsigned long) (_produced),(unsigned long) (_consumed));
-	// traceprintf ("\nproduced %lu of %lu rows\n\n",
-	// 		(unsigned long) (_produced),
-	// 		(unsigned long) (_consumed));
 } // SortIterator::~SortIterator
 
 bool SortIterator::next ()
