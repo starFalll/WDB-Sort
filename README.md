@@ -111,7 +111,7 @@ The verification of the order can be done during scanning of the output file. Ju
 ### Group Members & Contributions
 | Name | StudentId | Contributions |
 |---|---|---|
-| Kefan Zheng |9086175008| Tournament trees, Shared Buffer to spill data to disks, Verifying, Readme|
+| Kefan Zheng |9086175008| Tournament trees, Shared Buffer to spill data from memory to disks, Verifying, Readme|
 | Tianyu Huang |9082483687| Scan SSD&HDD and do external merge sort, Write data back to HDD, Trace|
 | Chuan Tian |9084964825| Offset-value coding, Readme|
 | Ethan Fang |9085844158| Base structure, In-memory Scan&Filter&Quick Sort, Whole process debug |
