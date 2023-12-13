@@ -15,7 +15,7 @@ In order to make full use of the CPU Cache, quicksort is first used to generate 
 Based on the premise that the bandwidth of SSD and HDD are the same and the idea from the paper [AlphaSort: A Cache-Sensitive Parallel External Sort](https://sci-hub.se/10.1007/bf01354877), we treat HDD as an extension of SSD, that is the second SSD, and write the SSD and HDD at the same time to double the overall bandwidth of IO.
 ### External Merge Sort
 Since there are memory-size runs on SSD and HDD, the first part of each run is read into memory to merge using a loser tree, and each run is continuously refilled until the merge ends. The total fan-in equals to: $size_{input}/size_{memory}$ . Sharedbuffer is used again to achieve memory-size runs merging and final result output simultaneously.   
- 
+
 
 ## Run
 ### 1. Enter the project folder:
@@ -82,7 +82,7 @@ I/O\ time =
 latency, & data \leq (latency*bandwidth) \\
 latency*\lceil data/(latency*bandwidth) \rceil, & data > (latency*bandwidth)
 \end{cases}
-$$  
+$$
 , the optimal device-based I/O page size is calculated (SSD 10KB, HDD 1MB) and applied in the project.  
 ### Spilling Memory-to-SSD [SharedBuffer.cpp line 96]
 Because the data to be sorted is much larger than the size of RAM, after generating memory-size runs, the data will spill into the SSD, freeing up memory space to other data for internal sorting.
@@ -107,6 +107,80 @@ In the verification phase, the order of output records and the consistency of in
 Load the two bucket files with the same hash value of the input file and the output file into the memory, and determine whether the data on both sides match. Because the hash values are the same, they should correspond to the same block of original data. If there is a data mismatch, it means that the output is inconsistent with the input.
 #### b. sort order
 The verification of the order can be done during scanning of the output file. Just use a variable to store the previous record and determine whether the current variable is not less than the previous variable.
+
+### Test Results
+
+Results of 120G:
+
+```
+
+|------------------------Input Arguments-------------------------|
+|Records need generating   |                    120000000 Records|
+|Every record's length     |                           1000 Bytes|
+|Trace file name           |                120Mx1KB=120GB.result|
+|----------------------------------------------------------------|
+
+
+|----------------------------------------------------------------|
+|Scan & Filter & In-memory sort phase                            |
+||---------------------Generate & Scan Data---------------------||
+||Records scanned          |    120000000 of   120000000 Records||
+||-------------------------Filter Data--------------------------||
+||Records filtered         |    120000000 of   120000000 Records||
+||------------------------In-memory Sort------------------------||
+||Records sorted           |    120000000 of   120000000 Records||
+||--------------------[CPU & Memory Status]---------------------||
+||CPU Cache used size      |                                1 MB||
+||DRAM used size           |                              100 MB||
+||------------------------[Disk Status]-------------------------||
+||Data written into SSD    |     10737420000 Bytes ≈    10737 MB||
+||SSD write latency        |                             0.10 ms||
+||SSD write bandwidth      |                            100 MB/s||
+||                         |                                    ||
+||Data written into HDD    |    109262580000 Bytes ≈   109262 MB||
+||HDD write latency        |                            10.00 ms||
+||HDD write bandwidth      |                            100 MB/s||
+||--------------------------------------------------------------||
+|Scan & Filter & In-memory sort phase end                        |
+|Total time cost:      5387089 ms                                |
+|----------------------------------------------------------------|
+
+
+|----------------------------------------------------------------|
+|External merge sort phase                                       |
+||-----------------------[Memory Status]------------------------||
+||DRAM allocated size      |                              100 MB||
+||----------------------[Read Disk Status]----------------------||
+||Data read from SSD       |     10737420000 Bytes ≈    10737 MB||
+||SSD read latency         |                             0.10 ms||
+||SSD read bandwidth       |                            100 MB/s||
+||                         |                                    ||
+||Data read from HDD       |    109262580000 Bytes ≈   109262 MB||
+||HDD read latency         |                            10.00 ms||
+||HDD read bandwidth       |                            100 MB/s||
+||---------------------[Write Disk Status]----------------------||
+||Data written into HDD    |    120000000000 Bytes ≈   120000 MB||
+||HDD write latency        |                            10.00 ms||
+||HDD write bandwidth      |                            100 MB/s||
+||--------------------------------------------------------------||
+|External merge sort phase end                                   |
+|Total time cost:      4098382 ms                                |
+|----------------------------------------------------------------|
+
+
+|----------------------------------------------------------------|
+|Result Verify phase                                             |
+||---------------------[Hash Table Status]----------------------||
+||Number of input buckets  |                                2289||
+||Number of output buckets |                                2289||
+||------------------------Verify Results------------------------||
+||Is output file ordered?                           |       True||
+||Are records in input match with output?           |       True||
+||--------------------------------------------------------------||
+|Result Verify phase end                                         |
+|Total time cost:     24777976 ms                                |
+|----------------------------------------------------------------|
+```
 
 ### Group Members & Contributions
 | Name | Contributions |
