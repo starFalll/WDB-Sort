@@ -1,4 +1,4 @@
-# CS 764 Project
+# Database Sorting System
 A simple implementation of database sorting system has been implemented, which supports external merge sorting of massive data. The current version of the program is complete and has no bugs.
 
 ## Introduction
