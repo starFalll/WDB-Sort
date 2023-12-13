@@ -1,5 +1,5 @@
 # WDB-Sort
-A simple implementation of database sorting system has been implemented, which supports external merge sorting of massive data. The current version of the program is complete and has no bugs.
+WDB-Sort (Wisc Database Sort), a simple implementation of database sorting system has been implemented, which supports external merge sorting of massive data. The current version of the program is complete and has no bugs.
 
 ## Introduction
 Our project contains four modules.
